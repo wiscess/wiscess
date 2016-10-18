@@ -89,7 +89,7 @@ public class RequestUtils {
 		 * 
 		 * 字段类型包含：String/Integer/Long/Double/Float/Date/及数组格式，如Integer[]
 		 */
-		Map<String, Object> map=new HashMap<>();
+		Map<String, Object> map=new HashMap<String, Object>();
 		for(String p:parameters){
 			//为p增加两个:，用于字符串拆分时确保至少有3个
 			String[] ps=(p+"::").split(":",3);

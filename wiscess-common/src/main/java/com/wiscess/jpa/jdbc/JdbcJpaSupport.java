@@ -148,7 +148,7 @@ public class JdbcJpaSupport {
 			rm=(RowMapper<E>) new ColumnMapRowMapper();
 		}
 		if(params==null){
-			params=new HashMap<>();
+			params=new HashMap<String, Object>();
 		}
 		if (null == pageable) {
 			//没有分页，等同于findList

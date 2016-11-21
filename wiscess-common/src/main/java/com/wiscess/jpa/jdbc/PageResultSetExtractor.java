@@ -27,7 +27,9 @@ public class PageResultSetExtractor<T> implements ResultSetExtractor<List<T>> {
 		rs.setFetchSize(pageable.getPageSize());
 		
 		if(pageable.getOffset()>0){
-			rs.absolute(pageable.getOffset());
+			for (int i = 0; i < pageable.getOffset(); i++) {
+				rs.next();
+			}
 		}
 		List<T> results = (this.pageable.getPageSize() > 0 ? new ArrayList<T>(this.pageable.getPageSize()) : new ArrayList<T>());
 		int rowNum = 0;

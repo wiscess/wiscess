@@ -48,5 +48,4 @@ public class QueryConfigurerAdapter implements CacheClearable {
 	public void clearCache() {
 		init();
 	}
-	
 }

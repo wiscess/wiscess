@@ -47,11 +47,6 @@ public class MyUsernamePasswordAuthenticationFilter extends
 	}
 	protected String obtainUsername(HttpServletRequest request) {
 		String username = super.obtainUsername(request);
-//		try {
-//			username = new String(super.obtainUsername(request).getBytes("gbk"), "utf-8");
-//		} catch (UnsupportedEncodingException e) {
-//			e.printStackTrace();
-//		}
 
 		if (request.getSession() != null || getAllowSessionCreation()) {
 			request.getSession()

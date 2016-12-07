@@ -33,7 +33,7 @@ import com.wiscess.jpa.util.ISqlElement;
 import com.wiscess.query.config.Query;
 
 @Slf4j
-public class JdbcJpaSupport<T> {
+public class JdbcJpaSupport {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 

@@ -127,5 +127,10 @@ security</description>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 			<version>1.4.0.RELEASE</version>
 		</dependency>
+		<dependency>
+			<groupId>com.wiscess</groupId>
+			<artifactId>wiscess-utils</artifactId>
+			<version>1.0</version>
+		</dependency>
 	</dependencies>
 </project>

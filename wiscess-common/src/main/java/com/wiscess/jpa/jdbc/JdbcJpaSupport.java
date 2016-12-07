@@ -2,6 +2,7 @@ package com.wiscess.jpa.jdbc;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,10 +17,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.JdbcUtils;
+import org.springframework.jdbc.support.KeyHolder;
 
 import com.wiscess.common.utils.StringUtil;
 import com.wiscess.jpa.util.DynamicSqlUtil;
@@ -27,7 +33,7 @@ import com.wiscess.jpa.util.ISqlElement;
 import com.wiscess.query.config.Query;
 
 @Slf4j
-public class JdbcJpaSupport {
+public class JdbcJpaSupport<T> {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
@@ -49,56 +55,70 @@ public class JdbcJpaSupport {
 		return rs;
 	}
 
-	public <E> List<E> findList(String sqlName, Map<String, Object> params, RowMapper<E> rm) throws Exception {
+	/**
+	 * 查询List方法
+	 * @param sqlName
+	 * @param params
+	 * @param rm
+	 * @return
+	 * @throws Exception
+	 */
+	@SuppressWarnings("unchecked")
+	public <E> List<E> findListByTemplate(JdbcTemplate template,String sqlName, Map<String, Object> params, RowMapper<E> rm) throws Exception {
 		log.debug("findList(String, Map<String,Object>, RowMapper) - start");
-
 		final ISqlElement se = processSql(params, sqlName);
 		if (rm == null) {
-			@SuppressWarnings("unchecked")
-			List<E> returnList = (List<E>) jdbcTemplate.queryForList(se.getSql(),
-					se.getParams());
-			log.debug("findList(String, Map<String,Object>, RowMapper) - end");
-			return returnList;
+			return (List<E>)template.queryForList(se.getSql(),	se.getParams());
 		} else {
-			List<E> returnList = jdbcTemplate.query(se.getSql(),
-					se.getParams(), rm);
-			log.debug("findList(String, Map<String,Object>, RowMapper) - end");
-			return returnList;
+			return template.query(se.getSql(), se.getParams(), rm);
 		}
 	}
+	public <E> List<E> findList(String sqlName, Map<String, Object> params, RowMapper<E> rm) throws Exception {
+		return findListByTemplate(jdbcTemplate, sqlName, params, rm);
+	}
 	public <E> List<E> findList(String sqlName, RowMapper<E> rm, String[] paramName, Object... paramValue) throws Exception {
-		log.debug("findList(String, RowMapper, String[], Object) - start");
-
 		Map<String, Object> params = new HashMap<String, Object>();
 		for (int i = 0; i < paramName.length; i++) {
 			params.put(paramName[i], paramValue[i]);
 		}
-
-		List<E> returnList = findList(sqlName, params, rm);
-
-		log.debug("findList(String, RowMapper, String[], Object) - end");
-		return returnList;
+		return findList(sqlName, params, rm);
 	}
 	public <E> List<E> findList(String sqlName, RowMapper<E> rm, String paramName, Object paramValue) throws Exception {
-		log.debug("findList(String, RowMapper, String, Object) - start");
-		List<E> returnList = findList(sqlName, rm, new String[] { paramName },
-				paramValue);
-		log.debug("findList(String, RowMapper, String, Object) - end");
-		return returnList;
+		return findList(sqlName, rm, new String[] { paramName }, paramValue);
 	}
 	public <E> List<E> findList(String sqlName, RowMapper<E> rm) throws Exception {
-		log.debug("findList(String, RowMapper) - start");
-		List<E> returnList = findList(sqlName, rm, new String[] {}, "");
-		log.debug("findList(String, RowMapper) - end");
-		return returnList;
+		return findList(sqlName, rm, new String[] {}, "");
 	}	
 	public <E> List<E> findList(String sqlName, String paramName, Object paramValue) throws Exception {
-		log.debug("findList(String, RowMapper) - start");
-		List<E> returnList = findList(sqlName, null, new String[] { paramName }, paramValue);
-		log.debug("findList(String, RowMapper) - end");
-		return returnList;
+		return findList(sqlName, null, new String[] { paramName }, paramValue);
 	}	
 	
+	public Integer insert(String sqlName) throws Exception{
+		return insert(sqlName,new HashMap<String, Object>());
+	}
+	public Integer insert(String sqlName,Map<String, Object> params)throws Exception {
+		return insertByTemplate(this.jdbcTemplate, sqlName, params);
+	}
+	public Integer insertByTemplate(JdbcTemplate template,String sqlName,Map<String, Object> params)throws Exception {
+		final ISqlElement se=processSql(params, sqlName);
+		
+		KeyHolder kg = new GeneratedKeyHolder();
+		final PreparedStatementSetter pss=new ArgumentPreparedStatementSetter(se.getParams());
+		template.update(
+				new PreparedStatementCreator() {
+					@Override
+					public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+						PreparedStatement ps = con.prepareStatement(se.getSql(), Statement.RETURN_GENERATED_KEYS);
+						if (pss != null) {
+							pss.setValues(ps);
+						}
+						return ps;
+					}
+				},
+				kg);
+		
+		return kg.getKey().intValue();
+	}
 	/**
 	 * 更新语句
 	 * @param sqlName
@@ -109,8 +129,11 @@ public class JdbcJpaSupport {
 		return update(sqlName,new HashMap<String, Object>());
 	}
 	public boolean update(String sqlName,Map<String, Object> params)throws Exception {
+		return updateByTemplate(this.jdbcTemplate, sqlName, params);
+	}
+	public boolean updateByTemplate(JdbcTemplate template,String sqlName,Map<String, Object> params)throws Exception {
 		ISqlElement se=processSql(params, sqlName);
-		this.jdbcTemplate.update(se.getSql(), se.getParams());
+		template.update(se.getSql(), se.getParams());
 		return true;
 	}
 	
@@ -123,8 +146,11 @@ public class JdbcJpaSupport {
 	 * @throws Exception
 	 */
 	public <E> Object queryForObject(String sqlName,Map<String, Object> params,Class<E> requiredType)throws Exception {
+		return queryForObjectByTemplate(this.jdbcTemplate, sqlName, params, requiredType);
+	}
+	public <E> Object queryForObjectByTemplate(JdbcTemplate template,String sqlName,Map<String, Object> params,Class<E> requiredType)throws Exception {
 		ISqlElement se=processSql(params, sqlName);
-		return jdbcTemplate.queryForObject(se.getSql(),se.getParams(), requiredType);
+		return template.queryForObject(se.getSql(),se.getParams(), requiredType);
 	}
 	
 	/**
@@ -141,8 +167,12 @@ public class JdbcJpaSupport {
 			Map<String, Object> params,Pageable pageable,RowMapper<E> rm) throws Exception{
 		return findPage(querySqlName, null, params, pageable,rm);
 	}
-	@SuppressWarnings("unchecked")
 	public <E> Page<E> findPage(String querySqlName, String countSqlName,
+			Map<String, Object> params,Pageable pageable,RowMapper<E> rm) throws Exception{
+		return findPageByTemplate(this.jdbcTemplate, querySqlName, countSqlName, params, pageable, rm);
+	}
+	@SuppressWarnings("unchecked")
+	public <E> Page<E> findPageByTemplate(JdbcTemplate template, String querySqlName, String countSqlName,
 			Map<String, Object> params,Pageable pageable,RowMapper<E> rm) throws Exception{
 		if(rm==null){
 			rm=(RowMapper<E>) new ColumnMapRowMapper();
@@ -152,7 +182,7 @@ public class JdbcJpaSupport {
 		}
 		if (null == pageable) {
 			//没有分页，等同于findList
-			return new PageImpl<E>((List<E>) findList(querySqlName,params,rm));
+			return new PageImpl<E>((List<E>) findListByTemplate(template, querySqlName,params,rm));
 		}
 		//获取总数
 		ISqlElement seQuery = processSql(params, querySqlName);
@@ -164,12 +194,12 @@ public class JdbcJpaSupport {
 		}else{
 			seCount = processSql(params, countSqlName);
 		}
-		final int total = jdbcTemplate.queryForObject(seCount.getSql(), seCount.getParams(),Integer.class);
+		final int total = template.queryForObject(seCount.getSql(), seCount.getParams(),Integer.class);
 		//创建空集合
 		List<E> content = Collections.<E> emptyList();
 		if(total>pageable.getOffset()){
 			//如果未超过总记录，则读取数据，返回List
-			content = jdbcTemplate.query(
+			content = template.query(
 					seQuery.getSql(),seQuery.getParams(),
 					new PageResultSetExtractor<E>(rm,pageable));
 		}
@@ -183,14 +213,19 @@ public class JdbcJpaSupport {
 	 * @param rowList
 	 * @return
 	 */
-	protected void importBaseData(HttpSession session,String importStatus,final String[] titleRow, 
-			List<String[]> rowList,List<String> preExcuteSqlList,IFillStataData fill){
+	@SuppressWarnings("unchecked")
+	public void importBaseData(HttpSession session,String importStatus,final String[] titleRow, 
+			List<String[]> rowList,List<String> preExcuteSqlList,IFillStataData<String[]> fill){
 		this.importBaseData(session, importStatus, titleRow, null, rowList, preExcuteSqlList, new IFillStataData[]{fill});
 	}
-	
-	protected void importBaseData(HttpSession session,String importStatus,final String[] titleRow,
+	public void importBaseData(HttpSession session,String importStatus,final String[] titleRow,
 			final Map<String,Integer> fieldMap,
-			List<String[]> rowList,List<String> preExcuteSqlList,IFillStataData[] fillDatas){
+			List<String[]> rowList,List<String> preExcuteSqlList,IFillStataData<String[]>[] fillDatas){
+		this.importBaseDataByTemplate(jdbcTemplate, session, importStatus, titleRow, fieldMap, rowList, preExcuteSqlList, fillDatas);
+	}
+	public void importBaseDataByTemplate(JdbcTemplate template,HttpSession session,String importStatus,final String[] titleRow,
+			final Map<String,Integer> fieldMap,
+			List<String[]> rowList,List<String> preExcuteSqlList,IFillStataData<String[]>[] fillDatas){
 		//错误列表
 		List<String> errorList=new ArrayList<String>();
 		//当前行
@@ -223,7 +258,7 @@ public class JdbcJpaSupport {
 		Connection con = null;// 本地库连接
 		PreparedStatement deleteState = null;
 		try {
-			con = jdbcTemplate.getDataSource().getConnection();// 获取数据库连接
+			con = template.getDataSource().getConnection();// 获取数据库连接
 			con.setAutoCommit(false);// 手动提交
 			//预处理的sql
 			if(preExcuteSqlList!=null){
@@ -235,7 +270,7 @@ public class JdbcJpaSupport {
 			}
 			
 			//输入项目
-			for(IFillStataData fill:fillDatas){
+			for(IFillStataData<String[]> fill:fillDatas){
 				//读取sql的模板
 				fill.insertState=con.prepareStatement(processSql(new HashMap<String, Object>(), fill.sqlKey).getSql());
 			}
@@ -251,7 +286,7 @@ public class JdbcJpaSupport {
 				if(rownum==1 || row==null || row.length<titleRow.length ||( StringUtil.isNotEmpty(titleRow[0]) && StringUtil.isEmpty(row[0]))) {
 					continue;
 				}
-				for(IFillStataData fill:fillDatas){
+				for(IFillStataData<String[]> fill:fillDatas){
 					//处理数据
 					fill.fillData(row,rownum);
 				}
@@ -260,7 +295,7 @@ public class JdbcJpaSupport {
 				Thread.sleep(5);
 			}
 			//处理剩余的数据
-			for(IFillStataData fill:fillDatas){
+			for(IFillStataData<String[]> fill:fillDatas){
 				fill.closeStat();
 			}
 
@@ -301,13 +336,77 @@ public class JdbcJpaSupport {
 	 * @param sqlList
 	 */
 	public void batchSql(List<String> sqlList){
+		batchSqlByTemplate(this.jdbcTemplate, sqlList);
+	}
+	public void batchSqlByTemplate(JdbcTemplate template,List<String> sqlList){
 		if(null != sqlList && sqlList.size()>0){
 			String[] sqls=new String[sqlList.size()];
 			sqls=sqlList.toArray(sqls);	
-			jdbcTemplate.batchUpdate(sqls);
+			template.batchUpdate(sqls);
 		}
 	}
-	public JdbcTemplate getJdbcTemplate() {
-		return jdbcTemplate;
+	/**
+	 * 批量执行数据操作
+	 * @param sqlKey
+	 * @param list
+	 * @throws Exception 
+	 */
+	public void batchSqlByList(HttpSession session,String importStatus,List<Map<String, Object>> list,List<String> preExcuteSqlList,IFillStataData<Map<String, Object>>[] fillDatas) throws Exception{
+		this.batchSqlByListByTemplate(jdbcTemplate,session,importStatus, list,preExcuteSqlList,fillDatas);
 	}
+	public void batchSqlByListByTemplate(JdbcTemplate template,HttpSession session,String importStatus,List<Map<String, Object>> list,
+			List<String> preExcuteSqlList,IFillStataData<Map<String, Object>>[] fillDatas) throws Exception{
+		//批量处理数据
+		Connection con = null;// 本地库连接
+		PreparedStatement deleteState = null;
+		try {
+			con = template.getDataSource().getConnection();// 获取数据库连接
+			con.setAutoCommit(false);// 手动提交
+			//预处理的sql
+			if(preExcuteSqlList!=null){
+				for(String sql:preExcuteSqlList){
+					deleteState=con.prepareStatement(processSql(new HashMap<String, Object>(), sql).getSql());
+					deleteState.execute();
+				}
+				JdbcUtils.closeStatement(deleteState);
+			}
+			//读取sql的模板
+			for(IFillStataData<Map<String, Object>> fill:fillDatas){
+				//读取sql的模板
+				fill.insertState=con.prepareStatement(processSql(new HashMap<String, Object>(), fill.sqlKey).getSql());
+			}
+			//总记录数
+			int totalCount=list.size();
+			//已处理记录
+			int dealCount=0;
+			session.setAttribute(importStatus, "开始导入数据，共有数据"+totalCount+"条。");
+			Thread.sleep(100);
+			//开始处理数据
+			int rownum=0;
+			for(Map<String, Object> map:list){
+				//处理数据
+				for(IFillStataData<Map<String, Object>> fill:fillDatas){
+					fill.fillData(map, rownum);
+				}
+				dealCount++;
+				session.setAttribute(importStatus, "已处理"+Math.round(dealCount*100.0/totalCount)+"%，"+dealCount+"/"+totalCount+"条。");
+			}
+			for(IFillStataData<Map<String, Object>> fill:fillDatas){
+				fill.closeStat();
+			}
+			session.setAttribute(importStatus, "已处理"+Math.round(dealCount*100.0/totalCount)+"%，"+dealCount+"/"+totalCount+"条。");
+			con.commit();
+		} catch (Exception e) {
+			if (con != null) {
+				try {
+					con.rollback();
+				} catch (SQLException e1) {
+				}
+			}
+			throw e;
+		} finally {
+			JdbcUtils.closeConnection(con);
+		}
+	}
+	
 }

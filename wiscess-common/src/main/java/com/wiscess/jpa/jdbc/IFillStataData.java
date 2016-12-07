@@ -1,8 +1,8 @@
 package com.wiscess.jpa.jdbc;
 
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.sql.Types;
 
 import org.springframework.jdbc.support.JdbcUtils;
@@ -12,7 +12,7 @@ import org.springframework.jdbc.support.JdbcUtils;
  * @author wanghai
  *
  */
-public abstract class IFillStataData {
+public abstract class IFillStataData<T> {
 
 	public int count=0;
 	
@@ -27,13 +27,13 @@ public abstract class IFillStataData {
 	 * @param insertState
 	 * @param row
 	 */
-	public abstract void handle(PreparedStatement insertState, String[] row, int rownum) throws SQLException ;
+	public abstract void handle(T row, int rownum) throws SQLException ;
 
-	public void fillData( String[] row, int rownum) throws SQLException {
+	public void fillData(T row, int rownum) throws SQLException {
 		//校验row是否合法
 		if(!checkRow(row))
 			return;
-		handle(insertState, row, rownum);
+		handle(row, rownum);
 		insertState.addBatch();
 		count++;
 		if(count%batchSize==0){
@@ -61,7 +61,7 @@ public abstract class IFillStataData {
 	 * @param row
 	 * @return
 	 */
-	public boolean checkRow(String[] row){
+	public boolean checkRow(T row){
 		return true;
 	}
 	
@@ -74,25 +74,28 @@ public abstract class IFillStataData {
 		}
 		switch (type) {
 		case Types.INTEGER:
-			insertState.setInt(order , (Integer)obj);
+			insertState.setInt(order , new Integer(obj.toString()));
 			break;
 		case Types.NUMERIC:
-			insertState.setLong(order , (Long)obj);
+			insertState.setLong(order , new Long(obj.toString()));
 			break;
 		case Types.VARCHAR:
-			insertState.setString(order, (String)obj);
+			insertState.setString(order, obj.toString());
 		    break;
 		case Types.TIMESTAMP:
-			insertState.setDate(order,new java.sql.Date(((Date)obj).getTime()));
+			insertState.setDate(order,new java.sql.Date(((Timestamp)obj).getTime()));
 			break;
 		case Types.DOUBLE:
-			insertState.setDouble(order, (Double)obj);
+			insertState.setDouble(order, new Double(obj.toString()));
 			break;
 		case Types.FLOAT:
-			insertState.setFloat(order, (Float)obj);
+			insertState.setFloat(order, new Float(obj.toString()));
 			break;
 		case Types.SMALLINT:
-			insertState.setShort(order, (Short)obj);
+			insertState.setShort(order, new Short(obj.toString()));
+			break;
+		case Types.BOOLEAN:
+			insertState.setBoolean(order, new Boolean(obj.toString()));
 			break;
 		default:
 			break;

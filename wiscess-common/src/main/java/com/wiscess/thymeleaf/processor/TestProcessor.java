@@ -9,7 +9,6 @@ public class TestProcessor extends AbstractElementProcessor {
 
 	public TestProcessor(String elementName) {
 		super(elementName);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -20,7 +19,6 @@ public class TestProcessor extends AbstractElementProcessor {
 
 	@Override
 	public int getPrecedence() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 

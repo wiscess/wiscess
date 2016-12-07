@@ -39,9 +39,11 @@ public class DynamicSqlUtil {
 	 */
 	public static ISqlElement processSql(Map<String, Object> params, String sqlTemplate) throws Exception {
 		Map<String, Object> context = new HashMap<String, Object>();
-		for (Map.Entry<String, Object> paramEntry : params.entrySet()) {
-            context.put(paramEntry.getKey(), paramEntry.getValue());
-        }
+		if(params!=null){
+			for (Map.Entry<String, Object> paramEntry : params.entrySet()) {
+	            context.put(paramEntry.getKey(), paramEntry.getValue());
+	        }
+		}
 		StringWriter out = new StringWriter();
 		
         Template tpl = templateCache.get(sqlTemplate);

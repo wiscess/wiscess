@@ -3,6 +3,7 @@ package com.wiscess.query.config.annotation.configuration;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 
 import com.wiscess.cache.CacheClearable;
@@ -16,6 +17,7 @@ import com.wiscess.query.config.Query;
  */
 @Slf4j
 @Order(100)
+@Configuration
 public class QueryConfigurerAdapter implements CacheClearable {
 
 	private Query builder;

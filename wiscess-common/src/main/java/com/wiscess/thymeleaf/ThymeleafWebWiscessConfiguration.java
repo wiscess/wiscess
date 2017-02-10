@@ -117,6 +117,33 @@ public class ThymeleafWebWiscessConfiguration {
 		}
 		
 		/**
+		 * 读取长整形
+		 * @param arguments
+		 * @param element
+		 * @param attributeName
+		 * @param defaultValue
+		 * @return
+		 */
+		public static Long executeForLong(final Arguments arguments, final Element element, final String attributeName,Long defaultValue){
+	        final Object result = execute(arguments, element, attributeName,defaultValue);
+	        if(result==null)
+	        	return defaultValue;
+	        else if(result instanceof String){
+	        	return new Long(result.toString());
+	        }else if(result instanceof Long){
+	        	return (Long)result;
+	        }else if(result instanceof Integer){
+	        	return new Long((Integer)result);
+	        }else if(result instanceof BigDecimal){
+	        	return ((BigDecimal)result).longValue();
+	        }else{
+	        	return new Long(result.toString());
+	        }
+		}
+		public static Long executeForLong(final Arguments arguments, final Element element, final String attributeName){
+			return executeForLong(arguments, element, attributeName,null);
+		}
+		/**
 		 * 读取浮点型
 		 * @param arguments
 		 * @param element

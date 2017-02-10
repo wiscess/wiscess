@@ -197,6 +197,9 @@ public class JdbcJpaSupport {
 		final int total = template.queryForObject(seCount.getSql(), seCount.getParams(),Integer.class);
 		//创建空集合
 		List<E> content = Collections.<E> emptyList();
+		if(total<=pageable.getOffset()){
+			pageable=pageable.previousOrFirst();
+		}
 		if(total>pageable.getOffset()){
 			//如果未超过总记录，则读取数据，返回List
 			content = template.query(

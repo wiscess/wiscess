@@ -104,10 +104,8 @@ public class RSA_Encrypt {
 			keyFactory = KeyFactory.getInstance("RSA");
 	         privateKey = keyFactory.generatePrivate(keySpec);  
 		} catch (NoSuchAlgorithmException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		} catch (InvalidKeySpecException e2) {
-			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		} 
 	}
@@ -144,10 +142,8 @@ public class RSA_Encrypt {
 			keyFactory = KeyFactory.getInstance("RSA");
 	         publicKey = keyFactory.generatePublic(keySpec);  
 		} catch (NoSuchAlgorithmException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		} catch (InvalidKeySpecException e2) {
-			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		} 
 	}

@@ -83,7 +83,7 @@ public abstract class IFillStataData<T> {
 			insertState.setString(order, obj.toString());
 		    break;
 		case Types.TIMESTAMP:
-			insertState.setDate(order,new java.sql.Date(((Timestamp)obj).getTime()));
+			insertState.setTimestamp(order,((Timestamp)obj));
 			break;
 		case Types.DOUBLE:
 			insertState.setDouble(order, new Double(obj.toString()));

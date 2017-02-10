@@ -54,7 +54,6 @@ public class MultiDataSourceConfig {
     		excludeMBeanIfNecessary(dataSource, "dataSource");
     		return dataSource;
     	}
-    	log.info(env.getProperty(prifix+".url"));
     	String url=readParameter(prifix,"url");
     	String username=readParameter(prifix,"username");
     	String password=readParameter(prifix,"password");

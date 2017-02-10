@@ -75,7 +75,20 @@ public class AbstractSSOWebSecurityConfig extends WiscessWebSecurityConfig {
 				.antMatchers("/admin/**").hasAnyAuthority("101","102")
 				// 其他地址的访问均需验证权限
 				.anyRequest().authenticated();
-		http.csrf().disable();
+//		http.csrf().disable();
+		http.headers().frameOptions().sameOrigin();
+		if(!securityCsrfSettings.isEnableCsrf()){
+			//禁用
+			http.csrf().disable();
+		}else{
+			if(this.securityCsrfSettings.getCsrf().getExecludeUrls()!=null && this.securityCsrfSettings.getCsrf().getExecludeUrls().size()>0){
+				//排除Csrf路径
+				http.csrf().ignoringAntMatchers(this.securityCsrfSettings.getCsrf().getExecludeUrls().toArray(new String[0]));
+			}
+		}
+		if(securityCsrfSettings.getDeniedPage()!=null){
+			http.exceptionHandling().accessDeniedPage(securityCsrfSettings.getDeniedPage());
+		}
 		//添加自定义的过滤器，处理验证码
 		http.apply(new SSOLoginConfigurer<HttpSecurity>())
 			.defaultSuccessUrl("/")

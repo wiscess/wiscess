@@ -2,6 +2,7 @@ package com.wiscess.security.util;
 
 import javax.crypto.Cipher;
 
+import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.crypto.codec.Hex;
 
 import sun.security.rsa.RSAPublicKeyImpl;
@@ -67,6 +68,7 @@ public class RSA_Encrypt {
 		
 		writePublicKey(PUBLIC_KEY_FILE);
 		writePrivateKey(PRIVATE_KEY_FILE);
+		
 	}
 
 	/**
@@ -199,6 +201,19 @@ public class RSA_Encrypt {
 			e.printStackTrace();
 		} 
 	}
+	public static void writePublicKeyBase64(String publicKeyPath){
+		try {
+			PrintWriter pw;
+			pw = new PrintWriter( new FileWriter( publicKeyPath ) );
+			pw.println("-------------PUBLIC_KEY-------------"); 
+			String base64Str=encryptBASE64(publicKey.getEncoded());
+			pw.println(base64Str);
+			pw.println("-------------PUBLIC_KEY-------------"); 
+	        pw.close(); 
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+	}
 	/**
 	 * write publicKey to Txt file
 	 * @param publicKeyPath
@@ -268,6 +283,20 @@ public class RSA_Encrypt {
 			e.printStackTrace();
 		} 
 	}
+	public static void writePrivateKeyBase64(String privateKeyPath){
+		try {
+			PrintWriter pw;
+			pw = new PrintWriter( new FileWriter( privateKeyPath ) );
+			pw.println("-------------PRIVATE_KEY-------------"); 
+			String base64Str=encryptBASE64(privateKey.getEncoded());
+			pw.println(base64Str);
+			pw.println("-------------PRIVATE_KEY-------------"); 
+			
+	        pw.close(); 
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+	}
 
 	/**
 	 * encrypt source data use publicKey
@@ -285,6 +314,16 @@ public class RSA_Encrypt {
 		byte[] b1 = cipher.doFinal(b);
 		return new String(Hex.encode(b1));
 	}
+	public static String encryptBase64(String source) throws Exception {
+		getPublicKey();
+		/**  */
+		Cipher cipher = Cipher.getInstance(ALGORITHM);
+		cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+		byte[] b = source.getBytes();
+		/** do encrypt */
+		byte[] b1 = cipher.doFinal(b);
+		return new String(Base64.encode(b1));
+	}
 
 	/**
 	 * decrypt cryptograph use privateKey
@@ -295,6 +334,16 @@ public class RSA_Encrypt {
 		Cipher cipher = Cipher.getInstance(ALGORITHM);
 		cipher.init(Cipher.DECRYPT_MODE, privateKey);
 		byte[] b1 = Hex.decode(cryptograph);
+		/** do decrypt */
+		byte[] b = cipher.doFinal(b1);
+		return new String(b);
+	}
+	public static String decryptBase64(String cryptograph) throws Exception {
+		getPrivateKey();
+		/** get Cipher object */
+		Cipher cipher = Cipher.getInstance(ALGORITHM);
+		cipher.init(Cipher.DECRYPT_MODE, privateKey);
+		byte[] b1 = Base64.decode(cryptograph.getBytes());
 		/** do decrypt */
 		byte[] b = cipher.doFinal(b1);
 		return new String(b);
@@ -353,25 +402,32 @@ public class RSA_Encrypt {
     		return false;
     	}
     }   
+    //编码返回字符串
+    public static String encryptBASE64(byte[] key) throws Exception {
+    	return new String(Base64.encode(key));
+    }
 
 	public static void main(String[] args) throws Exception {
 		//生成密钥对
 		//generateKeyPair();
-		getPrivateKey();
-		getPublicKey();
-		//writePublicKey(PUBLIC_KEY_FILE+".key");
-		String source = "296502429874592438576248524admin";// 要加密的字符串
-		String cryptograph = encrypt(source);// 生成的密文
+//		getPrivateKey();
+//		getPublicKey();
+//		System.out.println(encryptBASE64(publicKey.getEncoded()));
+		String source = "123456";// 要加密的字符串
+		String cryptograph = encryptBase64(source);// 生成的密文
 		System.out.println(cryptograph);
-		//String cryptograph = "jJIDpSMhia6RMuhYYRDZdWWCsnTbJoMUO31JW/8a+48lcUszpD0n86NunpfyhPtWkq6k6Ehj3MgYia5sL/HmK73YY8rp/7g0IbAfeVZ+HfSpzQd+wpV03eqchVgItQH5jiGsfNmm78Wc+Sbyn+mUExlpZl8vCM0Q9yl6l3rSlTw=";
-		String target = decrypt(cryptograph);// 解密密文
+		//String 
+		//cryptograph = "jJIDpSMhia6RMuhYYRDZdWWCsnTbJoMUO31JW/8a+48lcUszpD0n86NunpfyhPtWkq6k6Ehj3MgYia5sL/HmK73YY8rp/7g0IbAfeVZ+HfSpzQd+wpV03eqchVgItQH5jiGsfNmm78Wc+Sbyn+mUExlpZl8vCM0Q9yl6l3rSlTw=";
+		cryptograph="dkKhC7sM3ElHmyQ1qiuzZOipjj5lmI8vVdH1AATzeV4E88WjEiGVhFI/Nu8L5jN6mx2ydEn8gwYnfcS6E5dwzCshkCoRMz8rxbVBXIh7cI9scEs/Hek8PiKevjMSalitB/UTk7J84Zy8omjLV/74YKNn7JQlm5UZggPD6BbCTS4=";
+		//cryptograph="SXDMOPeBKODMsVl/tPRz7baRIi9zLu0DmhQ5PM4b3XYwTNTIDDXBskhGUbk3sXj17okGfCGN3594Vmrc7Nb7WGb3UdHAqbxBt2U4U0ps6ISyk44Po8aC9RrvgbP2MGcwlQOCH3eCTp7Jg6bpayhEk0O4WkhBW0SJ7IS77E3dOdg=";
+		String target = decryptBase64(cryptograph);// 解密密文
 		System.out.println(target);
 		
 		//签名
 		//String source="296502429874592438576248524admin";
-		String s=sign(source);
-		System.out.println(s);
-		//验证
-		System.out.println(verify(source, s));
+//		String s=sign(source);
+//		System.out.println(s);
+//		//验证
+//		System.out.println(verify(source, s));
 	}
 }

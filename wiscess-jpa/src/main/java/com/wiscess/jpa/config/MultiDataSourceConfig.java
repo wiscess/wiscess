@@ -40,7 +40,7 @@ public class MultiDataSourceConfig {
     @Primary
     @ConfigurationProperties(prefix=DEFAULT_PREFIX)
     public DataSource dataSource(){
-    	log.info("************配置主数据源***********");
+    	log.info("************Config Main Datasource***********");
     	return createDatasource(DEFAULT_PREFIX);
     }
 	

@@ -11,8 +11,10 @@ import java.util.Map;
  *
  */
 public class FillStataDataByMap extends IFillStataData<Map<String, Object>> {
+	
 	public String[] fields=null;
 	public String[] types=null;
+	
 	@Override
 	public void handle(Map<String, Object> map, int rownum) throws SQLException {
 		//用数组记录字段名和类型

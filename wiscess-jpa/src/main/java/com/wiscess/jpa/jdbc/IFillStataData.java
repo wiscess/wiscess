@@ -8,7 +8,7 @@ import java.sql.Types;
 import org.springframework.jdbc.support.JdbcUtils;
 
 /**
- * 填充数据
+ * 用于向批量插入数据的state中填充数据
  * @author wanghai
  *
  */

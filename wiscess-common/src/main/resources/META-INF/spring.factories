@@ -1,2 +1,1 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.wiscess.jpa.config.MultiDataSourceConfig
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.wiscess.query.config.annotation.configuration.QueryConfigurerAdapter
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.wiscess.thymeleaf.ThymeleafWebWiscessConfiguration

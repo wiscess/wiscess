@@ -1,27 +1,13 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.wiscess</groupId>
-	<artifactId>wiscess-common</artifactId>
-	<version>1.2</version>
-	<description>wiscess common package
-include:
-query
-security</description>
-	<name>wiscess common</name>
-	<url>http://www.wiscess.com.cn</url>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.wiscess</groupId>
+  <artifactId>wiscess-jpa</artifactId>
+  <version>1.0</version>
+  <url>http://www.wiscess.com.cn</url>
 	<properties>
 		<!-- github server corresponds to entry in ~/.m2/settings.xml -->
 		<maven.dir>D:/GitHome/mvn-repo</maven.dir><!--  -->
 	</properties>
-	<!-- 
-	<distributionManagement>
-	    <repository>
-	        <id>internal.repo</id>
-	        <name>Temporary Staging Repository</name>
-	        <url>file://${project.build.directory}/maven</url>
-	    </repository>
-	</distributionManagement> -->
 	<build>
 	<plugins>
 		<plugin>
@@ -58,29 +44,6 @@ security</description>
 	            <altDeploymentRepository>internal.repo::default::file://${maven.dir}</altDeploymentRepository>
 	        </configuration>
 	    </plugin>
-	    <!-- 
- 		<plugin>
-            <groupId>com.github.github</groupId>
-            <artifactId>site-maven-plugin</artifactId>
-            <version>0.12</version>
-            <configuration>
-                <message>Maven artifacts for ${project.version}</message>  
-                <noJekyll>true</noJekyll>                                  
-                <outputDirectory>${maven.dir}</outputDirectory>
-                <branch>ref/heads/release</branch>                      
-                <includes><include>**/*</include></includes>
-                <repositoryName>https://github.com/wiscess/maven/release/</repositoryName>     
-                <repositoryOwner>wanghai114@gmail.com</repositoryOwner>   
-            </configuration>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>site</goal>
-                </goals>
-                <phase>deploy</phase>
-              </execution>
-            </executions>
-        </plugin> -->
 	</plugins>
 	</build>
 	<repositories>
@@ -103,18 +66,23 @@ security</description>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+			<artifactId>spring-boot-starter-freemarker</artifactId>
+			<version>1.4.0.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jdbc</artifactId>
+			<version>1.4.0.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
 			<version>1.4.0.RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>com.wiscess</groupId>
-			<artifactId>wiscess-utils</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<version>1.16.10</version>
+			<artifactId>wiscess-common</artifactId>
+			<version>1.2</version>
 		</dependency>
 	</dependencies>
 </project>

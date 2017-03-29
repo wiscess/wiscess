@@ -20,6 +20,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFClientAnchor;
@@ -44,6 +46,44 @@ import com.wiscess.exporter.exception.ManagerException;
 
 public class ExcelExportUtil {
 	public static final SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
+	
+	/**
+	 * 根据模板导出文件
+	 */
+	public static Object exportExcelByTemplate(ExportExcelParameter para,String filename, HttpServletResponse res,
+			List<AssignedCell[]> data){
+		try {
+			res.setContentType("APPLICATION/ms-excel");
+			res.setHeader("Content-Disposition", "attachment; filename="
+					+ new String(filename.getBytes("gbk"), "iso8859-1"));
+			ServletOutputStream os = res.getOutputStream();
+			ExcelExportUtil.export(para,os, data);
+			os.flush();
+			os.close();
+			return null;
+		} catch (Exception e) {
+			throw new ManagerException("导出出错。", e);
+		}
+
+	}
+
+	/**
+	 * 根据模板导出文件,支持多个sheet的导出文件
+	 */
+	public static Object exportExcelByTemplate(ExportExcelParameter para,String filename, HttpServletResponse res){
+		try {
+			res.setContentType("APPLICATION/ms-excel");
+			res.setHeader("Content-Disposition", "attachment; filename="
+					+ new String(filename.getBytes("gbk"), "iso8859-1"));
+			ServletOutputStream os = res.getOutputStream();
+			ExcelExportUtil.export(para,os);
+			os.flush();
+			os.close();
+			return null;
+		} catch (Exception e) {
+			throw new ManagerException("导出出错。", e);
+		}
+	}
 	
 	/**
 	 * 从map对象中获取值
@@ -360,7 +400,6 @@ public class ExcelExportUtil {
 		rowNum = rowNumber;
 
 		Row currRow = null;
-		
 		if(columnWidths!=null){
 			//设置列宽
 			for (int j = 0; j < totalCol; j++) {
@@ -378,14 +417,18 @@ public class ExcelExportUtil {
 			} else {
 				// 创建多行，把所有列都创建出来，并使用样式处理
 				for (int i = 0; i < dataRowSpan; i++) {
-					currRow = sheet.createRow(rowNumber + i);
+					currRow=sheet.getRow(rowNumber + i);
+					if(currRow==null)
+						currRow = sheet.createRow(rowNumber + i);
 					// 设置行高，模板行存在并且未指定自动行高，则使用模板行的行高
 					if (templateDataRow != null && !autoHeight){
 						currRow.setHeight(templateDataRow.getHeight());
 					}
 					// 创建所有的列
 					for (int j = 0; j < totalCol; j++) {
-						Cell cell = currRow.createCell(j);
+						Cell cell = currRow.getCell(j);
+						if(cell==null)
+							cell = currRow.createCell(j);
 						if (templateDataRow != null){
 							if(dataRow.getUseStyle()==AssignedCell.CELL_STYLE_HLROW){
 								cell.setCellStyle(templateHlDataRow.getCell(hldatacol).getCellStyle());

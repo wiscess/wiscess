@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.wiscess</groupId>
   <artifactId>wiscess-exporter</artifactId>
-  <version>1.0</version>
+  <version>1.2</version>
   <name>wiscess exporter</name>
   <url>http://www.wiscess.com.cn</url>
 	<properties>
@@ -116,7 +116,7 @@
     <dependency>
     	<groupId>com.wiscess</groupId>
     	<artifactId>wiscess-common</artifactId>
-    	<version>1.1</version>
+    	<version>1.2</version>
     </dependency>
     </dependencies>
 </project>

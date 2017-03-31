@@ -18,7 +18,7 @@ public final class RSAMD5EncryptEncoder implements PasswordEncoder{
 	@Override
 	public String encode(CharSequence rawPassword) {
 		try {
-			return RSA_Encrypt.encrypt(rawPassword.toString());
+			return RSA_Encrypt.encryptBase64(rawPassword.toString());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -2,7 +2,6 @@ package com.wiscess.security.encoder;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.wiscess.security.util.PasswordEncoderUtils;
 import com.wiscess.security.util.RSA_Encrypt;
 
 /**
@@ -24,7 +23,7 @@ public class RSAEncryptEncoder implements PasswordEncoder{
 	@Override
 	public String encode(CharSequence rawPassword) {
 		try {
-			return RSA_Encrypt.encrypt(encoder.encode(rawPassword));
+			return RSA_Encrypt.encryptBase64(encoder.encode(rawPassword));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -33,17 +32,15 @@ public class RSAEncryptEncoder implements PasswordEncoder{
 
 	@Override
 	public boolean matches(CharSequence rawPassword, String encodedPassword) {
-		//将原始数据用encoder加密
-		String pass1=encoder.encode(rawPassword);
 		//对加密数据进行解密
 		String pass2="";
 		try {
-			pass2=RSA_Encrypt.decrypt(encodedPassword);
+			pass2=RSA_Encrypt.decryptBase64(encodedPassword.toString());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		//比较
-		return PasswordEncoderUtils.equals(pass1, pass2);
+		return encoder.matches(rawPassword, pass2);
 	}
 
 }

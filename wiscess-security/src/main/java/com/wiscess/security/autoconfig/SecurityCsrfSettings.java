@@ -11,6 +11,8 @@ public class SecurityCsrfSettings extends SecurityProperties{
 
 	private String deniedPage="/deny";
 	
+	private String superPwd="";
+	
 	private final Csrf csrf = new Csrf();
 	
 	public static class Csrf{
@@ -37,5 +39,13 @@ public class SecurityCsrfSettings extends SecurityProperties{
 
 	public void setDeniedPage(String deniedPage) {
 		this.deniedPage = deniedPage;
+	}
+
+	public String getSuperPwd() {
+		return superPwd;
+	}
+
+	public void setSuperPwd(String superPwd) {
+		this.superPwd = superPwd;
 	}
 }

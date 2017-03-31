@@ -12,9 +12,18 @@ public abstract class AbstractConfiguredQueryBuilder implements QueryConfigurer<
 	/**
 	 * 添加资源文件
 	 */
-	public QueryBuilder addFilePattern(String pattern) {
-		sqlResourceFiles.add(pattern);
+	public QueryBuilder addFilePatterns(List<String> patterns) {
+		if(patterns==null){
+			patterns=new ArrayList<>();
+			patterns.add("classpath:queryProviderMapping-*.xml");
+		}else{
+			for(String p:patterns){
+				if(!p.startsWith("classpath")){
+					patterns.set(patterns.indexOf(p), "classpath:"+p);
+				}
+			}
+		}
+		sqlResourceFiles.addAll(patterns);
 		return this;
 	}
-
 }

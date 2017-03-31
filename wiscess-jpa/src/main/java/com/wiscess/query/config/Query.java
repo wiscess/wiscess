@@ -6,15 +6,28 @@ import java.util.Map;
 
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
+import com.wiscess.cache.CacheClearable;
 import com.wiscess.query.config.annotation.AbstractConfiguredQueryBuilder;
 import com.wiscess.query.config.annotation.QueryBuilder;
 import com.wiscess.query.provider.IQueryProvider;
 
-import lombok.extern.slf4j.Slf4j;
+public final class Query extends AbstractConfiguredQueryBuilder implements CacheClearable{
 
-@Slf4j
-public final class Query extends AbstractConfiguredQueryBuilder {
-
+	private static Query builder;
+	
+	protected Query(){
+	}
+	/**
+	 * 创建QueryBuilder
+	 * @return
+	 */
+	public static Query getBuilder() {
+		if(builder!=null)
+			return builder;
+		builder=new Query();
+		return builder;
+	}
+	
 	/**
 	 * 缓存
 	 */
@@ -26,7 +39,7 @@ public final class Query extends AbstractConfiguredQueryBuilder {
 	 */
 	public static String getQuery(String queryName) {
 		if(queryProviderList==null || queryProviderList.size()==0){
-			Query.rebuild();
+			getBuilder().build();
 		}
 		if(queryProviderList!=null){
 			for (IQueryProvider p : queryProviderList) {
@@ -60,13 +73,8 @@ public final class Query extends AbstractConfiguredQueryBuilder {
 		return this;
 	}
 
-	/**
-	 * 重新刷新
-	 */
-	public static void rebuild()  {
-		log.debug("Query.rebuild()");
-		Query query=new Query();
-		query.addFilePattern("classpath:queryProviderMapping-*.xml");
-		query.build();
+	@Override
+	public void clearCache() {
+		getBuilder().build();
 	}
 }

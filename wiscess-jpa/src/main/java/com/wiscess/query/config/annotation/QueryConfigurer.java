@@ -1,5 +1,7 @@
 package com.wiscess.query.config.annotation;
 
+import java.util.List;
+
 /**
  * 配置接口，可以添加资源文件
  * @author wh
@@ -8,5 +10,5 @@ package com.wiscess.query.config.annotation;
  */
 public interface QueryConfigurer<B extends QueryBuilder> {
 
-	B addFilePattern(String pattern);
+	B addFilePatterns(List<String> pattern);
 }

@@ -36,7 +36,11 @@ import com.wiscess.query.config.Query;
 public class JdbcJpaSupport {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
-
+	
+	@SuppressWarnings("unused")
+	@Autowired
+	private Query query;
+	
 	/**
 	 * 处理动态sql.
 	 * @param params

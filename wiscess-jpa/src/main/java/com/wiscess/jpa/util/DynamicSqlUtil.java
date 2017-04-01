@@ -69,7 +69,7 @@ public class DynamicSqlUtil {
         	//paramValuesList.add(params.get(name));
         	paramNamesList.add(name);
         }
-          Object[] paramValues = new Object[paramNamesList.size()];
+        Object[] paramValues = new Object[paramNamesList.size()];
        
         for(int i=0; i<paramNamesList.size(); i++)
         {

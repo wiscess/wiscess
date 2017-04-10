@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.BeansException;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -21,7 +20,6 @@ import com.wiscess.thymeleaf.processor.TreeInputProcessor;
 
 @Slf4j
 @Configuration
-@EnableAutoConfiguration
 public class ThymeleafWebWiscessConfiguration {
 	
 	public void configure(WiscessDialect dialect){

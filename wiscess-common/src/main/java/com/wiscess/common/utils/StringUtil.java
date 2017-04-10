@@ -55,6 +55,7 @@ package com.wiscess.common.utils;
  */
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -1640,4 +1641,74 @@ public class StringUtil {
         int pos = fullFilename.lastIndexOf(File.separatorChar);
         return fullFilename.substring(pos + 1);
     }
+
+    /**
+	 * String转Double
+	 * @param val
+	 * @return
+	 * 		val == null or val == ""，返回 0.0
+	 * 		val非数字，返回-1.0
+	 * 		val是数字，正常返回
+	 */
+	public static Double toDouble(Object val){
+		if(val==null)
+			return null;
+		if(isNotEmpty(val.toString())){
+			try{
+				return new Double(val.toString());
+			}catch(Exception e){
+				e.printStackTrace();
+				return null;
+			}
+		}
+		return null;
+	}
+	
+	public static Integer toInteger(Object val){
+		if(val==null)
+			return null;
+		if(isNotEmpty(val.toString())){
+			try{
+				return new Integer(val.toString());
+			}catch(Exception e){
+				e.printStackTrace();
+				return null;
+			}
+		}
+		return null;
+	}
+	public static Long toLong(Object val){
+		if(val==null)
+			return null;
+		if(isNotEmpty(val.toString())){
+			try{
+				return new Long(val.toString());
+			}catch(Exception e){
+				e.printStackTrace();
+				return null;
+			}
+		}
+		return null;
+	}
+	/**
+	 * String转Double
+	 * @param val
+	 * @return 
+	 * 		val == null or val == "" 返回 0
+	 * 		val非数字，返回-1
+	 * 		val是数字，正常返回
+	 */
+	public static BigDecimal toBigDecimal(Object val){
+		if(val==null)
+			return null;
+		if(isNotEmpty(val.toString())){
+			try{
+				return new BigDecimal(val.toString());
+			}catch(Exception e){
+				e.printStackTrace();
+				return null;
+			}
+		}
+		return null;
+	}
 }

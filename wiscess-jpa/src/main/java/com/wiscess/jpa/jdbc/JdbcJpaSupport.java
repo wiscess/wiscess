@@ -220,18 +220,20 @@ public class JdbcJpaSupport {
 	 * @param rowList
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public void importBaseData(HttpSession session,String importStatus,final String[] titleRow, 
 			List<String[]> rowList,List<String> preExcuteSqlList,IFillStataData<String[]> fill){
-		this.importBaseData(session, importStatus, titleRow, null, rowList, preExcuteSqlList, new IFillStataData[]{fill});
+		this.importBaseData(session, importStatus, titleRow, null, rowList, preExcuteSqlList, fill);
 	}
-	public void importBaseData(HttpSession session,String importStatus,final String[] titleRow,
-			final Map<String,Integer> fieldMap,
+	@SuppressWarnings("unchecked")
+	public void importBaseData(HttpSession session,String importStatus,final String[] titleRow,	final Map<String,Integer> fieldMap,	
+			List<String[]> rowList,List<String> preExcuteSqlList,IFillStataData<String[]> fill){
+		this.importBaseDataByTemplate(jdbcTemplate, session, importStatus, titleRow, fieldMap, rowList, preExcuteSqlList, new IFillStataData[]{fill});
+	}
+	public void importBaseData(HttpSession session,String importStatus,final String[] titleRow,	final Map<String,Integer> fieldMap,	
 			List<String[]> rowList,List<String> preExcuteSqlList,IFillStataData<String[]>[] fillDatas){
 		this.importBaseDataByTemplate(jdbcTemplate, session, importStatus, titleRow, fieldMap, rowList, preExcuteSqlList, fillDatas);
 	}
-	public void importBaseDataByTemplate(JdbcTemplate template,HttpSession session,String importStatus,final String[] titleRow,
-			final Map<String,Integer> fieldMap,
+	public void importBaseDataByTemplate(JdbcTemplate template,HttpSession session,String importStatus,final String[] titleRow,	final Map<String,Integer> fieldMap,	
 			List<String[]> rowList,List<String> preExcuteSqlList,IFillStataData<String[]>[] fillDatas){
 		//错误列表
 		List<String> errorList=new ArrayList<String>();
@@ -290,9 +292,9 @@ public class JdbcJpaSupport {
 			//开始处理数据
 			for(String[] row: rowList) {
 				rownum++;
-				if(rownum==1 || row==null || row.length<titleRow.length ||( StringUtil.isNotEmpty(titleRow[0]) && StringUtil.isEmpty(row[0]))) {
-					continue;
-				}
+//				if(rownum==1 || row==null || row.length<titleRow.length ||( StringUtil.isNotEmpty(titleRow[0]) && StringUtil.isEmpty(row[0]))) {
+//					continue;
+//				}
 				for(IFillStataData<String[]> fill:fillDatas){
 					//处理数据
 					fill.fillData(row,rownum);

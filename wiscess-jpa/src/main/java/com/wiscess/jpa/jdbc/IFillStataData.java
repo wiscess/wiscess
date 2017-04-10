@@ -6,6 +6,7 @@ import java.sql.Timestamp;
 import java.sql.Types;
 
 import org.springframework.jdbc.support.JdbcUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * 用于向批量插入数据的state中填充数据
@@ -67,7 +68,7 @@ public abstract class IFillStataData<T> {
 	
 	public void setValue(int order , Object obj ,int type) throws SQLException
 	{
-		if(obj == null)
+		if(obj == null || StringUtils.isEmpty(obj))
 		{
 			insertState.setNull(order, type);
 			return;

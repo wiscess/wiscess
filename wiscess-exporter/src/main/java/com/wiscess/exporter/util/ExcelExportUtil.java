@@ -2,6 +2,7 @@ package com.wiscess.exporter.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
@@ -50,21 +51,31 @@ public class ExcelExportUtil {
 	/**
 	 * 根据模板导出文件
 	 */
-	public static Object exportExcelByTemplate(ExportExcelParameter para,String filename, HttpServletResponse res,
+	public static String exportExcelByTemplate(ExportExcelParameter para,String filename, HttpServletResponse res,
 			List<AssignedCell[]> data){
 		try {
-			res.setContentType("APPLICATION/ms-excel");
-			res.setHeader("Content-Disposition", "attachment; filename="
-					+ new String(filename.getBytes("gbk"), "iso8859-1"));
-			ServletOutputStream os = res.getOutputStream();
-			ExcelExportUtil.export(para,os, data);
-			os.flush();
-			os.close();
-			return null;
+			if(res!=null){
+				//输出到浏览器
+				filename=filename.substring(filename.lastIndexOf("\\")+1);
+				res.setContentType("APPLICATION/ms-excel");
+				res.setHeader("Content-Disposition", "attachment; filename="
+						+ new String(filename.getBytes("gbk"), "iso8859-1"));
+				ServletOutputStream os = res.getOutputStream();
+				ExcelExportUtil.export(para,os, data);
+				os.flush();
+				os.close();
+				return null;
+			}else{
+				//输出到目录
+				FileOutputStream fos = new FileOutputStream(filename);
+				ExcelExportUtil.export(para, fos,data);
+				fos.flush();
+				fos.close();	
+				return filename;
+			}
 		} catch (Exception e) {
 			throw new ManagerException("导出出错。", e);
 		}
-
 	}
 
 	/**
@@ -72,14 +83,24 @@ public class ExcelExportUtil {
 	 */
 	public static Object exportExcelByTemplate(ExportExcelParameter para,String filename, HttpServletResponse res){
 		try {
-			res.setContentType("APPLICATION/ms-excel");
-			res.setHeader("Content-Disposition", "attachment; filename="
-					+ new String(filename.getBytes("gbk"), "iso8859-1"));
-			ServletOutputStream os = res.getOutputStream();
-			ExcelExportUtil.export(para,os);
-			os.flush();
-			os.close();
-			return null;
+			if(res!=null){
+				//输出到浏览器
+				res.setContentType("APPLICATION/ms-excel");
+				res.setHeader("Content-Disposition", "attachment; filename="
+						+ new String(filename.getBytes("gbk"), "iso8859-1"));
+				ServletOutputStream os = res.getOutputStream();
+				ExcelExportUtil.export(para,os);
+				os.flush();
+				os.close();
+				return null;
+			}else{
+				//输出到目录
+				FileOutputStream fos = new FileOutputStream(filename);
+				ExcelExportUtil.export(para, fos);
+				fos.flush();
+				fos.close();	
+				return filename;
+			}
 		} catch (Exception e) {
 			throw new ManagerException("导出出错。", e);
 		}

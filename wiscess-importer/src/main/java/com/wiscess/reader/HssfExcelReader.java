@@ -1,11 +1,12 @@
-package org.wiscess.reader;
+package com.wiscess.reader;
 
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
  * 操作Excel表格的功能类 
@@ -14,26 +15,23 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  * @date 2011-10-03
  *
  */
-public class XssfExcelReader extends ExcelReader{
+public class HssfExcelReader extends ExcelReader{
 	
 	/**
 	 * 打开文件
 	 * @param input
 	 * @throws IOException
 	 */
-	public XssfExcelReader(InputStream input) throws IOException {
-		wb = new XSSFWorkbook(input);
+	public HssfExcelReader(InputStream input) throws IOException {
+		wb = new HSSFWorkbook(new POIFSFileSystem(input));
 	}
-	
 	/**
 	 * 返回公式的结果
 	 * @param cell
 	 * @return
 	 */
 	public String getFormulaValue(Cell cell){
-		XSSFFormulaEvaluator ev = new XSSFFormulaEvaluator((XSSFWorkbook)sheet.getWorkbook());
+		HSSFFormulaEvaluator ev = new HSSFFormulaEvaluator((HSSFWorkbook)sheet.getWorkbook());
 		return getStringCellValueByCellValue(ev.evaluate(cell));
 	}
-
-	
 } 

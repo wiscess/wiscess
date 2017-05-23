@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.wiscess</groupId>
   <artifactId>wiscess-importer</artifactId>
-  <version>1.0</version>
+  <version>1.1</version>
   <name>wiscess importer</name>
   <url>http://www.wiscess.com.cn</url>
 	<properties>

@@ -1,4 +1,4 @@
-package org.wiscess.reader;
+package com.wiscess.reader;
 
 import java.io.File;
 import java.io.FileInputStream;

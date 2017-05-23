@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -189,7 +190,6 @@ public class JdbcJpaSupport {
 			return new PageImpl<E>((List<E>) findListByTemplate(template, querySqlName,params,rm));
 		}
 		//获取总数
-		ISqlElement seQuery = processSql(params, querySqlName);
 		ISqlElement seCount = null;
 		if(countSqlName==null){
 			params.put("count", "true");
@@ -198,6 +198,13 @@ public class JdbcJpaSupport {
 		}else{
 			seCount = processSql(params, countSqlName);
 		}
+		//处理排序
+		if(pageable.getSort()!=null){
+			Order order=pageable.getSort().iterator().next();
+			params.put("orderBy", order.getProperty()+" "+order.getDirection().toString().toLowerCase());
+		}
+		ISqlElement seQuery = processSql(params, querySqlName);
+
 		final int total = template.queryForObject(seCount.getSql(), seCount.getParams(),Integer.class);
 		//创建空集合
 		List<E> content = Collections.<E> emptyList();

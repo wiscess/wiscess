@@ -148,7 +148,7 @@ function setupHelpToggle(url) {
 			element.onclick = function() {
 				help_container = 'help';
 				if (Element.getStyle(help_container, "display") == 'none') {
-					new Ajax.Updater(help_container, url);
+					new Ajax.Updater(help_container, url,{method:'get'});
 				}
 				Effect.toggle(help_container, 'appear');
 				if (helpTimerID) clearTimeout(helpTimerID)

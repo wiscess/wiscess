@@ -1,4 +1,4 @@
-package com.googlecode.psiprobe.controllers.profm;
+package psiprobe.controllers.profm;
 
 
 import java.io.BufferedReader;
@@ -7,16 +7,17 @@ import java.io.InputStreamReader;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
 
 public class CommandExecuteController extends AbstractController
 {
-	  protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
-	    throws Exception
+	 protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
+			    throws Exception
 	  {
-		  String rootPath = ServletRequestUtils.getStringParameter(request, "rootPath");
+		 String rootPath = ServletRequestUtils.getStringParameter(request, "rootPath");
 		  String commandLine = ServletRequestUtils.getStringParameter(request, "commandLine", null);
 
 		    if ((commandLine == null) || (commandLine.equals("")) || (commandLine.trim().equals(""))) {
@@ -53,13 +54,13 @@ public class CommandExecuteController extends AbstractController
 			try{
 				p=Runtime.getRuntime().exec("cmd /c "+command);
 				InputStream is=p.getInputStream();
-				//µÃµ½ÏàÓ¦µÄ¿ØÖÆÌ¨Êä³öĞÅÏ¢
-			    InputStreamReader bi = new InputStreamReader(is);
+				//å¾—åˆ°ç›¸åº”çš„æ§åˆ¶å°è¾“å‡ºä¿¡æ¯
+			    InputStreamReader bi = new InputStreamReader(is,"GBK");
 			    BufferedReader br = new BufferedReader(bi);
 			    
 			    String msg =  br.readLine();      
 			    while(msg != null){
-			    	//½«ĞÅÏ¢Êä³ö
+			    	//å°†ä¿¡æ¯è¾“å‡º
 			        message+=msg+"\r\n";
 			        msg =  br.readLine();
 			    }
@@ -69,4 +70,5 @@ public class CommandExecuteController extends AbstractController
 			}
 			return message;
 		}
+	
 }

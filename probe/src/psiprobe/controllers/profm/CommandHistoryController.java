@@ -1,4 +1,4 @@
-package com.googlecode.psiprobe.controllers.profm;
+package psiprobe.controllers.profm;
 
 import java.util.List;
 
@@ -8,9 +8,12 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.ParameterizableViewController;
 
-public class CommandHistoryController extends ParameterizableViewController {
+import psiprobe.controllers.AbstractTomcatContainerController;
+
+public class CommandHistoryController extends AbstractTomcatContainerController {
+	
+	
 	protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
 		HttpSession sess = request.getSession(false);

@@ -1,4 +1,4 @@
-package com.googlecode.psiprobe.controllers.profm;
+package psiprobe.controllers.profm;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -20,7 +20,6 @@ import org.springframework.web.servlet.view.InternalResourceView;
 import psiprobe.controllers.AbstractTomcatContainerController;
 
 public class UploadFileController extends AbstractTomcatContainerController {
-
 	@SuppressWarnings("rawtypes")
 	protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
@@ -62,12 +61,12 @@ public class UploadFileController extends AbstractTomcatContainerController {
 				try {
 					SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 					if (tmpFile.getName().endsWith(".zip")) {
-						//±£´æzipÎÄ¼ş
+						//ä¿å­˜zipæ–‡ä»¶
 						String zipName=rootPath+sdf.format(new Date())+"\\"+tmpFile.getName();
 						File zipFile=new File(zipName);
 						FileUtils.copyFile(tmpFile, zipFile);
 						if(zipFile.exists()){
-							//½âÑ¹zipµ½µ±ÌìµÄÄ¿Â¼ÖĞ
+							//è§£å‹zipåˆ°å½“å¤©çš„ç›®å½•ä¸­
 							String path=zipName.toLowerCase().replace(".zip", "");
 							deleteFolder(path);
 								
@@ -75,7 +74,7 @@ public class UploadFileController extends AbstractTomcatContainerController {
 			                //request.setAttribute("success", Boolean.TRUE);
 						}
 					} else {
-						//·ÇzipÎÄ¼ş£¬Ö±½Ó±£´æ
+						//ézipæ–‡ä»¶ï¼Œç›´æ¥ä¿å­˜
 						String filename=rootPath+sdf.format(new Date())+"\\"+tmpFile.getName();
 						FileUtils.copyFile(tmpFile, new File(filename));
 		                //request.setAttribute("success", Boolean.TRUE);
@@ -96,21 +95,21 @@ public class UploadFileController extends AbstractTomcatContainerController {
 	public boolean deleteFolder(String sPath) {
 		boolean flag = false;
 		File file = new File(sPath);
-		// ÅĞ¶ÏÄ¿Â¼»òÎÄ¼şÊÇ·ñ´æÔÚ
-		if (!file.exists()) {// ²»´æÔÚ·µ»Ø false
+		// åˆ¤æ–­ç›®å½•æˆ–æ–‡ä»¶æ˜¯å¦å­˜åœ¨
+		if (!file.exists()) {// ä¸å­˜åœ¨è¿”å› false
 			return flag;
 		}else{
-			// ÅĞ¶ÏÊÇ·ñÎªÎÄ¼ş
-			if (file.isFile()){// ÎªÎÄ¼şÊ±µ÷ÓÃÉ¾³ıÎÄ¼ş·½·¨
+			// åˆ¤æ–­æ˜¯å¦ä¸ºæ–‡ä»¶
+			if (file.isFile()){// ä¸ºæ–‡ä»¶æ—¶è°ƒç”¨åˆ é™¤æ–‡ä»¶æ–¹æ³•
 				return deleteFile(sPath);
-			} else {// ÎªÄ¿Â¼Ê±µ÷ÓÃÉ¾³ıÄ¿Â¼·½·¨
+			} else {// ä¸ºç›®å½•æ—¶è°ƒç”¨åˆ é™¤ç›®å½•æ–¹æ³•
 				return deleteDirectory(sPath);
 			}
 		}
 	}
 	public boolean deleteFile(String sPath) {
 		boolean flag = false;
-		File file = new File(sPath);// Â·¾¶ÎªÎÄ¼şÇÒ²»Îª¿ÕÔò½øĞĞÉ¾³ı
+		File file = new File(sPath);// è·¯å¾„ä¸ºæ–‡ä»¶ä¸”ä¸ä¸ºç©ºåˆ™è¿›è¡Œåˆ é™¤
 		if (file.isFile() && file.exists()){
 			file.delete();
 			flag = true;
@@ -119,31 +118,31 @@ public class UploadFileController extends AbstractTomcatContainerController {
 	}
 	public boolean deleteDirectory(String sPath){
 		boolean flag = false;
-		//Èç¹ûsPath²»ÒÔÎÄ¼ş·Ö¸ô·û½áÎ²£¬×Ô¶¯Ìí¼ÓÎÄ¼ş·Ö¸ô·û
+		//å¦‚æœsPathä¸ä»¥æ–‡ä»¶åˆ†éš”ç¬¦ç»“å°¾ï¼Œè‡ªåŠ¨æ·»åŠ æ–‡ä»¶åˆ†éš”ç¬¦
 		if (!sPath.endsWith(File.separator)) {
 			sPath = sPath + File.separator;
 		}
 		File dirFile = new File(sPath);
-			//Èç¹ûdir¶ÔÓ¦µÄÎÄ¼ş²»´æÔÚ£¬»òÕß²»ÊÇÒ»¸öÄ¿Â¼£¬ÔòÍË³ö
+			//å¦‚æœdirå¯¹åº”çš„æ–‡ä»¶ä¸å­˜åœ¨ï¼Œæˆ–è€…ä¸æ˜¯ä¸€ä¸ªç›®å½•ï¼Œåˆ™é€€å‡º
 			if (!dirFile.exists() || !dirFile.isDirectory()){
 			return false;
 		}
 		flag = true;
-		//É¾³ıÎÄ¼ş¼ĞÏÂµÄËùÓĞÎÄ¼ş(°üÀ¨×ÓÄ¿Â¼)
+		//åˆ é™¤æ–‡ä»¶å¤¹ä¸‹çš„æ‰€æœ‰æ–‡ä»¶(åŒ…æ‹¬å­ç›®å½•)
 		File[] files = dirFile.listFiles();
 		for (int i = 0; i < files.length; i++){
-			//É¾³ı×ÓÎÄ¼ş
+			//åˆ é™¤å­æ–‡ä»¶
 			if (files[i].isFile()) {
 				flag = deleteFile(files[i].getAbsolutePath());
 				if (!flag) break;
-			} //É¾³ı×ÓÄ¿Â¼
+			} //åˆ é™¤å­ç›®å½•
 			else {
 			flag = deleteDirectory(files[i].getAbsolutePath());
 			if (!flag) break;
 			}
 		}
 		if (!flag) return false;
-		//É¾³ıµ±Ç°Ä¿Â¼
+		//åˆ é™¤å½“å‰ç›®å½•
 		if (dirFile.delete()) {
 			return true;
 		} else {

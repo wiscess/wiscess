@@ -1,7 +1,7 @@
-package com.googlecode.psiprobe.controllers.profm;
+package psiprobe.controllers.profm;
 
 /**
- * Ñ¹ËõÎÄ¼ş¼°Ä¿Â¼
+ * å‹ç¼©æ–‡ä»¶åŠç›®å½•
  * @author LunwenLiu
  */
 // import java.io.BufferedOutputStream;
@@ -21,7 +21,7 @@ public class ZipPath {
 	static final int BUFFER = 2048000; // 200KB
 
 	/**
-	 * ½âÑ¹ÎÄ¼ş
+	 * è§£å‹æ–‡ä»¶
 	 * @param zipFileName
 	 * @param outputDirectory
 	 * @throws Exception
@@ -73,10 +73,10 @@ public class ZipPath {
 		}
 
 	/**
-	 * ¿½±´ÎÄ¼ş
+	 * æ‹·è´æ–‡ä»¶
 	 * @param file1 in
 	 * @param file2 out dir
-	 * @return ³É¹¦·µ»Øtrue
+	 * @return æˆåŠŸè¿”å›true
 	 */
 	public boolean copy(String file1, String file2) {
 		File in = new File(file1);
@@ -108,7 +108,7 @@ public class ZipPath {
 			try {
 				while ((c = fin.read(b)) != -1) {
 					fout.write(b, 0, c);
-					// System.out.println("¸´ÖÆÎÄ¼şÖĞ£¡");
+					// System.out.println("å¤åˆ¶æ–‡ä»¶ä¸­ï¼");
 				}
 				fin.close();
 				fout.flush();
@@ -123,10 +123,10 @@ public class ZipPath {
 		return false;
 	}
 	/**
-	 * ¿½±´ÎÄ¼ş
+	 * æ‹·è´æ–‡ä»¶
 	 * @param file1 in
 	 * @param file2 out dir
-	 * @return ³É¹¦·µ»Øtrue
+	 * @return æˆåŠŸè¿”å›true
 	 */
 	public boolean copy(String file1, String file2, String name) {
 		File in = new File(file1);
@@ -158,7 +158,7 @@ public class ZipPath {
 			try {
 				while ((c = fin.read(b)) != -1) {
 					fout.write(b, 0, c);
-					// System.out.println("¸´ÖÆÎÄ¼şÖĞ£¡");
+					// System.out.println("å¤åˆ¶æ–‡ä»¶ä¸­ï¼");
 				}
 				fin.close();
 				fout.flush();

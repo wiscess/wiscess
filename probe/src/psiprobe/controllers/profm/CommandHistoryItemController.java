@@ -1,4 +1,4 @@
-package com.googlecode.psiprobe.controllers.profm;
+package psiprobe.controllers.profm;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

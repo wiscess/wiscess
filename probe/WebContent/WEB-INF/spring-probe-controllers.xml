@@ -657,7 +657,7 @@
 		<property name="viewName" value="ajax/help/threads2" />
 	</bean>
 	
-	<bean name="/profm.htm" class="com.googlecode.psiprobe.controllers.profm.ProfmController">
+	<bean name="/profm.htm" class="psiprobe.controllers.profm.ProfmController">
 		<property name="viewName" value="profm"/>
 		<property name="historySize" value="30"/>
 		<property name="rootPath" value="e:\tomcat_upload\"/>
@@ -674,17 +674,17 @@
 			</list>
 		</property>
 	</bean>
-	<bean name="/profm/upload.htm" class="com.googlecode.psiprobe.controllers.profm.UploadFileController">
+	<bean name="/profm/upload.htm" class="psiprobe.controllers.profm.UploadFileController">
 		<property name="containerWrapper" ref="containerWrapper"/>
 		<property name="viewName" value="/profm.htm"/>
 	</bean>
-	<bean name="/profm/commandExecute.ajax" class="com.googlecode.psiprobe.controllers.profm.CommandExecuteController"/>
+	<bean name="/profm/commandExecute.ajax" class="psiprobe.controllers.profm.CommandExecuteController"/>
 	
-	<bean name="/profm/commandHistory.ajax" class="com.googlecode.psiprobe.controllers.profm.CommandHistoryController">
+	<bean name="/profm/commandHistory.ajax" class="psiprobe.controllers.profm.CommandHistoryController">
 		<property name="viewName" value="ajax/profm/commandHistory"/>
 	</bean>
 
-	<bean name="/profm/commandHistoryItem.ajax" class="com.googlecode.psiprobe.controllers.profm.CommandHistoryItemController"/>
+	<bean name="/profm/commandHistoryItem.ajax" class="psiprobe.controllers.profm.CommandHistoryItemController"/>
 	
 	<bean name="/help/profm.ajax" class="org.springframework.web.servlet.mvc.ParameterizableViewController">
 		<property name="viewName" value="ajax/help/profm" />

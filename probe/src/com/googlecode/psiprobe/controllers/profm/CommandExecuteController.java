@@ -17,7 +17,6 @@ public class CommandExecuteController extends AbstractController
 	    throws Exception
 	  {
 		  String rootPath = ServletRequestUtils.getStringParameter(request, "rootPath");
-		  String webPath = ServletRequestUtils.getStringParameter(request, "webPath");
 		  String commandLine = ServletRequestUtils.getStringParameter(request, "commandLine", null);
 
 		    if ((commandLine == null) || (commandLine.equals("")) || (commandLine.trim().equals(""))) {
@@ -37,7 +36,6 @@ public class CommandExecuteController extends AbstractController
 
 		      sessData.setHistorySize(historySize);
 		      sessData.setRootPath(rootPath);
-		      sessData.setWebPath(webPath);
 		      sessData.addCommandToHistory(commandLine);
 		    }
 

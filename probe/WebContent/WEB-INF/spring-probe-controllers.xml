@@ -661,14 +661,12 @@
 		<property name="viewName" value="profm"/>
 		<property name="historySize" value="30"/>
 		<property name="rootPath" value="e:\tomcat_upload\"/>
-		<property name="webPath" value="e:\SharedWebapps"/>
 		<property name="defaultCommand">
 			<list>
 				<value>dir $[rootPath]$[dt]</value>
 				<value>copy $[rootPath]$[dt]\  e:\SharedWebapps\cypmproject\</value>
 				<value>copy $[rootPath]$[dt]\  e:\SharedWebapps\cypmothers\</value>
 				<value>copy $[rootPath]$[dt]\  e:\SharedWebapps_cwk\cypm_city\</value>
-				<value>copy f:\数据库备份\chaoyang_pm_zjk_$[dt].bak e:\SharedWebapps\ROOT</value>
 				<value>$[rootPath]xcopy $[rootPath]$[dt]\  e:\SharedWebapps /s/y</value>
 				<value>$[rootPath]xcopy $[rootPath]$[dt]\  e:\SharedWebapps_cwk /s/y</value>
 				<value>dir e:\SharedWebapps</value>

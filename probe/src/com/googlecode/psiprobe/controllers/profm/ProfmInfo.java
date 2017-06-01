@@ -10,7 +10,6 @@ public class ProfmInfo implements Serializable {
 
 	private int historySize = 0;
 	private String rootPath;
-	private String webPath;
 
 	public void addCommandToHistory(String command) {
 		this.commandHistory.remove(command);
@@ -43,11 +42,4 @@ public class ProfmInfo implements Serializable {
 		this.rootPath = rootPath;
 	}
 
-	public String getWebPath() {
-		return webPath;
-	}
-
-	public void setWebPath(String webPath) {
-		this.webPath = webPath;
-	}
 }

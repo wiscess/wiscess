@@ -100,8 +100,6 @@
 			<dl id="optionsDL" style="display:none;">
 				<dt><label for="rootPath"><spring:message code='probe.jsp.profm.server.path'/></label></dt>
 				<dd><input type="text" id="rootPath" name="rootPath" class="txtInput" value="${rootPath }"/></dd>
-				<dt><label for="webPath"><spring:message code='probe.jsp.profm.webapps.path'/></label></dt>
-				<dd><input type="text" id="webPath" name="webPath" class="txtInput" value="${webPath }"/></dd>
 				<dt><label for="historySize"><spring:message code="probe.jsp.dataSourceTest.sqlForm.historySize.label"/></label></dt>
 				<dd><input type="text" id="historySize" name="historySize"  class="txtInput" value="${historySize}" size="6"/></dd>
 			</dl>

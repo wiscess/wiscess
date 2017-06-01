@@ -20,14 +20,14 @@
 			<configuration>
 				<source>1.7</source>
 				<target>1.7</target>
-				<encoding>utf8</encoding>
+				<encoding>utf-8</encoding>
 			</configuration>
 		</plugin>
 		<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-source-plugin</artifactId>
 			<configuration>
-				<encoding>utf8</encoding>
+				<encoding>utf-8</encoding>
 			</configuration>
 			<executions>
 				<execution>

@@ -8,30 +8,30 @@ import java.util.List;
 import javax.crypto.Cipher;
 
 /**
- * DES¼ÓÃÜºÍ½âÃÜ¹¤¾ß,¿ÉÒÔ¶Ô×Ö·û´®½øĞĞ¼ÓÃÜºÍ½âÃÜ²Ù×÷ ¡£
+ * DESåŠ å¯†å’Œè§£å¯†å·¥å…·,å¯ä»¥å¯¹å­—ç¬¦ä¸²è¿›è¡ŒåŠ å¯†å’Œè§£å¯†æ“ä½œ ã€‚
  */
 public class DesUtils {
 
-	private static String strDefaultKey = "cysy_cms.20151024";// ×Ö·û´®Ä¬ÈÏ¼üÖµ
+	private static String strDefaultKey = "cysy_cms.20151024";// å­—ç¬¦ä¸²é»˜è®¤é”®å€¼
 	private static enum Method {decrypt,encrypt};
 
 	/**
-	 * ½«byteÊı×é×ª»»Îª±íÊ¾16½øÖÆÖµµÄ×Ö·û´®£¬ Èç£ºbyte[]{8,18}×ª»»Îª£º0813£¬ ºÍpublic static byte[]
-	 * hexStr2ByteArray(String strIn) »¥Îª¿ÉÄæµÄ×ª»»¹ı³Ì
+	 * å°†byteæ•°ç»„è½¬æ¢ä¸ºè¡¨ç¤º16è¿›åˆ¶å€¼çš„å­—ç¬¦ä¸²ï¼Œ å¦‚ï¼šbyte[]{8,18}è½¬æ¢ä¸ºï¼š0813ï¼Œ å’Œpublic static byte[]
+	 * hexStr2ByteArray(String strIn) äº’ä¸ºå¯é€†çš„è½¬æ¢è¿‡ç¨‹
 	 *
 	 * @param arrB
-	 *            ĞèÒª×ª»»µÄbyteÊı×é
-	 * @return ×ª»»ºóµÄ×Ö·û´®
+	 *            éœ€è¦è½¬æ¢çš„byteæ•°ç»„
+	 * @return è½¬æ¢åçš„å­—ç¬¦ä¸²
 	 */
 	private static String byteArray2HexStr(byte[] arrB) {
 		int iLen = arrB.length;
-		StringBuffer sb = new StringBuffer(iLen * 2);// Ã¿¸öbyteÓÃÁ½¸ö×Ö·û²ÅÄÜ±íÊ¾£¬ËùÒÔ×Ö·û´®µÄ³¤¶ÈÊÇÊı×é³¤¶ÈµÄÁ½±¶
+		StringBuffer sb = new StringBuffer(iLen * 2);// æ¯ä¸ªbyteç”¨ä¸¤ä¸ªå­—ç¬¦æ‰èƒ½è¡¨ç¤ºï¼Œæ‰€ä»¥å­—ç¬¦ä¸²çš„é•¿åº¦æ˜¯æ•°ç»„é•¿åº¦çš„ä¸¤å€
 		for (int i = 0; i < iLen; i++) {
 			int intTmp = arrB[i];
-			while (intTmp < 0) {// °Ñ¸ºÊı×ª»»ÎªÕıÊı
+			while (intTmp < 0) {// æŠŠè´Ÿæ•°è½¬æ¢ä¸ºæ­£æ•°
 				intTmp = intTmp + 256;
 			}
-			if (intTmp < 16) {// Ğ¡ÓÚ0FµÄÊıĞèÒªÔÚÇ°Ãæ²¹0
+			if (intTmp < 16) {// å°äº0Fçš„æ•°éœ€è¦åœ¨å‰é¢è¡¥0
 				sb.append("0");
 			}
 			sb.append(Integer.toString(intTmp, 16));
@@ -40,17 +40,17 @@ public class DesUtils {
 	}
 
 	/**
-	 * ½«±íÊ¾16½øÖÆÖµµÄ×Ö·û´®×ª»»ÎªbyteÊı×é£¬ ºÍpublic static String byteArray2HexStr(byte[] arrB)
-	 * »¥Îª¿ÉÄæµÄ×ª»»¹ı³Ì
+	 * å°†è¡¨ç¤º16è¿›åˆ¶å€¼çš„å­—ç¬¦ä¸²è½¬æ¢ä¸ºbyteæ•°ç»„ï¼Œ å’Œpublic static String byteArray2HexStr(byte[] arrB)
+	 * äº’ä¸ºå¯é€†çš„è½¬æ¢è¿‡ç¨‹
 	 *
 	 * @param strIn
-	 *            ĞèÒª×ª»»µÄ×Ö·û´®
-	 * @return ×ª»»ºóµÄbyteÊı×é
+	 *            éœ€è¦è½¬æ¢çš„å­—ç¬¦ä¸²
+	 * @return è½¬æ¢åçš„byteæ•°ç»„
 	 */
 	private static byte[] hexStr2ByteArray(String strIn) {
 		byte[] arrB = strIn.getBytes();
 		int iLen = arrB.length;
-		byte[] arrOut = new byte[iLen / 2];// Á½¸ö×Ö·û±íÊ¾Ò»¸ö×Ö½Ú£¬ËùÒÔ×Ö½ÚÊı×é³¤¶ÈÊÇ×Ö·û´®³¤¶È³ıÒÔ2
+		byte[] arrOut = new byte[iLen / 2];// ä¸¤ä¸ªå­—ç¬¦è¡¨ç¤ºä¸€ä¸ªå­—èŠ‚ï¼Œæ‰€ä»¥å­—èŠ‚æ•°ç»„é•¿åº¦æ˜¯å­—ç¬¦ä¸²é•¿åº¦é™¤ä»¥2
 		for (int i = 0; i < iLen; i = i + 2) {
 			String strTmp = new String(arrB, i, 2);
 			arrOut[i / 2] = (byte) Integer.parseInt(strTmp, 16);
@@ -69,11 +69,11 @@ public class DesUtils {
 		return decryptCipher;
 	}
 	/**
-	 * ¼ÓÃÜ×Ö½ÚÊı×é
+	 * åŠ å¯†å­—èŠ‚æ•°ç»„
 	 *
 	 * @param arrB
-	 *            Ğè¼ÓÃÜµÄ×Ö½ÚÊı×é
-	 * @return ¼ÓÃÜºóµÄ×Ö½ÚÊı×é
+	 *            éœ€åŠ å¯†çš„å­—èŠ‚æ•°ç»„
+	 * @return åŠ å¯†åçš„å­—èŠ‚æ•°ç»„
 	 * @throws Exception
 	 */
 	private static byte[] encryptByte(byte[] arrB) {
@@ -90,11 +90,11 @@ public class DesUtils {
 	}
 
 	/**
-	 * ¼ÓÃÜ×Ö·û´®
+	 * åŠ å¯†å­—ç¬¦ä¸²
 	 *
 	 * @param strIn
-	 *            Ğè¼ÓÃÜµÄ×Ö·û´®
-	 * @return ¼ÓÃÜºóµÄ×Ö·û´®
+	 *            éœ€åŠ å¯†çš„å­—ç¬¦ä¸²
+	 * @return åŠ å¯†åçš„å­—ç¬¦ä¸²
 	 * @throws Exception
 	 */
 	public static String encrypt(String strIn) {
@@ -105,11 +105,11 @@ public class DesUtils {
 	}
 
 	/**
-	 * ½âÃÜ×Ö½ÚÊı×é
+	 * è§£å¯†å­—èŠ‚æ•°ç»„
 	 *
 	 * @param arrB
-	 *            Ğè½âÃÜµÄ×Ö½ÚÊı×é
-	 * @return ½âÃÜºóµÄ×Ö½ÚÊı×é
+	 *            éœ€è§£å¯†çš„å­—èŠ‚æ•°ç»„
+	 * @return è§£å¯†åçš„å­—èŠ‚æ•°ç»„
 	 * @throws Exception
 	 */
 	private final static byte[] decryptByte(byte[] arrB) {
@@ -126,11 +126,11 @@ public class DesUtils {
 	}
 
 	/**
-	 * ½âÃÜ×Ö·û´®
+	 * è§£å¯†å­—ç¬¦ä¸²
 	 *
 	 * @param strIn
-	 *            Ğè½âÃÜµÄ×Ö·û´®
-	 * @return ½âÃÜºóµÄ×Ö·û´®
+	 *            éœ€è§£å¯†çš„å­—ç¬¦ä¸²
+	 * @return è§£å¯†åçš„å­—ç¬¦ä¸²
 	 * @throws Exception
 	 */
 	public static String decrypt(String strIn) {
@@ -141,36 +141,36 @@ public class DesUtils {
 	}
 
 	/**
-	 * ´ÓÖ¸¶¨×Ö·û´®Éú³ÉÃÜÔ¿£¬ÃÜÔ¿ËùĞèµÄ×Ö½ÚÊı×é³¤¶ÈÎª8Î» ²»×ã8Î»Ê±ºóÃæ²¹0£¬³¬³ö8Î»Ö»È¡Ç°8Î»
+	 * ä»æŒ‡å®šå­—ç¬¦ä¸²ç”Ÿæˆå¯†é’¥ï¼Œå¯†é’¥æ‰€éœ€çš„å­—èŠ‚æ•°ç»„é•¿åº¦ä¸º8ä½ ä¸è¶³8ä½æ—¶åé¢è¡¥0ï¼Œè¶…å‡º8ä½åªå–å‰8ä½
 	 *
 	 * @param arrBTmp
-	 *            ¹¹³É¸Ã×Ö·û´®µÄ×Ö½ÚÊı×é
-	 * @return Éú³ÉµÄÃÜÔ¿
+	 *            æ„æˆè¯¥å­—ç¬¦ä¸²çš„å­—èŠ‚æ•°ç»„
+	 * @return ç”Ÿæˆçš„å¯†é’¥
 	 * @throws java.lang.Exception
 	 */
 	private static Key getKey(byte[] arrBTmp) throws Exception {
-		byte[] arrB = new byte[8];// ´´½¨Ò»¸ö¿ÕµÄ8Î»×Ö½ÚÊı×é£¨Ä¬ÈÏÖµÎª0£©
-		for (int i = 0; i < arrBTmp.length && i < arrB.length; i++) {// ½«Ô­Ê¼×Ö½ÚÊı×é×ª»»Îª8Î»
+		byte[] arrB = new byte[8];// åˆ›å»ºä¸€ä¸ªç©ºçš„8ä½å­—èŠ‚æ•°ç»„ï¼ˆé»˜è®¤å€¼ä¸º0ï¼‰
+		for (int i = 0; i < arrBTmp.length && i < arrB.length; i++) {// å°†åŸå§‹å­—èŠ‚æ•°ç»„è½¬æ¢ä¸º8ä½
 			arrB[i] = arrBTmp[i];
 		}
-		Key key = new javax.crypto.spec.SecretKeySpec(arrB, "DES");// Éú³ÉÃÜÔ¿
+		Key key = new javax.crypto.spec.SecretKeySpec(arrB, "DES");// ç”Ÿæˆå¯†é’¥
 		return key;
 	}
 	
 	public static void usage(){
-		System.out.println("¼ÓÃÜ½âÃÜ¹¤¾ß");
+		System.out.println("åŠ å¯†è§£å¯†å·¥å…·");
 		System.out.println("java -jar wiscess-util.jar -des [OPTION] <source1> <source2>...");
 		System.out.println("");
-		System.out.println("Ñ¡Ïî£º");
+		System.out.println("é€‰é¡¹ï¼š");
 		System.out.println("");
-		System.out.println("  /d          ¶ÔÊäÈëµÄ×Ö·û´®½øĞĞ½âÃÜ");
-		System.out.println("  /e          ¶ÔÊäÈëµÄ×Ö·û´®½øĞĞ¼ÓÃÜ");
-		System.out.println("  /k:<key>    Ö¸¶¨key");
-		System.out.println("  <source1>   ÊäÈëµÄ×Ö·û´®1");
-		System.out.println("  <source2>   ÊäÈëµÄ×Ö·û´®2");
+		System.out.println("  /d          å¯¹è¾“å…¥çš„å­—ç¬¦ä¸²è¿›è¡Œè§£å¯†");
+		System.out.println("  /e          å¯¹è¾“å…¥çš„å­—ç¬¦ä¸²è¿›è¡ŒåŠ å¯†");
+		System.out.println("  /k:<key>    æŒ‡å®škey");
+		System.out.println("  <source1>   è¾“å…¥çš„å­—ç¬¦ä¸²1");
+		System.out.println("  <source2>   è¾“å…¥çš„å­—ç¬¦ä¸²2");
 	}
 	/**
-	 * main·½·¨
+	 * mainæ–¹æ³•
 	 */
 	public static void main(String[] args) {
 //		args=new String[]{"/e","wiscess"};
@@ -179,7 +179,7 @@ public class DesUtils {
 			usage();
 			return;
 		}
-		//´Ó²ÎÊıÁĞ±íÖĞ¶ÁÈ¡¸÷¸ö²ÎÊı
+		//ä»å‚æ•°åˆ—è¡¨ä¸­è¯»å–å„ä¸ªå‚æ•°
 		Method method = null;
 		String key=strDefaultKey;
 		List<String> sources=new ArrayList<String>();
@@ -196,23 +196,23 @@ public class DesUtils {
 			else if(arg.equalsIgnoreCase("/e")){
 				method=Method.encrypt;
 			}else{
-				//×Ö·û´®
+				//å­—ç¬¦ä¸²
 				sources.add(arg);
 			}
 		}
 		switch (method) {
 		case decrypt:
-			//½âÃÜ
+			//è§£å¯†
 			for(String content:sources){
-				System.out.println("½âÃÜÇ°µÄ×Ö·û´®:"+content);
-				System.out.println("½âÃÜºóµÄ×Ö·û´®:"+DesUtils.decrypt(content,key));
+				System.out.println("è§£å¯†å‰çš„å­—ç¬¦ä¸²:"+content);
+				System.out.println("è§£å¯†åçš„å­—ç¬¦ä¸²:"+DesUtils.decrypt(content,key));
 			}
 			break;
 		case encrypt:
-			//¼ÓÃÜ
+			//åŠ å¯†
 			for(String content:sources){
-				System.out.println("¼ÓÃÜÇ°µÄ×Ö·û´®:"+content);
-				System.out.println("¼ÓÃÜºóµÄ×Ö·û´®:"+DesUtils.encrypt(content,key));
+				System.out.println("åŠ å¯†å‰çš„å­—ç¬¦ä¸²:"+content);
+				System.out.println("åŠ å¯†åçš„å­—ç¬¦ä¸²:"+DesUtils.encrypt(content,key));
 			}
 			break;
 		default:

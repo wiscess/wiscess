@@ -62,7 +62,6 @@ public class CommandExecuteController extends AbstractController
 			    String msg =  br.readLine();      
 			    while(msg != null){
 			    	//将信息输出
-			        //System.out.println(msg);
 			        message+=msg+"\r\n";
 			        msg =  br.readLine();
 			    }

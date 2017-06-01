@@ -1,7 +1,5 @@
 package com.googlecode.psiprobe.controllers.profm;
 
-import com.googlecode.psiprobe.controllers.TomcatContainerController;
-
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -19,7 +17,10 @@ import org.apache.commons.io.FilenameUtils;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.InternalResourceView;
 
-public class UploadFileController extends TomcatContainerController {
+import psiprobe.controllers.AbstractTomcatContainerController;
+
+public class UploadFileController extends AbstractTomcatContainerController {
+
 	@SuppressWarnings("rawtypes")
 	protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
@@ -45,7 +46,7 @@ public class UploadFileController extends TomcatContainerController {
 					}
 				}
 			} catch (Exception e) {
-				this.logger.fatal("Could not process file upload", e);
+				this.logger.error("Could not process file upload", e);
 				request.setAttribute("errorMessage", getMessageSourceAccessor()
 						.getMessage("probe.src.deploy.war.uploadfailure", new Object[] { e.getMessage() }));
 

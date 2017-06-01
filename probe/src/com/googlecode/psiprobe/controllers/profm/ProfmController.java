@@ -1,7 +1,5 @@
 package com.googlecode.psiprobe.controllers.profm;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,7 +12,6 @@ public class ProfmController extends ParameterizableViewController {
 
 	private int historySize = 0;
 	private String rootPath;
-	private String webPath;
 	private List<String> defaultCommand;
 	
 	protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
@@ -34,7 +31,6 @@ public class ProfmController extends ParameterizableViewController {
 
 		      sessData.setHistorySize(historySize);
 		      sessData.setRootPath(rootPath);
-		      sessData.setWebPath(webPath);
 		      //String dt=(new SimpleDateFormat("yyyyMMdd").format(new Date()));
 		      for(String commandLine:defaultCommand){
 		    	  //commandLine=commandLine.replace("$[rootPath]", rootPath);
@@ -48,7 +44,7 @@ public class ProfmController extends ParameterizableViewController {
 	    return new ModelAndView(getViewName())
 	    		.addObject("historySize", String.valueOf(sessData == null ? getHistorySize() : sessData.getHistorySize()))
 	    		.addObject("rootPath", String.valueOf(sessData == null ? getRootPath() : sessData.getRootPath()))
-	    		.addObject("webPath", String.valueOf(sessData == null ? getWebPath() : sessData.getWebPath()));
+	    		;
 	}
 
 	public int getHistorySize() {
@@ -65,14 +61,6 @@ public class ProfmController extends ParameterizableViewController {
 
 	public void setRootPath(String rootPath) {
 		this.rootPath = rootPath;
-	}
-
-	public String getWebPath() {
-		return webPath;
-	}
-
-	public void setWebPath(String webPath) {
-		this.webPath = webPath;
 	}
 
 	public List<String> getDefaultCommand() {

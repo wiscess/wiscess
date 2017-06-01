@@ -1,23 +1,26 @@
 Manifest-Version: 1.0
-Archiver-Version: Plexus Archiver
-Created-By: Apache Maven
-Built-By: mlewis
-Build-Jdk: 1.6.0_37
-Implementation-Build: 2.3.3
-Class-Path: lib/core-2.3.3.jar lib/mail-1.4.jar lib/activation-1.1.jar
-  lib/xstream-1.2.2.jar lib/xpp3_min-1.1.3.4.O.jar lib/jhighlight-1.0.
- jar lib/commons-beanutils-1.7.0.jar lib/commons-logging-1.1.1.jar lib
- /commons-collections-3.2.jar lib/commons-fileupload-1.2.jar lib/commo
- ns-io-1.4.jar lib/commons-lang-2.5.jar lib/commons-modeler-2.0.jar li
- b/inetaddresslocator-2.18.jar lib/jta-1.0.1B.jar lib/jfreechart-1.0.4
- .jar lib/jcommon-1.0.8.jar lib/log4j-1.2.13.jar lib/quartz-1.6.0.jar 
- lib/sitemesh-2.4.jar lib/jmxri-1.2.1.jar lib/spring-webmvc-2.5.6.SEC0
- 1.jar lib/spring-beans-2.5.6.SEC01.jar lib/spring-core-2.5.6.SEC01.ja
- r lib/spring-context-2.5.6.SEC01.jar lib/aopalliance-1.0.jar lib/spri
- ng-context-support-2.5.6.SEC01.jar lib/spring-web-2.5.6.SEC01.jar lib
- /spring-tx-2.5.6.SEC01.jar lib/tomcat50adaptor-2.3.3.jar lib/tomcat55
- adaptor-2.3.3.jar lib/tomcat60adaptor-2.3.3.jar lib/tomcat70adaptor-2
- .3.3.jar lib/jstl-1.1.0.jar lib/standard-1.1.0.jar lib/displaytag-1.2
- .jar lib/jcl104-over-slf4j-1.4.2.jar lib/slf4j-log4j12-1.4.2.jar lib/
- slf4j-api-1.4.2.jar
+Built-By: Jeremy
+Implementation-Build: 3.0.0-SNAPSHOT (built at 2016-12-15T22:26:06Z)
+Class-Path: lib/psi-probe-core-3.0.0-SNAPSHOT.jar lib/javax.mail-1.5.6
+ .jar lib/jcl-over-slf4j-1.7.22.jar lib/xstream-1.4.9.jar lib/xmlpull-
+ 1.1.3.1.jar lib/jhighlight-1.0.3.jar lib/commons-beanutils-1.9.3.jar 
+ lib/commons-collections-3.2.2.jar lib/commons-fileupload-1.3.2.jar li
+ b/commons-io-2.5.jar lib/commons-lang3-3.5.jar lib/commons-modeler-2.
+ 0.1.jar lib/inetaddresslocator-2.18.jar lib/javax.transaction-api-1.2
+ .jar lib/jfreechart-1.0.19.jar lib/jcommon-1.0.23.jar lib/quartz-2.2.
+ 3.jar lib/sitemesh-2.4.2.jar lib/xpp3_min-1.1.4c.jar lib/spring-beans
+ -4.3.4.RELEASE.jar lib/spring-core-4.3.4.RELEASE.jar lib/spring-webmv
+ c-4.3.4.RELEASE.jar lib/spring-aop-4.3.4.RELEASE.jar lib/spring-expre
+ ssion-4.3.4.RELEASE.jar lib/spring-web-4.3.4.RELEASE.jar lib/spring-t
+ x-4.3.4.RELEASE.jar lib/spring-context-4.3.4.RELEASE.jar lib/spring-c
+ ontext-support-4.3.4.RELEASE.jar lib/spring-security-config-4.2.0.REL
+ EASE.jar lib/aopalliance-1.0.jar lib/spring-security-core-4.2.0.RELEA
+ SE.jar lib/spring-security-web-4.2.0.RELEASE.jar lib/psi-probe-tomcat
+ 7-3.0.0-SNAPSHOT.jar lib/psi-probe-tomcat8-3.0.0-SNAPSHOT.jar lib/psi
+ -probe-tomcat85-3.0.0-SNAPSHOT.jar lib/psi-probe-tomcat9-3.0.0-SNAPSH
+ OT.jar lib/javax.servlet.jsp.jstl-api-1.2.1.jar lib/javax.servlet.jsp
+ .jstl-1.2.5-b03.jar lib/displaytag-2.1.5.jar lib/slf4j-api-1.7.22.jar
+  lib/logback-classic-1.1.8.jar lib/logback-core-1.1.8.jar
+Created-By: Apache Maven 3.3.9
+Build-Jdk: 1.8.0_112
 

@@ -1,20 +1,21 @@
 <%--
- * Licensed under the GPL License.  You may not use this file except in
- * compliance with the License.  You may obtain a copy of the License at
- *
- *     http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- *
- * THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
- * MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
---%>
 
+    Licensed under the GPL License. You may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+
+    THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+    WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE.
+
+--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.opensymphony.com/sitemesh/decorator" prefix="decorator" %>
 <%@ taglib uri="http://www.opensymphony.com/sitemesh/page" prefix="page" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
-<%@ taglib uri="/WEB-INF/tld/probe.tld" prefix="probe" %>
+<%@ taglib uri="https://github.com/psi-probe/psi-probe/jsp/tags" prefix="probe" %>
 
 
 <%--
@@ -45,7 +46,7 @@
 				<li id="logo"><a href="<c:url value='/index.htm'/>"><img src="<c:url value='/css/the-probe-logo.gif'/>"
 																		alt="PSI Probe Logo"/></a></li>
 				<li id="runtime">
-					<spring:message code="probe.jsp.version" arguments="${version},<b>${hostname}</b>"/>,
+					<spring:message code="probe.jsp.version" arguments="3.0.0-SNAPSHOT,<b>${hostname}</b>"/>,
 					<span class="uptime"><spring:message code="probe.jsp.uptime"
 														arguments="${uptime_days},${uptime_hours},${uptime_mins}"/></span></li>
 				<li id="title"><decorator:title default="Probe"/></li>
@@ -55,7 +56,7 @@
 		<div id="navcontainer">
 			<ul id="tabnav">
 				<li>
-					<a class="${navTabApps}" href="<c:url value='/index.htm?size=${param.size}'/>">
+					<a class="${navTabApps}" href="<c:url value='/index.htm'><c:param name='size'><c:out value='${param.size}' /></c:param></c:url>">
 						<spring:message code="probe.jsp.menu.applications"/>
 					</a>
 				</li>
@@ -65,7 +66,7 @@
 					</a>
 				</li>
 				<li>
-					<a class="${navTabDeploy}" href="<c:url value='/deploy.htm'/>">
+					<a class="${navTabDeploy}" href="<c:url value='/adm/deploy.htm'/>">
 						<spring:message code="probe.jsp.menu.deployment"/>
 					</a>
 				</li>
@@ -75,7 +76,7 @@
 					</a>
 				</li>
 				<li>
-					<a class="${navTabLogs}" href="<c:url value='/logs/index.htm'/>">
+					<a class="${navTabLogs}" href="<c:url value='/logs/list.htm'/>">
 						<spring:message code="probe.jsp.menu.logs"/>
 					</a>
 				</li>
@@ -97,6 +98,11 @@
 				<li>
 					<a class="${navTabConnectors}" href="<c:url value='/connectors.htm'/>">
 						<spring:message code="probe.jsp.menu.connectors"/>
+					</a>
+				</li>
+				<li>
+					<a class="${navTabCertificates}" href="<c:url value='/certificates.htm'/>">
+						<spring:message code="probe.jsp.menu.certificates"/>
 					</a>
 				</li>
 				<li>
@@ -133,17 +139,17 @@
 					</a>
 				</li>
 				<li>
+					<a href="<c:url value='/adm/deploy.htm'/>">
+						<spring:message code="probe.jsp.menu.deployment"/>
+					</a>
+				</li>
+				<li>
 					<a href="<c:url value='/profm.htm'/>">
 						<spring:message code="probe.jsp.menu.profm"/>
 					</a>
 				</li>
 				<li>
-					<a href="<c:url value='/deploy.htm'/>">
-						<spring:message code="probe.jsp.menu.deployment"/>
-					</a>
-				</li>
-				<li>
-					<a href="<c:url value='/logs/index.htm'/>">
+					<a href="<c:url value='/logs/list.htm'/>">
 						<spring:message code="probe.jsp.menu.logs"/>
 					</a>
 				</li>
@@ -167,6 +173,11 @@
 						<spring:message code="probe.jsp.menu.connectors"/>
 					</a>
 				</li>
+				<li>
+					<a href="<c:url value='/certificates.htm'/>">
+						<spring:message code="probe.jsp.menu.certificates"/>
+					</a>
+				</li>
 				<li class="last">
 					<a href="<c:url value='/adm/quickcheck.htm'/>">
 						<spring:message code="probe.jsp.menu.quickcheck"/>
@@ -179,8 +190,6 @@
 				<spring:message code="probe.jsp.icons.credit"/>
 			</p>
 			<div id="locales">
-				<a href="?<probe:addQueryParam param='lang' value='cn'/>"><img
-						src="<c:url value='/flags/gb.gif'/>" alt="CN" /></a>
 				<a href="?<probe:addQueryParam param='lang' value='en'/>"><img
 						src="<c:url value='/flags/gb.gif'/>" alt="EN" /></a>
 				<a href="?<probe:addQueryParam param='lang' value='ru'/>"><img
@@ -197,6 +206,8 @@
 						src="<c:url value='/flags/fr.gif'/>" alt="FR" /></a>
 				<a href="?<probe:addQueryParam param='lang' value='pt_br'/>"><img
 						src="<c:url value='/flags/br.gif'/>" alt="BR" /></a>
+				<a href="?<probe:addQueryParam param='lang' value='zh_cn'/>"><img
+						src="<c:url value='/flags/cn.gif'/>" alt="CN" /></a>
 			</div>
 			<p>
 				<spring:message code="probe.jsp.i18n.credit"/>

@@ -1,19 +1,20 @@
 <%--
- * Licensed under the GPL License.  You may not use this file except in
- * compliance with the License.  You may obtain a copy of the License at
- *
- *     http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- *
- * THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
- * MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
---%>
 
+    Licensed under the GPL License. You may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+
+    THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+    WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE.
+
+--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib uri="http://displaytag.sf.net" prefix="display" %>
-<%@ taglib uri="/WEB-INF/tld/probe.tld" prefix="probe" %>
+<%@ taglib uri="https://github.com/psi-probe/psi-probe/jsp/tags" prefix="probe" %>
 
 <%--
 	Probe "home" page. Displays list of web applications.
@@ -26,11 +27,11 @@
 
 	<head>
 		<title><spring:message code="probe.jsp.title.applications"/></title>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/prototype.js'/>"></script>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/scriptaculous.js'/>"></script>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/effects.js'/>"></script>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/func.js'/>"></script>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/behaviour.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/prototype.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/scriptaculous.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/effects.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/func.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/behaviour.js'/>"></script>
 	</head>
 
 	<body>
@@ -127,7 +128,7 @@
 			</div>
 		</c:if>
 
-		<display:table class="genericTbl" name="apps" uid="app" cellspacing="0" requestURI="" defaultsort="1"
+		<display:table class="genericTbl" name="apps" uid="app" style="border-spacing:0;border-collapse:separate;" requestURI="" defaultsort="1"
 				defaultorder="ascending" cellpadding="0">
 
 			<display:column class="leftMostIcon" title="&nbsp;">
@@ -143,7 +144,7 @@
 			</display:column>
 
 			<display:column sortable="true" sortProperty="name" titleKey="probe.jsp.applications.col.name">
-				<a href="<c:url value='/appsummary.htm'><c:param name='webapp' value='${app.name}'/><c:param name='size' value='${param.size}'/></c:url>">
+				<a href="<c:url value='/appsummary.htm'><c:param name='webapp' value='${app.name}'/><c:param name='size'><c:out value='${param.size}'/></c:param></c:url>">
 					${app.name}
 				</a>
 			</display:column>
@@ -153,20 +154,20 @@
 				<c:choose>
 					<c:when test="${app.available}">
 						<a onclick="return toggleContext('${app_rowNum}', '${toggleAppUrl}', '${app.name}');"
-								href="<c:url value='/app/stop.htm'/>?webapp=${app.name}"
+								href="<c:url value='/app/stop.htm'><c:param name='webapp' value='${app.name}' /></c:url>"
 								title="<spring:message code='probe.jsp.applications.title.status.up' arguments='${app.name}'/>">
-							<div class="okValue" id="rs_${app_rowNum}">
+							<span style="display: block" class="okValue" id="rs_${app_rowNum}">
 								<spring:message code="probe.jsp.applications.status.up"/>
-							</div>
+							</span>
 						</a>
 					</c:when>
 					<c:otherwise>
 						<a onclick="return toggleContext('${app_rowNum}', '${toggleAppUrl}', '${app.name}');"
-								href="<c:url value='/app/start.htm'/>?webapp=${app.name}"
+								href="<c:url value='/app/start.htm'><c:param name='webapp' value='${app.name}' /></c:url>"
 								title="<spring:message code='probe.jsp.applications.status.down.title' arguments='${app.name}'/>">
-							<div class="errorValue" id="rs_${app_rowNum}">
+							<span style="display: block" class="errorValue" id="rs_${app_rowNum}">
 								<spring:message code="probe.jsp.applications.status.down"/>
-							</div>
+							</span>
 						</a>
 					</c:otherwise>
 				</c:choose>
@@ -175,7 +176,7 @@
 			<display:column title="&nbsp;">
 				<a onclick="return handleContextReload('${app_rowNum}', '${app.name}');"
 						class="imglink"
-						href="<c:url value='/app/reload.htm'/>?webapp=${app.name}">
+						href="<c:url value='/app/reload.htm'><c:param name='webapp' value='${app.name}' /></c:url>">
 					<img id='ri_${app_rowNum}'
 							border="0" src="${pageContext.request.contextPath}<spring:theme code='reset.gif'/>"
 							alt="<spring:message code='probe.jsp.applications.alt.reload'/>"
@@ -188,14 +189,14 @@
 			</display:column>
 
 			<display:column sortable="true" titleKey="probe.jsp.applications.col.requestCount" sortProperty="requestCount">
-				<a href="<c:url value='/servlets.htm?webapp=${app.name}'/>">
+				<a href="<c:url value='/servlets.htm'><c:param name='webapp' value='${app.name}' /></c:url>">
 					${app.requestCount}
 				</a>
 			</display:column>
 
 			<display:column sortable="true" sortProperty="sessionCount"
 					titleKey="probe.jsp.applications.col.sessionCount">
-				<a href="<c:url value='/sessions.htm'><c:param name='webapp' value='${app.name}'/><c:param name='size' value='${param.size}'/></c:url>">
+				<a href="<c:url value='/sessions.htm'><c:param name='webapp' value='${app.name}'/><c:param name='size'><c:out value='${param.size}'/></c:param></c:url>">
 					${app.sessionCount}
 				</a>
 			</display:column>
@@ -230,9 +231,9 @@
 						titleKey="probe.jsp.applications.col.jdbcUsage" class="score_wrapper">
 					<div class="score_wrapper">
 						<probe:score value="${app.dataSourceBusyScore}" value2="${app.dataSourceEstablishedScore - app.dataSourceBusyScore}" fullBlocks="10" partialBlocks="5" showEmptyBlocks="true" showA="true" showB="true">
-							<a class="imglink" href="<c:url value='/resources.htm?webapp=${app.name}'/>"><img border="0"
-																											src="<c:url value='/css/classic/gifs/rb_{0}.gif'/>" alt="+"
-																											title="<spring:message code='probe.jsp.applications.jdbcUsage.title' arguments='${app.dataSourceBusyScore},${app.dataSourceEstablishedScore}'/>"/></a>
+							<a class="imglink" href="<c:url value='/resources.htm'><c:param name='webapp' value='${app.name}' /></c:url>"><img border="0"
+									src="<c:url value='/css/classic/gifs/rb_{0}.gif'/>" alt="+"
+									title="<spring:message code='probe.jsp.applications.jdbcUsage.title' arguments='${app.dataSourceBusyScore},${app.dataSourceEstablishedScore}'/>"/></a>
 						</probe:score>
 					</div>
 				</display:column>

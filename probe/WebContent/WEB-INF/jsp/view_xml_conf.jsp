@@ -1,14 +1,15 @@
 <%--
- * Licensed under the GPL License.  You may not use this file except in
- * compliance with the License.  You may obtain a copy of the License at
- *
- *     http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- *
- * THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
- * MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
---%>
 
+    Licensed under the GPL License. You may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+
+    THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+    WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE.
+
+--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
@@ -25,10 +26,10 @@
 		<title><spring:message code="probe.jsp.title.app.viewXMLConf" arguments="${param.webapp},${fileDesc}"/></title>
 		<link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}<spring:theme code='syntax.css'/>"/>
 		<link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}<spring:theme code='scroller.css'/>"/>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/prototype.js'/>"></script>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/behaviour.js'/>"></script>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/scriptaculous.js'/>"></script>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/areascroller.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/prototype.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/behaviour.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/scriptaculous.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/areascroller.js'/>"></script>
 	</head>
 
 	<body>
@@ -62,7 +63,7 @@
 
 				<div class="embeddedBlockContainer">
 					<h3><spring:message code="probe.jsp.app.viewXMLConf.h3.scr" arguments="${fileName}"/></h3>
-					<table id="resultsTable" cellspacing="0">
+					<table id="resultsTable" style="border-spacing:0;border-collapse:separate;">
 						<tr>
 							<td id="left_scroller" class="scroller">&nbsp;</td>
 							<td width="1%">&nbsp;</td>

@@ -1,14 +1,15 @@
 <%--
- * Licensed under the GPL License.  You may not use this file except in
- * compliance with the License.  You may obtain a copy of the License at
- *
- *     http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- *
- * THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
- * MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
---%>
 
+    Licensed under the GPL License. You may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+
+    THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+    WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE.
+
+--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
@@ -37,7 +38,7 @@
 			</li>
 		</ul>
 
-		<display:table name="pools" uid="pool" class="genericTbl" cellspacing="0" requestURI="" defaultsort="1" defaultorder="ascending">
+		<display:table name="pools" uid="pool" class="genericTbl" style="border-spacing:0;border-collapse:separate;" requestURI="" defaultsort="1" defaultorder="ascending">
 			<display:column property="name"               sortable="true" titleKey="probe.jsp.threadpools.name"               style="white-space:nowrap;" class="leftmost"/>
 			<display:column property="currentThreadCount" sortable="true" titleKey="probe.jsp.threadpools.currentThreadCount" style="white-space:nowrap;"/>
 			<display:column property="currentThreadsBusy" sortable="true" titleKey="probe.jsp.threadpools.currentThreadsBusy" style="white-space:nowrap;"/>

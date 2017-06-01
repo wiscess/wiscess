@@ -1,26 +1,27 @@
 <%--
- * Licensed under the GPL License.  You may not use this file except in
- * compliance with the License.  You may obtain a copy of the License at
- *
- *     http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- *
- * THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
- * MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
---%>
 
+    Licensed under the GPL License. You may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+
+    THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+    WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE.
+
+--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib uri="http://displaytag.sf.net" prefix="display" %>
-<%@ taglib uri="/WEB-INF/tld/probe.tld" prefix="probe" %>
+<%@ taglib uri="https://github.com/psi-probe/psi-probe/jsp/tags" prefix="probe" %>
 
 <html>
 	<head>
 		<title><spring:message code="probe.jsp.title.memory"/></title>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/prototype.js'/>"></script>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/scriptaculous.js'/>"></script>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/func.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/prototype.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/scriptaculous.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/func.js'/>"></script>
 	</head>
 
 	<c:set var="navTabSystem" value="active" scope="request"/>
@@ -110,7 +111,7 @@
 						</div>
 
 						<script type="text/javascript">
-							new Ajax.ImgUpdater('img_${pool.id}', ${probe:max(collectionPeriod, 5)});
+							new Ajax.ImgUpdater('img_${pool.id}', '${probe:max(collectionPeriod, 5)}');
 						</script>
 
 					</c:forEach>
@@ -131,7 +132,7 @@
 					}
 					Effect.DropOut('memChartGroup');
 					Effect.Appear('fullMemoryChart');
-					fullImageUpdater = new Ajax.ImgUpdater('fullImg', ${probe:max(collectionPeriod, 5)}, '<c:out value="${fullChartBase}" escapeXml="false"/>&sp=' + newPool + "&s1l=" + newPool);
+					fullImageUpdater = new Ajax.ImgUpdater('fullImg', '${probe:max(collectionPeriod, 5)}', '<c:out value="${fullChartBase}" escapeXml="false"/>&sp=' + newPool + "&s1l=" + newPool);
 				}
 
 				function zoomOut() {
@@ -143,7 +144,7 @@
 					}
 				}
 
-				new Ajax.PeriodicalUpdater('memoryPools', '<c:url value="/memory.ajax"/>?<%=request.getQueryString()%>', {frequency: 5});
+				new Ajax.PeriodicalUpdater('memoryPools', '<c:url value="/memory.ajax"/>?<%=request.getQueryString()%>', {method:'get', frequency: 5});
 
 			</script>
 		</c:otherwise>

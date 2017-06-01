@@ -1,14 +1,15 @@
 <%--
- * Licensed under the GPL License.  You may not use this file except in
- * compliance with the License.  You may obtain a copy of the License at
- *
- *     http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- *
- * THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
- * MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
---%>
 
+    Licensed under the GPL License. You may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+
+    THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+    WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE.
+
+--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
@@ -17,12 +18,12 @@
 <html>
 	<head>
 		<title><spring:message code="probe.jsp.title.threads"/></title>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/prototype.js'/>"></script>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/scriptaculous.js'/>"></script>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/effects.js'/>"></script>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/Tooltip.js'/>"></script>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/behaviour.js'/>"></script>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/func.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/prototype.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/scriptaculous.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/effects.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/Tooltip.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/behaviour.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/func.js'/>"></script>
 	</head>
 
 	<c:set var="navTabThreads" value="active" scope="request"/>
@@ -59,7 +60,7 @@
 					<div class="ajax_activity"></div>
 				</div>
 
-				<display:table name="threads" uid="th" class="genericTbl" cellspacing="0" requestURI="" defaultsort="4"
+				<display:table name="threads" uid="th" class="genericTbl" style="border-spacing:0;border-collapse:separate;" requestURI="" defaultsort="4"
 						defaultorder="ascending">
 
 					<display:column class="leftMostIcon" title="&nbsp;" style="width:20px;">

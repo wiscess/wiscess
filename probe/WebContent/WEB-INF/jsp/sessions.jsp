@@ -1,20 +1,21 @@
 <%--
- * Licensed under the GPL License.  You may not use this file except in
- * compliance with the License.  You may obtain a copy of the License at
- *
- *     http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- *
- * THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
- * MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
---%>
 
+    Licensed under the GPL License. You may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+
+    THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+    WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE.
+
+--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://displaytag.sf.net" prefix="display" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
-<%@ taglib uri="/WEB-INF/tld/probe.tld" prefix="probe" %>
+<%@ taglib uri="https://github.com/psi-probe/psi-probe/jsp/tags" prefix="probe" %>
 
 <%--
 	List of sessions view for a particular web application.
@@ -33,11 +34,11 @@
 				<title><spring:message code="probe.jsp.title.sessions" arguments="${param.webapp}"/></title>
 			</c:otherwise>
 		</c:choose>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/prototype.js'/>"></script>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/scriptaculous.js'/>"></script>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/Tooltip.js'/>"></script>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/func.js'/>"></script>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/behaviour.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/prototype.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/scriptaculous.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/Tooltip.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/func.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/behaviour.js'/>"></script>
 	</head>
 
 	<body>
@@ -144,10 +145,10 @@
 							<input id="searchSessionId" name="searchSessionId" type="text" value="${searchInfo.sessionId}" class="txtInput" size="40"/>
 						</td>
 						<td class="labelCell">
-							<spring:message code="probe.jsp.sessions.search.lastIP"/>
+							<spring:message code="probe.jsp.sessions.search.lastIp"/>
 						</td>
 						<td class="inputCell">
-							<input name="searchLastIP" type="text" value="${searchInfo.lastIP}" class="txtInput" size="30"/>
+							<input name="searchLastIP" type="text" value="${searchInfo.lastIp}" class="txtInput" size="30"/>
 						</td>
 					</tr>
 					<tr>
@@ -199,7 +200,7 @@
 						<c:if test="${! searchInfo.apply}">
 							<h3><spring:message code="probe.jsp.sessions.h3"/></h3>
 						</c:if>
-						<display:table name="sessions" class="genericTbl" uid="session" cellspacing="0" pagesize="50"
+						<display:table name="sessions" class="genericTbl" uid="session" style="border-spacing:0;border-collapse:separate;" pagesize="50"
 								requestURI="">
 
 							<display:column class="leftmost" title="&nbsp;">
@@ -216,17 +217,17 @@
 							</c:if>
 
 							<display:column titleKey="probe.jsp.sessions.col.id">
-								<a href="<c:url value='/attributes.htm?webapp=${session.applicationName}&sid=${session.id}&size=${param.size}'/>">
+								<a href="<c:url value='/attributes.htm'><c:param name='webapp' value='${session.applicationName}' /><c:param name='sid' value='${session.id}' /><c:param name='size'><c:out value='${param.size}' /></c:param></c:url>">
 									${session.id}
 								</a>
 							</display:column>
 
-							<display:column titleKey="probe.jsp.sessions.col.lastIP" sortProperty="lastAccessedIP" sortable="true">
+							<display:column titleKey="probe.jsp.sessions.col.lastIp" sortProperty="lastAccessedIp" sortable="true">
 								<c:choose>
-									<c:when test="${! empty session.lastAccessedIP}">
-										<a id='ip_${session_rowNum}' href="#">${session.lastAccessedIP}</a>
+									<c:when test="${! empty session.lastAccessedIp}">
+										<a id='ip_${session_rowNum}' href="#">${session.lastAccessedIp}</a>
 										<script type="text/javascript">
-											addAjaxTooltip('ip_${session_rowNum}', 'ttdiv', '<c:url value="/whois.ajax?ip=${session.lastAccessedIP}"/>');
+											addAjaxTooltip('ip_${session_rowNum}', 'ttdiv', '<c:url value="/whois.ajax?ip=${session.lastAccessedIp}"/>');
 										</script>
 
 									</c:when>
@@ -238,10 +239,10 @@
 
 							<display:column title="&nbsp;" style="width:18px;">
 								<c:choose>
-									<c:when test="${! empty session.lastAccessedIPLocale.country && session.lastAccessedIPLocale.country != '**'}">
-										<img border="0" src="<c:url value='/flags/${fn:toLowerCase(session.lastAccessedIPLocale.country)}.gif'/>"
-												alt="${session.lastAccessedIPLocale.country}"
-												title="${session.lastAccessedIPLocale.displayCountry}"/>
+									<c:when test="${! empty session.lastAccessedIpLocale.country && session.lastAccessedIpLocale.country != '**'}">
+										<img border="0" src="<c:url value='/flags/${fn:toLowerCase(session.lastAccessedIpLocale.country)}.gif'/>"
+												alt="${session.lastAccessedIpLocale.country}"
+												title="${session.lastAccessedIpLocale.displayCountry}"/>
 									</c:when>
 									<c:otherwise>
 										&nbsp;
@@ -312,6 +313,26 @@
 			</div>
 		</form>
 
+		<c:url value="/sessions.htm" var="urlApply">
+			<c:param name="searchAction" value="apply"/>
+			<c:param name="size">
+				<c:out value="${param.size}"/>
+			</c:param>
+			<c:if test="${not empty param.webapp}">
+				<c:param name="webapp" value="${param.webapp}"/>
+			</c:if>
+		</c:url>
+
+		<c:url value="/sessions.htm" var="urlClear">
+			<c:param name="searchAction" value="clear"/>
+			<c:param name="size">
+				<c:out value="${param.size}"/>
+			</c:param>
+			<c:if test="${not empty param.webapp}">
+				<c:param name="webapp" value="${param.webapp}"/>
+			</c:if>
+		</c:url>
+
 		<script type="text/javascript">
 			var rules = {
 				'#ttdiv_close': function(e) {
@@ -335,28 +356,12 @@
 			}
 
 			function applySearch() {
-				<c:choose>
-					<c:when test="${empty param.webapp}">
-						$('sessionForm').action = '<c:url value="/sessions.htm"><c:param name="size" value="${param.size}"/><c:param name="searchAction" value="apply"/></c:url>';
-					</c:when>
-					<c:otherwise>
-						$('sessionForm').action = '<c:url value="/sessions.htm"><c:param name="webapp" value="${param.webapp}"/><c:param name="size" value="${param.size}"/><c:param name="searchAction" value="apply"/></c:url>';
-					</c:otherwise>
-				</c:choose>
-
+				$('sessionForm').action = '<c:out value="${urlApply}" />';
 				$('sessionForm').submit();
 			}
 
 			function clearSearch() {
-				<c:choose>
-					<c:when test="${empty param.webapp}">
-						$('sessionForm').action = '<c:url value="/sessions.htm"><c:param name="size" value="${param.size}"/><c:param name="searchAction" value="clear"/></c:url>';
-					</c:when>
-					<c:otherwise>
-						$('sessionForm').action = '<c:url value="/sessions.htm"><c:param name="webapp" value="${param.webapp}"/><c:param name="size" value="${param.size}"/><c:param name="searchAction" value="clear"/></c:url>';
-					</c:otherwise>
-				</c:choose>
-
+				$('sessionForm').action = '<c:out value="${urlClear}" />';
 				$('sessionForm').submit();
 			}
 		</script>

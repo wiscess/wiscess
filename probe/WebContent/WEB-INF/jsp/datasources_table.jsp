@@ -1,21 +1,22 @@
 <%--
- * Licensed under the GPL License.  You may not use this file except in
- * compliance with the License.  You may obtain a copy of the License at
- *
- *     http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- *
- * THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
- * MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
---%>
 
+    Licensed under the GPL License. You may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+
+    THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+    WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE.
+
+--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib uri="http://displaytag.sf.net" prefix="display" %>
-<%@ taglib uri="/WEB-INF/tld/probe.tld" prefix="probe" %>
+<%@ taglib uri="https://github.com/psi-probe/psi-probe/jsp/tags" prefix="probe" %>
 
-<display:table class="genericTbl" cellspacing="0" name="resources" uid="resource"
+<display:table class="genericTbl" style="border-spacing:0;border-collapse:separate;" name="resources" uid="resource"
 		htmlId="${isGlobalResources ? 'global_resources' : 'app_resources'}" requestURI="">
 
 	<display:column class="leftmost" title="&nbsp;">
@@ -44,7 +45,7 @@
 				<c:param name="webapp" value="${resource.applicationName}"/>
 			</c:url>
 			<a href="${application_url}">
-				<c:if test="${!resource.lookedUp || resource.dataSourceInfo.jdbcURL == null}">
+				<c:if test="${!resource.lookedUp || resource.dataSourceInfo.jdbcUrl == null}">
 					<img border="0" src="${pageContext.request.contextPath}<spring:theme code='exclamation.gif'/>"
 							alt="<spring:message code='probe.jsp.datasources.list.misconfigured.alt'/>"/>
 				</c:if>
@@ -92,27 +93,14 @@
 	<!--
 	this does have to be one liner due to the tag forcing maxLength
 	-->
-	<display:column titleKey="probe.jsp.datasources.list.col.url"             sortable="true" property="dataSourceInfo.jdbcURL" nulls="true" maxLength="50"/>
+	<display:column titleKey="probe.jsp.datasources.list.col.url"             sortable="true" property="dataSourceInfo.jdbcUrl" nulls="true" maxLength="50"/>
 
 	<display:column titleKey="probe.jsp.datasources.list.col.description"     sortable="true" sortProperty="description" maxLength="50">
 		${resource.description}&nbsp;
 	</display:column>
 
-	<display:column titleKey="probe.jsp.datasources.list.col.type"            sortable="true">
-		<c:choose>
-			<c:when test="${resource.type == 'com.mchange.v2.c3p0.ComboPooledDataSource'}">
-				c3p0
-			</c:when>
-			<c:when test="${resource.type == 'javax.sql.DataSource'}">
-				dbcp
-			</c:when>
-			<c:when test="${resource.type == 'oracle.jdbc.pool.OracleDataSource'}">
-				oracle
-			</c:when>
-			<c:otherwise>
-				${resource.type}
-			</c:otherwise>
-		</c:choose>
+	<display:column titleKey="probe.jsp.datasources.list.col.type"            sortable="true" sortProperty="dataSourceInfo.type">
+		${resource.dataSourceInfo.type}&nbsp;
 	</display:column>
 
 	<c:if test="${! isGlobalResources}">

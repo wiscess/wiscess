@@ -1,18 +1,19 @@
 <%--
- * Licensed under the GPL License.  You may not use this file except in
- * compliance with the License.  You may obtain a copy of the License at
- *
- *     http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- *
- * THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
- * MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
---%>
 
+    Licensed under the GPL License. You may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+
+    THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+    WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE.
+
+--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
-<%@ taglib uri="/WEB-INF/tld/probe.tld" prefix="probe" %>
+<%@ taglib uri="https://github.com/psi-probe/psi-probe/jsp/tags" prefix="probe" %>
 
 <%--
 	Displays a web application information summary and application statistics charts
@@ -41,11 +42,11 @@
 				</div>
 			</c:when>
 			<c:otherwise>
-				<script type="text/javascript" language="javascript" src="<c:url value='/js/prototype.js'/>"></script>
-				<script type="text/javascript" language="javascript" src="<c:url value='/js/scriptaculous.js'/>"></script>
-				<script type="text/javascript" language="javascript" src="<c:url value='/js/func.js'/>"></script>
-				<script type="text/javascript" language="javascript" src="<c:url value='/js/behaviour.js'/>"></script>
-				<script type="text/javascript" language="javascript" src="<c:url value='/js/effects.js'/>"></script>
+				<script type="text/javascript" src="<c:url value='/js/prototype.js'/>"></script>
+				<script type="text/javascript" src="<c:url value='/js/scriptaculous.js'/>"></script>
+				<script type="text/javascript" src="<c:url value='/js/func.js'/>"></script>
+				<script type="text/javascript" src="<c:url value='/js/behaviour.js'/>"></script>
+				<script type="text/javascript" src="<c:url value='/js/effects.js'/>"></script>
 
 				<c:set var="confirmMessage">
 					<spring:message code="probe.jsp.app.summary.undeploy.confirm" arguments="${param.webapp}"/>
@@ -126,7 +127,7 @@
 					function updateAppInfo() {
 						new Ajax.Updater('runtimeAppInfo',
 						'<c:url value="/appruntimeinfo.ajax?${pageContext.request.queryString}"/>',
-						{asynchronous: false});
+						{method:'get', asynchronous: false});
 
 						// changing visibility of markup items that depend on an application status
 						if ($('r_appStatusUp')) {
@@ -204,7 +205,7 @@
 										<img id="req_chart" border="0" src="${req_url}" width="${chartWidth}" height="${chartHeight}" alt="+"/>
 									</dd>
 									<dd id="dd-req">
-										<div class="ajax_activity"/>
+										<div class="ajax_activity"></div>
 									</dd>
 								</dl>
 							</div>
@@ -216,7 +217,7 @@
 										<img id="avg_proc_time_chart" border="0" src="${avg_proc_time_url}" width="${chartWidth}" height="${chartHeight}" alt="+"/>
 									</dd>
 									<dd id="dd-proc_time">
-										<div class="ajax_activity"/>
+										<div class="ajax_activity"></div>
 									</dd>
 								</dl>
 							</div>
@@ -249,7 +250,7 @@
 							$('full_title').update(title);
 							Effect.DropOut('chart_group');
 							Effect.Appear('full_chart');
-							fullImageUpdater = new Ajax.ImgUpdater('fullImg', ${probe:max(collectionPeriod, 5)}, imgUrl);
+							fullImageUpdater = new Ajax.ImgUpdater('fullImg', '${probe:max(collectionPeriod, 5)}', imgUrl);
 						}
 
 						function zoomOut() {
@@ -286,10 +287,10 @@
 
 						Behaviour.register(rules);
 
-						imageUpdaters[0] = new Ajax.ImgUpdater('req_chart', ${probe:max(collectionPeriod, 5)});
-						imageUpdaters[1] = new Ajax.ImgUpdater('avg_proc_time_chart', ${probe:max(collectionPeriod, 5)});
-						new Ajax.PeriodicalUpdater('dd-req', '<c:url value="/appreqdetails.ajax"/>?webapp=${app.name}', {frequency: 3});
-						new Ajax.PeriodicalUpdater('dd-proc_time', '<c:url value="/appprocdetails.ajax"/>?webapp=${app.name}', {frequency: 3});
+						imageUpdaters[0] = new Ajax.ImgUpdater('req_chart', '${probe:max(collectionPeriod, 5)}');
+						imageUpdaters[1] = new Ajax.ImgUpdater('avg_proc_time_chart', '${probe:max(collectionPeriod, 5)}');
+						new Ajax.PeriodicalUpdater('dd-req', '<c:url value="/appreqdetails.ajax"><c:param name="webapp" value="${app.name}" /></c:url>', {method:'get', frequency: 3});
+						new Ajax.PeriodicalUpdater('dd-proc_time', '<c:url value="/appprocdetails.ajax"><c:param name="webapp" value="${app.name}" /></c:url>', {method:'get', frequency: 3});
 					</script>
 				</c:if>
 

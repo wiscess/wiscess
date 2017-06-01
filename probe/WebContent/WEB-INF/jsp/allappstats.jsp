@@ -1,28 +1,29 @@
 <%--
- * Licensed under the GPL License.  You may not use this file except in
- * compliance with the License.  You may obtain a copy of the License at
- *
- *     http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- *
- * THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
- * MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
---%>
 
+    Licensed under the GPL License. You may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+
+    THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+    WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE.
+
+--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
-<%@ taglib uri="/WEB-INF/tld/probe.tld" prefix="probe" %>
+<%@ taglib uri="https://github.com/psi-probe/psi-probe/jsp/tags" prefix="probe" %>
 
 <html>
 	<head>
 		<title>
 			<spring:message code="probe.jsp.title.allappstats"/>
 		</title>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/prototype.js'/>"></script>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/scriptaculous.js'/>"></script>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/func.js'/>"></script>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/behaviour.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/prototype.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/scriptaculous.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/func.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/behaviour.js'/>"></script>
 	</head>
 
 	<c:set var="navTabApps" value="active" scope="request"/>
@@ -204,7 +205,7 @@
 				$('full_title').update(title);
 				Effect.DropOut('chart_group');
 				Effect.Appear('full_chart');
-				fullImageUpdater = new Ajax.ImgUpdater('fullImg', ${probe:max(collectionPeriod, 5)}, imgUrl);
+				fullImageUpdater = new Ajax.ImgUpdater('fullImg', '${probe:max(collectionPeriod, 5)}', imgUrl);
 			}
 
 			function zoomOut() {
@@ -251,10 +252,10 @@
 
 			Behaviour.register(rules);
 
-			imageUpdaters[0] = new Ajax.ImgUpdater('total_avg_proc_time_chart', ${probe:max(collectionPeriod, 5)});
-			imageUpdaters[1] = new Ajax.ImgUpdater('all_app_avg_proc_time_chart', ${probe:max(collectionPeriod, 5)});
-			imageUpdaters[2] = new Ajax.ImgUpdater('total_req_chart', ${probe:max(collectionPeriod, 5)});
-			imageUpdaters[3] = new Ajax.ImgUpdater('all_app_req_chart', ${probe:max(collectionPeriod, 5)});
+			imageUpdaters[0] = new Ajax.ImgUpdater('total_avg_proc_time_chart', '${probe:max(collectionPeriod, 5)}');
+			imageUpdaters[1] = new Ajax.ImgUpdater('all_app_avg_proc_time_chart', '${probe:max(collectionPeriod, 5)}');
+			imageUpdaters[2] = new Ajax.ImgUpdater('total_req_chart', '${probe:max(collectionPeriod, 5)}');
+			imageUpdaters[3] = new Ajax.ImgUpdater('all_app_req_chart', '${probe:max(collectionPeriod, 5)}');
 		</script>
 	</body>
 </html>

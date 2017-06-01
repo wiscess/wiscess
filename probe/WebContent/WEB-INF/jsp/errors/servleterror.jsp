@@ -1,14 +1,15 @@
 <%--
- * Licensed under the GPL License.  You may not use this file except in
- * compliance with the License.  You may obtain a copy of the License at
- *
- *     http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- *
- * THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
- * MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
---%>
 
+    Licensed under the GPL License. You may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+
+    THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+    WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE.
+
+--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
 <%@ page import="java.io.ByteArrayOutputStream" %>
 <%@ page import="java.io.PrintStream" %>
@@ -66,19 +67,12 @@
 					<div class="errorMessage">
 						<p>
 							Application encountered an unexpected error.
-							We will greatly appreciate it if you share the information below
-							with us.  Sharing this information through our <a href="http://code.google.com/p/psi-probe/issues/list?can=1">issue tracker</a>
+							Please check the Tomcat logs.
+							We will greatly appreciate it if you share the information
+							with us.  Sharing this information through our <a href="https://github.com/psi-probe/psi-probe/issues">issue tracker</a>
 							or our <a href="http://groups.google.com/group/psi-probe-discuss">discussion board</a>
 							will help us find and correct this problem as soon as possible!
 						</p>
-					</div>
-
-					<div class="errorMessageDetails"><%
-						ByteArrayOutputStream bos = new ByteArrayOutputStream();
-						PrintStream ps = new PrintStream(bos);
-						error.printStackTrace(ps);
-						out.print(bos.toString());
-						%>
 					</div>
 					<%
 				}

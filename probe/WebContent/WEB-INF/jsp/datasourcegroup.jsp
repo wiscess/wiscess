@@ -1,19 +1,20 @@
 <%--
- * Licensed under the GPL License.  You may not use this file except in
- * compliance with the License.  You may obtain a copy of the License at
- *
- *     http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- *
- * THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
- * MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
---%>
 
+    Licensed under the GPL License. You may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+
+    THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+    WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE.
+
+--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib uri="http://displaytag.sf.net" prefix="display" %>
-<%@ taglib uri="/WEB-INF/tld/probe.tld" prefix="probe" %>
+<%@ taglib uri="https://github.com/psi-probe/psi-probe/jsp/tags" prefix="probe" %>
 
 <!--
 
@@ -48,8 +49,8 @@
 						</div>
 					</div>
 
-					<display:table class="genericTbl" cellspacing="0" name="dataSourceGroups" uid="dataSourceGroup" requestURI="">
-						<display:column property="jdbcURL" class="leftmost" sortable="true" maxLength="50" nulls="true"
+					<display:table class="genericTbl" style="border-spacing:0;border-collapse:separate;" name="dataSourceGroups" uid="dataSourceGroup" requestURI="">
+						<display:column property="jdbcUrl" class="leftmost" sortable="true" maxLength="50" nulls="true"
 								titleKey="probe.jsp.dataSourceGroups.list.col.url"/>
 
 						<display:column sortable="true" sortProperty="busyScore"

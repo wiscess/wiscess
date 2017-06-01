@@ -1,14 +1,15 @@
 <%--
- * Licensed under the GPL License.  You may not use this file except in
- * compliance with the License.  You may obtain a copy of the License at
- *
- *     http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- *
- * THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
- * MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
---%>
 
+    Licensed under the GPL License. You may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+
+    THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+    WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE.
+
+--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
@@ -27,10 +28,10 @@
 			<spring:message code="probe.jsp.title.app.attributes" arguments="${param.webapp}"/>
 		</title>
 		<link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}<spring:theme code='scroller.css'/>"/>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/prototype.js'/>"></script>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/behaviour.js'/>"></script>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/scriptaculous.js'/>"></script>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/areascroller.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/prototype.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/behaviour.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/scriptaculous.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/areascroller.js'/>"></script>
 	</head>
 
 	<%--
@@ -54,14 +55,14 @@
 					</div>
 				</c:when>
 				<c:otherwise>
-					<table id="resultsTable" cellspacing="0" cellpadding="0">
+					<table id="resultsTable" style="padding:0;border-spacing:0;border-collapse:separate;">
 						<tr>
 							<td id="left_scroller" class="scroller">&nbsp;</td>
 							<td id="separator" width="1%">&nbsp;</td>
 							<td>
 								<div id="appAttrTblContainer" class="scrollable_content">
 									<display:table htmlId="appAttrTbl" name="appAttributes" uid="attribute"
-											class="genericTbl" cellspacing="0" cellpadding="0"
+											class="genericTbl" style="padding:0;border-spacing:0;border-collapse:separate;"
 											requestURI="" defaultsort="1">
 										<display:column title="&nbsp;" style="width:20px;" class="leftMostIcon">
 											<c:url value='/app/rmappattr.htm' var='rmappattr_url'>

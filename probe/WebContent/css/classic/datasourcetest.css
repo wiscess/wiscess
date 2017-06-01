@@ -1,58 +1,57 @@
-/*
- * Licensed under the GPL License.  You may not use this file except in
- * compliance with the License.  You may obtain a copy of the License at
+/**
+ * Licensed under the GPL License. You may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ *   https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  *
- * THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
- * MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+ * THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+ * WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE.
  */
-
 div.dataSourceTestMenu, div.dataSourceTestContent {
 	clear: both;
 }
 
 li#connect {
 	float: left;
-	background: url( "gifs/silk/database_key.gif" ) top left no-repeat;
+	background: url( "gifs/silk/database_key.png" ) top left no-repeat;
 }
 
 li#executeSql {
 	float: left;
-	background: url( "gifs/silk/database_lightning.gif" ) top left no-repeat;
+	background: url( "gifs/silk/database_lightning.png" ) top left no-repeat;
 }
 
 li#showHistory {
 	float: left;
-	background: url( "gifs/silk/script_go.gif" ) top left no-repeat;
+	background: url( "gifs/silk/script_go.png" ) top left no-repeat;
 }
 
 li#hideHistory {
 	float: left;
-	background: url( "gifs/silk/script_delete.gif" ) top left no-repeat;
+	background: url( "gifs/silk/script_delete.png" ) top left no-repeat;
 }
 
 li#showOptions {
 	float: left;
-	background: url( "gifs/silk/application_form_edit.gif" ) top left no-repeat;
+	background: url( "gifs/silk/application_form_edit.png" ) top left no-repeat;
 }
 
 li#hideOptions {
 	float: left;
-	background: url( "gifs/silk/application_form_delete.gif" ) top left no-repeat;
+	background: url( "gifs/silk/application_form_delete.png" ) top left no-repeat;
 }
 
 li#wrap {
 	float: right;
 	padding-top: 10px;
-	background: url( "gifs/silk/arrow_undo.gif" ) center left no-repeat;
+	background: url( "gifs/silk/arrow_undo.png" ) center left no-repeat;
 }
 
 li#nowrap {
 	float: right;
 	padding-top: 10px;
-	background: url( "gifs/silk/arrow_right.gif" ) center left no-repeat;
+	background: url( "gifs/silk/arrow_right.png" ) center left no-repeat;
 }
 
 #sqlForm {

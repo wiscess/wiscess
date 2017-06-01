@@ -1,23 +1,24 @@
 <%--
- * Licensed under the GPL License.  You may not use this file except in
- * compliance with the License.  You may obtain a copy of the License at
- *
- *     http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- *
- * THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
- * MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
---%>
 
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+    Licensed under the GPL License. You may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+
+    THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+    WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE.
+
+--%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" session="false"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib uri="http://displaytag.sf.net" prefix="display" %>
-<%@ taglib uri="/WEB-INF/tld/probe.tld" prefix="probe" %>
+<%@ taglib uri="https://github.com/psi-probe/psi-probe/jsp/tags" prefix="probe" %>
 
 <%--
 	Log file view. The view is a simple markup that gets updated via AJAX calls. Top menu does not go to the server but
-	rather does DOM tricks to modify content appearence.
+	rather does DOM tricks to modify content appearance.
 
 	Author: Vlad Ilyushchenko.
 --%>
@@ -25,10 +26,10 @@
 <html>
 	<head>
 		<title><spring:message code="probe.jsp.title.follow"/></title>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/prototype.js'/>"></script>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/scriptaculous.js'/>"></script>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/func.js'/>"></script>
-		<script type="text/javascript" language="javascript" src="<c:url value='/js/behaviour.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/prototype.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/scriptaculous.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/func.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/behaviour.js'/>"></script>
 	</head>
 
 	<c:set var="navTabLogs" value="active" scope="request"/>
@@ -37,7 +38,7 @@
 
 		<ul class="options">
 			<li id="back">
-				<a href="<c:url value='/logs/index.htm'/>">
+				<a href="<c:url value='/logs/list.htm'/>">
 					<spring:message code="probe.jsp.follow.menu.back"/>
 				</a>
 			</li>
@@ -125,7 +126,7 @@
 
 			<h3><spring:message code="probe.jsp.follow.h3.sources"/></h3>
 
-			<display:table name="sources" class="genericTbl" cellspacing="0" uid="logsource" requestURI="">
+			<display:table name="sources" class="genericTbl" style="border-spacing:0;border-collapse:separate;" uid="logsource" requestURI="">
 
 				<display:column titleKey="probe.jsp.logs.col.app" sortable="true" class="leftmost">
 					${logsource.application.name}
@@ -230,11 +231,12 @@
 			}
 
 			var infoUpdater = new Ajax.PeriodicalUpdater('info', '<c:url value="/logs/ff_info.ajax"/>', {
+				method:'get',
 				parameters: {
 					logType: '${probe:escapeJS(log.logType)}',
-					webapp: ${webapp},
-					context: ${log.context},
-					root: ${log.root},
+					webapp: '${param.webapp}',
+					context: '${log.context}',
+					root: '${log.root}',
 					logName: '${probe:escapeJS(log.name)}',
 					logIndex: '${probe:escapeJS(log.index)}'
 				},
@@ -252,11 +254,12 @@
 
 			function followLog(currentLogSize) {
 				new Ajax.Updater(file_content_div, '<c:url value="/logs/follow.ajax"/>', {
+					method:'get',
 					parameters: {
 						logType: '${probe:escapeJS(log.logType)}',
-						webapp: ${webapp},
-						context: ${log.context},
-						root: ${log.root},
+						webapp: '${param.webapp}',
+						context: '${log.context}',
+						root: '${log.root}',
 						logName: '${probe:escapeJS(log.name)}',
 						logIndex: '${probe:escapeJS(log.index)}',
 						lastKnownLength: (lastLogSize == -1 ? 0 : lastLogSize),
@@ -395,7 +398,7 @@
 		<c:if test="${cookie['file_content_font_size'] != null}">
 			<script type="text/javascript">
 				Event.observe(window, 'load', function() {
-					setFontSize($(file_content_div), ${cookie['file_content_font_size'].value}, false);
+					setFontSize($(file_content_div), '${cookie["file_content_font_size"].value}', false);
 				});
 			</script>
 		</c:if>

@@ -1,19 +1,20 @@
 <%--
- * Licensed under the GPL License.  You may not use this file except in
- * compliance with the License.  You may obtain a copy of the License at
- *
- *     http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- *
- * THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
- * MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
---%>
 
+    Licensed under the GPL License. You may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+
+    THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+    WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE.
+
+--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib uri="http://displaytag.sf.net" prefix="display" %>
-<%@ taglib uri="/WEB-INF/tld/probe.tld" prefix="probe" %>
+<%@ taglib uri="https://github.com/psi-probe/psi-probe/jsp/tags" prefix="probe" %>
 
 <%--
 	Session attributes view, nothing spectacular.
@@ -39,14 +40,14 @@
 	<body>
 		<ul class="options">
 			<li id="back">
-				<a href="<c:url value='/sessions.htm'><c:param name='webapp' value='${param.webapp}'/><c:param name='size' value='${param.size}'/></c:url>">
+				<a href="<c:url value='/sessions.htm'><c:param name='webapp' value='${param.webapp}'/><c:param name='size'><c:out value='${param.size}'/></c:param></c:url>">
 					<spring:message code="probe.jsp.sessionAttibutes.menu.back"/>
 				</a>
 			</li>
 			<c:if test="${! empty session}">
 
 				<li id="delete">
-					<a href="<c:url value='/app/expire.htm'/>?webapp=${param.webapp}&sid=${param.sid}">
+					<a href="<c:url value='/app/expire.htm'><c:param name='webapp' value='${param.webapp}' /><c:param name='sid' value='${param.sid}' /></c:url>">
 						<spring:message code="probe.jsp.sessionAttibutes.menu.destroy"/>
 					</a>
 				</li>
@@ -109,7 +110,7 @@
 					<c:choose>
 						<c:when test="${! empty session.attributes}">
 							<display:table name="session.attributes" uid="attribute"
-									class="genericTbl" cellspacing="0" cellpadding="0"
+									class="genericTbl" style="padding:0;border-spacing:0;border-collapse:separate;"
 									requestURI="">
 								<display:column title="&nbsp;" class="leftmost" style="width: 20px;">
 									<c:url value="/app/rmsattr.htm" var="rmsattr_url">
@@ -145,23 +146,18 @@
 										<probe:volume value="${attribute.size}"/>
 									</display:column>
 								</c:if>
-								<display:column sortProperty="value" sortable="true"
-										titleKey="probe.jsp.sessionAttibutes.col.value">
-									<c:choose>
-										<c:when test="${session.allowedToViewValues}">
-											<c:catch var="displayException">
-												<c:out value="${attribute.value}" escapeXml="true"/>
-											</c:catch>
-											<c:if test="${not empty displayException}">
-												<span class="errorValue">**************</span>
-												<c:remove var="displayException" />
-											</c:if>
-										</c:when>
-										<c:otherwise>
-											**************
-										</c:otherwise>
-									</c:choose>
-								</display:column>
+								<c:if test="${session.allowedToViewValues}">
+									<display:column sortProperty="value" sortable="true"
+											titleKey="probe.jsp.sessionAttibutes.col.value">
+										<c:catch var="displayException">
+											<c:out value="${attribute.value}" escapeXml="true"/>
+										</c:catch>
+										<c:if test="${not empty displayException}">
+											<span class="errorValue">**************</span>
+											<c:remove var="displayException" />
+										</c:if>
+									</display:column>
+								</c:if>
 							</display:table>
 						</c:when>
 						<c:otherwise>

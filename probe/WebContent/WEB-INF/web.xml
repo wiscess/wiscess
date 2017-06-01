@@ -1,34 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- * Licensed under the GPL License.  You may not use this file except in
- * compliance with the License.  You may obtain a copy of the License at
- *
- *     http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- *
- * THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
- * MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
--->
 
-<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
-		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
-		version="2.4">
+    Licensed under the GPL License. You may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+
+    THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+    WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE.
+
+-->
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+						http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+	version="3.0">
 
 	<display-name>PSI Probe for Apache Tomcat</display-name>
 
-	<servlet>
-		<servlet-name>uptime</servlet-name>
-		<servlet-class>com.googlecode.psiprobe.UptimeServlet</servlet-class>
-		<load-on-startup>0</load-on-startup>
-	</servlet>
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>/WEB-INF/spring-probe-security.xml</param-value>
+	</context-param>
+
+	<listener>
+		<listener-class>psiprobe.AwtAppContextClassloaderListener</listener-class>
+	</listener>
+
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
 
 	<!--
 		Core dispatcher servlet
 	-->
 	<servlet>
 		<servlet-name>probe</servlet-name>
-		<servlet-class>com.googlecode.psiprobe.ProbeServlet</servlet-class>
+		<servlet-class>psiprobe.ProbeServlet</servlet-class>
 		<init-param>
 			<param-name>contextConfigLocation</param-name>
 			<param-value>
@@ -40,33 +49,21 @@
 				]]>
 			</param-value>
 		</init-param>
-		<load-on-startup>1</load-on-startup>
+		<load-on-startup>0</load-on-startup>
 	</servlet>
 
 	<servlet-mapping>
 		<servlet-name>probe</servlet-name>
 		<url-pattern>*.htm</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>probe</servlet-name>
 		<url-pattern>*.ajax</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>probe</servlet-name>
 		<url-pattern>/logs/*</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>probe</servlet-name>
 		<url-pattern>/chart.png</url-pattern>
 	</servlet-mapping>
 
 	<!-- Sitemesh filter -->
 	<filter>
 		<filter-name>sitemesh</filter-name>
-		<filter-class>com.opensymphony.module.sitemesh.filter.PageFilter</filter-class>
+		<filter-class>com.opensymphony.sitemesh.webapp.SiteMeshFilter</filter-class>
 	</filter>
 
 	<filter-mapping>
@@ -76,6 +73,29 @@
 		<dispatcher>REQUEST</dispatcher>
 		<dispatcher>ERROR</dispatcher>
 	</filter-mapping>
+
+	<!-- Spring Security filter -->
+	<filter>
+		<filter-name>filterChainProxy</filter-name>
+		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>filterChainProxy</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<session-config>
+		<session-timeout>15</session-timeout>
+		<!-- Disable secure cookie until http session issues can be resolved. While tomcat
+		will handle this normally with http, spring has been shown to continually create new
+		sessions.  This may not be related to spring security but rather spring web mvc.
+		<cookie-config>
+			<secure>true</secure>
+		</cookie-config>
+		-->
+		<tracking-mode>COOKIE</tracking-mode>
+	</session-config>
 
 	<!-- no access error -->
 	<error-page>
@@ -89,27 +109,29 @@
 		<location>/404.htm</location>
 	</error-page>
 
+	<!-- 500 error -->
+	<error-page>
+		<error-code>500</error-code>
+		<location>/WEB-INF/jsp/errors/servleterror.jsp</location>
+	</error-page>
+
 	<!--exception page -->
 	<error-page>
-		<exception-type>java.lang.Exception</exception-type>
-		<!-- Displays a stack trace -->
+		<exception-type>java.lang.Throwable</exception-type>
 		<location>/WEB-INF/jsp/errors/servleterror.jsp</location>
 	</error-page>
 
 	<context-param>
 		<description>Role that can view session attribute values</description>
 		<param-name>attribute.value.roles</param-name>
-		<param-value>manager,manager-gui</param-value>
-		<!--
-		<param-value>ROLE_MANAGER</param-value>
-		-->
+		<param-value>ROLE_MANAGER,ROLE_MANAGER-GUI</param-value>
 	</context-param>
 
 	<security-constraint>
-		<display-name>Probe User URLs</display-name>
+		<display-name>No anonymous access</display-name>
 		<web-resource-collection>
-			<web-resource-name>Probe User URLs</web-resource-name>
-			<url-pattern>/</url-pattern>
+			<web-resource-name>All areas</web-resource-name>
+			<url-pattern>/*</url-pattern>
 		</web-resource-collection>
 		<auth-constraint>
 			<role-name>probeuser</role-name>
@@ -118,49 +140,9 @@
 			<role-name>manager-gui</role-name>
 			<role-name>poweruserplus</role-name>
 		</auth-constraint>
-	</security-constraint>
-
-	<security-constraint>
-		<display-name>Probe Power-User URLs</display-name>
-		<web-resource-collection>
-			<web-resource-name>Probe Power-User URLs</web-resource-name>
-			<url-pattern>/app/*</url-pattern>
-		</web-resource-collection>
-		<auth-constraint>
-			<role-name>poweruser</role-name>
-			<role-name>manager</role-name>
-			<role-name>manager-gui</role-name>
-			<role-name>poweruserplus</role-name>
-		</auth-constraint>
-	</security-constraint>
-
-	<security-constraint>
-		<display-name>Probe Power-User-Plus URLs</display-name>
-		<web-resource-collection>
-			<web-resource-name>JVM-Restart via Service Wrapper</web-resource-name>
-			<url-pattern>/adm/restartvm.ajax</url-pattern>
-		</web-resource-collection>
-		<web-resource-collection>
-			<web-resource-name>Data Source Testing</web-resource-name>
-			<url-pattern>/sql/*</url-pattern>
-		</web-resource-collection>
-		<auth-constraint>
-			<role-name>poweruserplus</role-name>
-			<role-name>manager</role-name>
-			<role-name>manager-gui</role-name>
-		</auth-constraint>
-	</security-constraint>
-
-	<security-constraint>
-		<display-name>Probe Admin (manager) URLs</display-name>
-		<web-resource-collection>
-			<web-resource-name>Probe Admin (manager) URLs</web-resource-name>
-			<url-pattern>/adm/*</url-pattern>
-		</web-resource-collection>
-		<auth-constraint>
-			<role-name>manager</role-name>
-			<role-name>manager-gui</role-name>
-		</auth-constraint>
+		<user-data-constraint>
+			<transport-guarantee>NONE</transport-guarantee>
+		</user-data-constraint>
 	</security-constraint>
 
 	<!-- Defines the Login Configuration for this Application -->

@@ -1,19 +1,20 @@
 <%--
- * Licensed under the GPL License.  You may not use this file except in
- * compliance with the License.  You may obtain a copy of the License at
- *
- *     http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- *
- * THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
- * MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
---%>
 
+    Licensed under the GPL License. You may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+
+    THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+    WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE.
+
+--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib uri="http://displaytag.sf.net" prefix="display" %>
-<%@ taglib uri="/WEB-INF/tld/probe.tld" prefix="probe" %>
+<%@ taglib uri="https://github.com/psi-probe/psi-probe/jsp/tags" prefix="probe" %>
 
 <html>
 
@@ -39,10 +40,10 @@
 					</div>
 				</c:if>
 				<div id="resources">
-					<display:table class="genericTbl" name="resources" uid="resource" cellspacing="0">
+					<display:table class="genericTbl" name="resources" uid="resource" style="border-spacing:0;border-collapse:separate;">
 						<display:column class="leftmost" sortable="true" sortProperty="name"
 								titleKey="probe.jsp.resources.col.name">
-							<a href="<c:url value='/sql/datasourcetest.htm'/>?webapp=${resource.applicationName}&resource=${resource.name}">
+							<a href="<c:url value='/sql/datasourcetest.htm'><c:param name='webapp' value='${resource.applicationName}' /><c:param name='resource' value='${resource.name}' /></c:url>">
 								${resource.name}
 							</a>
 						</display:column>
@@ -53,13 +54,13 @@
 								<c:when test="${resource.dataSourceInfo != null}">
 									<div class="dbConnAdditionalInfo">
 										<spring:message code="probe.jsp.resources.info.title"/>
-										<b>${resource.dataSourceInfo.jdbcURL}</b>
+										<b>${resource.dataSourceInfo.jdbcUrl}</b>
 										<spring:message code="probe.jsp.resources.info.max"/>&nbsp;<b>${resource.dataSourceInfo.maxConnections}</b>
 										<spring:message code="probe.jsp.resources.info.busy"/>&nbsp;<b>${resource.dataSourceInfo.busyConnections}</b>
 										<spring:message code="probe.jsp.resources.info.established"/>&nbsp;<b>${resource.dataSourceInfo.establishedConnections}</b>
 										<c:if test="${resource.dataSourceInfo.resettable}">
 											<b>&nbsp;
-												<a href="<c:url value='/app/resetds.htm'/>?webapp=${param.webapp}&resource=${resource.name}">
+												<a href="<c:url value='/app/resetds.htm'><c:param name='webapp' value='${resource.applicationName}' /><c:param name='resource' value='${resource.name}' /></c:url>">
 													<img border="0"
 															src="${pageContext.request.contextPath}<spring:theme code='reset.gif'/>"
 															alt="<spring:message code='probe.jsp.resources.info.reset.alt'/>"/>

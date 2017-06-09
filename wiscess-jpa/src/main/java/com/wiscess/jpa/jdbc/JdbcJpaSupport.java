@@ -38,10 +38,6 @@ public class JdbcJpaSupport {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	
-	@SuppressWarnings("unused")
-	@Autowired
-	private Query query;
-	
 	/**
 	 * 处理动态sql.
 	 * @param params
@@ -60,6 +56,9 @@ public class JdbcJpaSupport {
 		return rs;
 	}
 
+	public JdbcTemplate getJdbcTemplate(){
+		return this.jdbcTemplate;
+	}
 	/**
 	 * 查询List方法
 	 * @param sqlName
@@ -130,16 +129,15 @@ public class JdbcJpaSupport {
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean update(String sqlName) throws Exception{
+	public Integer update(String sqlName) throws Exception{
 		return update(sqlName,new HashMap<String, Object>());
 	}
-	public boolean update(String sqlName,Map<String, Object> params)throws Exception {
+	public Integer update(String sqlName,Map<String, Object> params)throws Exception {
 		return updateByTemplate(this.jdbcTemplate, sqlName, params);
 	}
-	public boolean updateByTemplate(JdbcTemplate template,String sqlName,Map<String, Object> params)throws Exception {
+	public Integer updateByTemplate(JdbcTemplate template,String sqlName,Map<String, Object> params)throws Exception {
 		ISqlElement se=processSql(params, sqlName);
-		template.update(se.getSql(), se.getParams());
-		return true;
+		return template.update(se.getSql(), se.getParams());
 	}
 	
 	/**
@@ -157,7 +155,13 @@ public class JdbcJpaSupport {
 		ISqlElement se=processSql(params, sqlName);
 		return template.queryForObject(se.getSql(),se.getParams(), requiredType);
 	}
-	
+	public <E> Object queryForObject(String sqlName,Map<String, Object> params,RowMapper<E> rowMapper)throws Exception {
+		return queryForObjectByTemplate(this.jdbcTemplate, sqlName, params, rowMapper);
+	}
+	public <E> Object queryForObjectByTemplate(JdbcTemplate template,String sqlName,Map<String, Object> params,RowMapper<E> rowMapper)throws Exception {
+		ISqlElement se=processSql(params, sqlName);
+		return template.queryForObject(se.getSql(),se.getParams(), rowMapper);
+	}
 	/**
 	 * 新分页查询方法
 	 * @throws Exception 

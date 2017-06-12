@@ -46,8 +46,7 @@ public class CommonUtil {
 	 * @param outputStr 提交的数据
 	 * @return JSONObject(通过JSONObject.get(key)的方式获取json对象的属性值)
 	 */
-	public static JSONObject httpsRequest(String requestUrl, String requestMethod, String outputStr) {
-		JSONObject jsonObject = null;
+	public static String httpsRequestToString(String requestUrl, String requestMethod, String outputStr) {
 		try {
 			// 创建SSLContext对象，并使用我们指定的信任管理器初始化
 			TrustManager[] tm = { new MyX509TrustManager() };
@@ -90,15 +89,21 @@ public class CommonUtil {
 			inputStream.close();
 			inputStream = null;
 			conn.disconnect();
-			jsonObject = JSONObject.fromObject(buffer.toString());
+			return buffer.toString();
 		} catch (ConnectException ce) {
 			log.error("连接超时：{}", ce);
 		} catch (Exception e) {
 			log.error("https请求异常：{}", e);
 		}
+		return null;
+	}
+	public static JSONObject httpsRequest(String requestUrl, String requestMethod, String outputStr){
+		JSONObject jsonObject = null;
+		String result=httpsRequestToString(requestUrl, requestMethod, outputStr);
+		if(result!=null)
+			jsonObject = JSONObject.fromObject(result);
 		return jsonObject;
 	}
-
 	/**
 	 * 获取接口访问凭证
 	 * 

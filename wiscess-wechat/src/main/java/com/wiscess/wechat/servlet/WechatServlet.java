@@ -3,93 +3,87 @@ package com.wiscess.wechat.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.wiscess.common.utils.StringUtil;
-import com.wiscess.wechat.service.ICoreService;
+import com.wiscess.wechat.config.WechatProperties;
+import com.wiscess.wechat.service.WechatService;
 import com.wiscess.wechat.util.SignUtil;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
- * ÇëÇó´¦ÀíµÄºËĞÄÀà
+ * è¯·æ±‚å¤„ç†çš„æ ¸å¿ƒç±»
  * @author wanghai
  * @date 2014-06-10
  */
-public class CoreServlet extends HttpServlet {
+@Slf4j
+public class WechatServlet extends HttpServlet {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -7990991839833228487L;
 
-	public String token;
-	public ICoreService weixinCoreService;
-	public static ServletContext context;
-
-	public void init(ServletConfig config) throws ServletException {
-		// Óë¿ª·¢Ä£Ê½½Ó¿ÚÅäÖÃĞÅÏ¢ÖĞµÄToken±£³ÖÒ»ÖÂ
-		token=config.getInitParameter("tokenName");
-		String beanName=config.getInitParameter("beanName");
-		if(StringUtil.isEmpty(token))
-			token="token";
-		if(StringUtil.isEmpty(beanName))
-			beanName="weixinCoreService";
-		context = config.getServletContext();
-		weixinCoreService = (ICoreService) WebApplicationContextUtils
-			.getWebApplicationContext(context).getBean(beanName);
-	}
+	@Autowired
+	protected WechatProperties wechat;
+	@Autowired
+	private WechatService wechatService;
 	
 	/**
-	 * Ç©ÃûÑéÖ¤£¬Ê¹ÓÃget·½Ê½£¨È·ÈÏÇëÇóÀ´×ÔÎ¢ĞÅ·şÎñÆ÷£©
+	 * ç­¾åéªŒè¯ï¼Œä½¿ç”¨getæ–¹å¼ï¼ˆç¡®è®¤è¯·æ±‚æ¥è‡ªå¾®ä¿¡æœåŠ¡å™¨ï¼‰
 	 */
 	public void doGet(HttpServletRequest request,HttpServletResponse response) throws ServletException,IOException{
-		//Î¢ĞÅ¼ÓÃÜÇ©Ãû
+		//å¾®ä¿¡åŠ å¯†ç­¾å
 		String signature = request.getParameter("signature");
-		//Ê±¼ä´Á
+		//æ—¶é—´æˆ³
 		String timestamp = request.getParameter("timestamp");
-		//Ëæ»úÊı
+		//éšæœºæ•°
 		String nonce = request.getParameter("nonce");
-		//Ëæ»ú×Ö·û´®
+		//éšæœºå­—ç¬¦ä¸²
 		String echostr = request.getParameter("echostr");
 
 		if(StringUtil.isEmpty(timestamp) || StringUtil.isEmpty(nonce) || StringUtil.isEmpty(signature) || StringUtil.isEmpty(echostr)){
-			System.out.println("µ÷ÓÃ²ÎÊı²»ÕıÈ·");
+			System.out.println("å¾®ä¿¡å…¬ä¼—å·åŸºæœ¬é…ç½®æ¥å…¥å¼‚å¸¸");
+			log.debug("å¾®ä¿¡å…¬ä¼—å·åŸºæœ¬é…ç½®æ¥å…¥å¼‚å¸¸");
 			return;
 		}
 		
 		PrintWriter out = response.getWriter();
 		
-		//ÇëÇóĞ£Ñé£¬Èô¼ìÑé³É¹¦ÔòÔ­Ñù·µ»Øechostr£¬±íÊ¾½ÓÈë³É¹¦£¬·ñÔò½ÓÈëÊ§°Ü
-		if(SignUtil.checkSignature(signature,token, timestamp,nonce)){
+		//è¯·æ±‚æ ¡éªŒï¼Œè‹¥æ£€éªŒæˆåŠŸåˆ™åŸæ ·è¿”å›echostrï¼Œè¡¨ç¤ºæ¥å…¥æˆåŠŸï¼Œå¦åˆ™æ¥å…¥å¤±è´¥
+		if(SignUtil.checkSignature(signature,wechat.getToken(), timestamp,nonce)){
+			System.out.println("å¾®ä¿¡å…¬ä¼—å·åŸºæœ¬é…ç½®æ¥å…¥æˆåŠŸ");
+			log.debug("å¾®ä¿¡å…¬ä¼—å·åŸºæœ¬é…ç½®æ¥å…¥æˆåŠŸ");
 			out.print(echostr);
 		}
 		out.close();
 		out = null;
 	}
 	/**
-	 * ÇëÇóĞ£ÑéÓë´¦Àí
+	 * è¯·æ±‚æ ¡éªŒä¸å¤„ç†
 	 */
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// ½«ÇëÇó¡¢ÏìÓ¦µÄ±àÂë¾ùÉèÖÃÎªUTF-8£¨·ÀÖ¹ÖĞÎÄÂÒÂë£©
+		// å°†è¯·æ±‚ã€å“åº”çš„ç¼–ç å‡è®¾ç½®ä¸ºUTF-8ï¼ˆé˜²æ­¢ä¸­æ–‡ä¹±ç ï¼‰
 		request.setCharacterEncoding("UTF-8");
 		response.setCharacterEncoding("UTF-8");
 
-		// ½ÓÊÕ²ÎÊı£ºÎ¢ĞÅ¼ÓÃÜÇ©Ãû¡¢ Ê±¼ä´Á¡¢Ëæ»úÊı
+		// æ¥æ”¶å‚æ•°ï¼šå¾®ä¿¡åŠ å¯†ç­¾åã€ æ—¶é—´æˆ³ã€éšæœºæ•°
 		String signature = request.getParameter("signature");
 		String timestamp = request.getParameter("timestamp");
 		String nonce = request.getParameter("nonce");
 
 		PrintWriter out = response.getWriter();
-		// ÇëÇóĞ£Ñé
-		if (SignUtil.checkSignature(signature, token,timestamp, nonce)) {
-			//System.out.println("½ÓÊÕµ½ÏûÏ¢£¬ÑéÖ¤Í¨¹ı");
-			// µ÷ÓÃºËĞÄ·şÎñÀà½ÓÊÕ´¦ÀíÇëÇó
+		// è¯·æ±‚æ ¡éªŒ
+		if (SignUtil.checkSignature(signature, wechat.getToken(),timestamp, nonce)) {
+			System.out.println("æ¥æ”¶åˆ°æ¶ˆæ¯ï¼ŒéªŒè¯é€šè¿‡");
+			log.debug("æ¥æ”¶åˆ°æ¶ˆæ¯ï¼ŒéªŒè¯é€šè¿‡");
+			// è°ƒç”¨æ ¸å¿ƒæœåŠ¡ç±»æ¥æ”¶å¤„ç†è¯·æ±‚
 			String respXml = processRequest(request);
 			out.print(respXml);
 		}
@@ -98,11 +92,11 @@ public class CoreServlet extends HttpServlet {
 	}
 	
 	/**
-	 * ´¦ÀíÎ¢ĞÅ·¢À´µÄÏûÏ¢£¬²¢·µ»Ø·¢ËÍ·½
+	 * å¤„ç†å¾®ä¿¡å‘æ¥çš„æ¶ˆæ¯ï¼Œå¹¶è¿”å›å‘é€æ–¹
 	 * @param request
 	 * @return
 	 */
 	public String processRequest(HttpServletRequest request){
-		return weixinCoreService.processRequest(request);
+		return wechatService.processRequest(request);
 	}
 }

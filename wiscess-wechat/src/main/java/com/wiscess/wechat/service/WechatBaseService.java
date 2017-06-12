@@ -1,22 +1,18 @@
-package com.wiscess.wechat.service.impl;
+package com.wiscess.wechat.service;
 
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.wiscess.wechat.service.ICoreService;
 import com.wiscess.wechat.util.MessageUtil;
 
-/**
- * 核心服务类
- * 
- * @author wanghai	
- * @date 2014-06-13
- */
-public abstract class CoreService implements ICoreService{
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+public class WechatBaseService implements WechatService{
+	
 	/**
 	 * 处理微信发来的请求
-	 * 
 	 * @param request
 	 * @return xml
 	 */
@@ -82,26 +78,35 @@ public abstract class CoreService implements ICoreService{
 	 * @param requestMap
 	 * @return
 	 */
-	public abstract String processMessage(Map<String, String> requestMap);
+	public String processMessage(Map<String, String> requestMap){
+		log.debug("WechatBaseService.processMessage");
+		return "";
+	}
 	
 	/**
 	 * 关注事件
 	 * @param fromUserName
 	 * @return
 	 */
-	public abstract String processSubScribe(Map<String, String> requestMap);
+	public String processSubScribe(Map<String, String> requestMap){
+		log.debug("WechatBaseService.processSubScribe");
+		return "";
+	}
 	
 	/**
 	 * 取消关注事件
 	 * @param fromUserName
 	 */
-	public abstract String processUnsubscribe(Map<String, String> requestMap);
+	public String processUnsubscribe(Map<String, String> requestMap){
+		log.debug("WechatBaseService.processUnsubscribe");
+		return "";
+	}
 	/**
 	 * 扫描带参数二维码
 	 * @param requestMap
 	 */
 	public String processScan(Map<String, String> requestMap){
-		
+		log.debug("WechatBaseService.processScan");
 		return "";
 	}
 	
@@ -110,6 +115,7 @@ public abstract class CoreService implements ICoreService{
 	 * @param requestMap
 	 */
 	public String processLocation(Map<String, String> requestMap) {
+		log.debug("WechatBaseService.processLocation");
 		return "";
 	}
 	
@@ -119,7 +125,10 @@ public abstract class CoreService implements ICoreService{
 	 * @param eventKey
 	 * @return
 	 */
-	public abstract String processClick(Map<String, String> requestMap);
+	public String processClick(Map<String, String> requestMap){
+		log.debug("WechatBaseService.processClick");
+		return "";
+	}
 	
 	/**
 	 * 菜单扫码推事件
@@ -127,7 +136,9 @@ public abstract class CoreService implements ICoreService{
 	 * @param eventKey
 	 * @return
 	 */
-	public abstract String processScancodePush(Map<String, String> requestMap);
-	
+	public String processScancodePush(Map<String, String> requestMap){
+		log.debug("WechatBaseService.processScancodePush");
+		return "";
+	}
 	
 }

@@ -14,23 +14,21 @@ import java.util.List;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.wiscess.wechat.pojo.SNSUserInfo;
 import com.wiscess.wechat.pojo.WeixinMedia;
 import com.wiscess.wechat.pojo.WeixinOauth2Token;
 import com.wiscess.wechat.pojo.WeixinUserInfo;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 网页授权凭证工具类
  * @author liudongge
  * @date 2014-7-17
  */
+@Slf4j
 public class AdvancedUtil {
 	
-	private static Logger log = LoggerFactory.getLogger(AdvancedUtil.class);
-
 	/**
 	 * 获取网页授权凭证
 	 * @param appId 公众帐号的唯一标识
@@ -42,7 +40,7 @@ public class AdvancedUtil {
 		WeixinOauth2Token wat = null;
 		//拼接请求地址
 		String requestUrl = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=APPID&secret=SECRET&code=CODE&grant_type=authorization_code";
-		System.out.println("基类：获取网页授权凭证：code="+code);
+		log.debug("基类：获取网页授权凭证：code="+code);
 		requestUrl = requestUrl.replace("APPID", appId);
 		requestUrl = requestUrl.replace("SECRET", appSecret);
 		requestUrl = requestUrl.replace("CODE", code);
@@ -53,21 +51,35 @@ public class AdvancedUtil {
 		if(null != jsonObject){
 			try {
 				wat = new WeixinOauth2Token();
-				wat.setAccessToken(jsonObject.getString("access_token"));
-				wat.setExpiresIn(jsonObject.getInt("expires_in"));
-				wat.setRefreshToken(jsonObject.getString("refresh_token"));
-				wat.setOpenId(jsonObject.getString("openid"));
-				wat.setScope(jsonObject.getString("scope"));
+				wat=WeixinOauth2Token.builder()
+						.accessToken(getString(jsonObject,"access_token"))
+						.expiresIn(getInt(jsonObject,"expires_in"))
+						.refreshToken(getString(jsonObject,"refresh_token"))
+						.openId(getString(jsonObject,"openid"))
+						.scope(getString(jsonObject,"scope"))
+						.unionId(getString(jsonObject,"unionid"))
+						.build();
 			} catch (Exception e) {
 				wat = null;
-				int errorCode = jsonObject.getInt("errcode");
-				String errorMsg = jsonObject.getString("errmsg");
+				int errorCode = getInt(jsonObject,"errcode");
+				String errorMsg = getString(jsonObject,"errmsg");
 				log.error("获取网页授权凭证失败 errcode:{} errmsg:{}",errorCode,errorMsg);
 			}
 		}
 		return wat;
 	}
 	
+	public static String getString(JSONObject jsonObject,String key){
+		if(jsonObject.containsKey(key))
+			return jsonObject.getString(key);
+		return null;
+	}
+	
+	public static Integer getInt(JSONObject jsonObject,String key){
+		if(jsonObject.containsKey(key))
+			return jsonObject.getInt(key);
+		return null;
+	}
 	/**
 	 * 刷新网页授权凭证
 	 * @param appId 公众帐号的唯一标识号
@@ -85,15 +97,18 @@ public class AdvancedUtil {
 		if (null != jsonObject) {
 			try {
 				wat = new WeixinOauth2Token();
-				wat.setAccessToken(jsonObject.getString("access_token"));
-				wat.setExpiresIn(jsonObject.getInt("expires_id"));
-				wat.setRefreshToken(jsonObject.getString("refresh_token"));
-				wat.setOpenId(jsonObject.getString("openid"));
-				wat.setScope(jsonObject.getString("scope"));
+				wat=WeixinOauth2Token.builder()
+						.accessToken(getString(jsonObject,"access_token"))
+						.expiresIn(getInt(jsonObject,"expires_in"))
+						.refreshToken(getString(jsonObject,"refresh_token"))
+						.openId(getString(jsonObject,"openid"))
+						.scope(getString(jsonObject,"scope"))
+						.unionId(getString(jsonObject,"unionid"))
+						.build();
 			} catch (Exception e) {
 				wat = null;
-				int errorCode = jsonObject.getInt("errcode");
-				String errorMsg = jsonObject.getString("errmsg");
+				int errorCode = getInt(jsonObject,"errcode");
+				String errorMsg = getString(jsonObject,"errmsg");
 				log.error("刷新网页授权凭证失败 errcode:{} errmsg:{}",errorCode,errorMsg);
 			}
 		}
@@ -119,25 +134,27 @@ public class AdvancedUtil {
 			try {
 				snsUserInfo = new SNSUserInfo();
 				//用户标识
-				snsUserInfo.setOpenId(jsonObject.getString("openid"));
+				snsUserInfo.setOpenId(getString(jsonObject,"openid"));
+				//union标识
+				snsUserInfo.setUnionId(getString(jsonObject,"unionid"));
 				//昵称
-				snsUserInfo.setNichname(jsonObject.getString("nickname"));
+				snsUserInfo.setNichname(getString(jsonObject,"nickname"));
 				//性别（1 是男性，2是女性，0是未知）
-				snsUserInfo.setSex(jsonObject.getInt("sex"));
+				snsUserInfo.setSex(getInt(jsonObject,"sex"));
 				//用户所在国家
-				snsUserInfo.setCountry(jsonObject.getString("country"));
+				snsUserInfo.setCountry(getString(jsonObject,"country"));
 				//用户所在省份
-				snsUserInfo.setProvince(jsonObject.getString("province"));
+				snsUserInfo.setProvince(getString(jsonObject,"province"));
 				//用户所在城市
-				snsUserInfo.setCity(jsonObject.getString("city"));
+				snsUserInfo.setCity(getString(jsonObject,"city"));
 				//用户头像
-				snsUserInfo.setHeadImgUrl(jsonObject.getString("headimgurl"));
+				snsUserInfo.setHeadImgUrl(getString(jsonObject,"headimgurl"));
 				//用户特权信息
 				snsUserInfo.setPrivilegeList(JSONArray.toList(jsonObject.getJSONArray("privilege"),List.class));
 			} catch (Exception e) {
 				snsUserInfo = null;
-				int errorCode = jsonObject.getInt("errcode");
-				String errorMsg = jsonObject.getString("errmsg");
+				int errorCode = getInt(jsonObject,"errcode");
+				String errorMsg = getString(jsonObject,"errmsg");
 				log.error("获取用户信息失败 errcode:{} errmsg:{}",errorCode,errorMsg);
 			}
 		}
@@ -217,13 +234,13 @@ public class AdvancedUtil {
 			// 使用JSON-lib解析返回结果
 			JSONObject jsonObject = JSONObject.fromObject(buffer.toString());
 			weixinMedia = new WeixinMedia();
-			weixinMedia.setType(jsonObject.getString("type"));
+			weixinMedia.setType(getString(jsonObject,"type"));
 			// type等于thumb时的返回结果和其它类型不一样
 			if ("thumb".equals(type))
-				weixinMedia.setMediaId(jsonObject.getString("thumb_media_id"));
+				weixinMedia.setMediaId(getString(jsonObject,"thumb_media_id"));
 			else
-				weixinMedia.setMediaId(jsonObject.getString("media_id"));
-			weixinMedia.setCreatedAt(jsonObject.getInt("created_at"));
+				weixinMedia.setMediaId(getString(jsonObject,"media_id"));
+			weixinMedia.setCreatedAt(getInt(jsonObject,"created_at"));
 		} catch (Exception e) {
 			weixinMedia = null;
 			log.error("上传媒体文件失败：{}", e);
@@ -294,31 +311,33 @@ public class AdvancedUtil {
 			try {
 				weixinUserInfo = new WeixinUserInfo();
 				// 用户的标识
-				weixinUserInfo.setOpenId(jsonObject.getString("openid"));
+				weixinUserInfo.setOpenId(getString(jsonObject,"openid"));
+				//unionId
+				weixinUserInfo.setUnionId(getString(jsonObject,"unionid"));
 				// 关注状态（1是关注，0是未关注），未关注时获取不到其余信息
-				weixinUserInfo.setSubscribe(jsonObject.getInt("subscribe"));
+				weixinUserInfo.setSubscribe(getInt(jsonObject,"subscribe"));
 				// 用户关注时间
-				weixinUserInfo.setSubscribeTime(jsonObject.getString("subscribe_time"));
+				weixinUserInfo.setSubscribeTime(getString(jsonObject,"subscribe_time"));
 				// 昵称
-				weixinUserInfo.setNickname(jsonObject.getString("nickname"));
+				weixinUserInfo.setNickname(getString(jsonObject,"nickname"));
 				// 用户的性别（1是男性，2是女性，0是未知）
-				weixinUserInfo.setSex(jsonObject.getInt("sex"));
+				weixinUserInfo.setSex(getInt(jsonObject,"sex"));
 				// 用户所在国家
-				weixinUserInfo.setCountry(jsonObject.getString("country"));
+				weixinUserInfo.setCountry(getString(jsonObject,"country"));
 				// 用户所在省份
-				weixinUserInfo.setProvince(jsonObject.getString("province"));
+				weixinUserInfo.setProvince(getString(jsonObject,"province"));
 				// 用户所在城市
-				weixinUserInfo.setCity(jsonObject.getString("city"));
+				weixinUserInfo.setCity(getString(jsonObject,"city"));
 				// 用户的语言，简体中文为zh_CN
-				weixinUserInfo.setLanguage(jsonObject.getString("language"));
+				weixinUserInfo.setLanguage(getString(jsonObject,"language"));
 				// 用户头像
-				weixinUserInfo.setHeadImgUrl(jsonObject.getString("headimgurl"));
+				weixinUserInfo.setHeadImgUrl(getString(jsonObject,"headimgurl"));
 			} catch (Exception e) {
 				if (0 == weixinUserInfo.getSubscribe()) {
 					log.error("用户{}已取消关注", weixinUserInfo.getOpenId());
 				} else {
-					int errorCode = jsonObject.getInt("errcode");
-					String errorMsg = jsonObject.getString("errmsg");
+					int errorCode = getInt(jsonObject,"errcode");
+					String errorMsg = getString(jsonObject,"errmsg");
 					log.error("获取用户信息失败 errcode:{} errmsg:{}", errorCode, errorMsg);
 				}
 			}

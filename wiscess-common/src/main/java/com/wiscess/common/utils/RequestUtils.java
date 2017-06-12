@@ -13,8 +13,8 @@ import ognl.Ognl;
 public class RequestUtils {
 
 	private static String sourceEnc = "ISO-8859-1";
-	private static String defaultDestEnc = "UTF8";
-	private static boolean doDecode = true;
+	private static String defaultDestEnc = "UTF-8";
+	private static boolean doDecode = false;
 	private static boolean forceDefault = false;
 	private static boolean escapeHTML = false;
 
@@ -53,6 +53,9 @@ public class RequestUtils {
         		encoding = defaultDestEnc;
         	} else {
 	        	encoding = request.getCharacterEncoding();
+	        	if(encoding.equals(defaultDestEnc)){
+	        		ifDecode=false;
+	        	}
 	        	if (StringUtil.isEmpty(encoding)) {
 	        		encoding = defaultDestEnc;
 	        	}

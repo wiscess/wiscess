@@ -11,7 +11,7 @@
     PURPOSE.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="https://maven.apache.org/POM/4.0.0" xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -35,11 +35,20 @@
         <url>https://github.com/psi-probe/psi-probe/</url>
     </scm>
 
+    <properties>
+        <probe.log.path>${catalina.base}/logs</probe.log.path>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>psi-probe-core</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>psi-probe-ojdbc</artifactId>
+            <version>${probe-ojdbc.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -58,7 +67,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>psi-probe-tomcat9</artifactId>
+            <artifactId>psi-probe-file</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -95,6 +104,7 @@
     </dependencies>
 
     <build>
+        <finalName>probe</finalName>
         <plugins>
             <plugin>
                 <groupId>org.jasig.mojo.jspc</groupId>
@@ -122,6 +132,9 @@
                         </resource>
                         <resource>
                             <directory>${project.basedir}/src/main/webapp</directory>
+                            <includes>
+                                <include>**/*messages*.properties</include>
+                            </includes>
                             <filtering>true</filtering>
                         </resource>
                         <resource>
@@ -134,8 +147,6 @@
                             <filtering>false</filtering>
                         </resource>
                     </webResources>
-                    <webappDirectory>${project.build.directory}/target/war_exploded</webappDirectory>
-                    <warName>probe</warName>
                 </configuration>
             </plugin>
         </plugins>
@@ -143,19 +154,23 @@
 
     <profiles>
         <profile>
-            <id>tomcat</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <probe.log.path>${catalina.base}/logs</probe.log.path>
-            </properties>
-        </profile>
-        <profile>
             <id>jboss</id>
             <properties>
                 <probe.log.path>${jboss.server.log.dir}</probe.log.path>
             </properties>
+        </profile>
+        <profile>
+            <id>java18</id>
+            <activation>
+                <jdk>1.8</jdk>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>${project.groupId}</groupId>
+                    <artifactId>psi-probe-tomcat9</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
         </profile>
     </profiles>
 </project>

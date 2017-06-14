@@ -14,17 +14,14 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib uri="https://github.com/psi-probe/psi-probe/jsp/tags" prefix="probe" %>
+<%@ page import="org.apache.commons.lang3.StringEscapeUtils" %>
 
-<%--
-	Cluster statistic view. Displays cluster members and sender and receiver traffic stats.
-
-	Author: Vlad Ilyushchenko
---%>
+<%-- Cluster statistic view. Displays cluster members and sender and receiver traffic stats. --%>
 <html>
 	<head>
 		<title><spring:message code="probe.jsp.title.cluster"/></title>
 		<script type="text/javascript" src="<c:url value='/js/prototype.js'/>"></script>
-		<script type="text/javascript" src="<c:url value='/js/scriptaculous.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/scriptaculous/scriptaculous.js'/>"></script>
 		<script type="text/javascript" src="<c:url value='/js/func.js'/>"></script>
 	</head>
 
@@ -76,27 +73,27 @@
 					<div class="shadow">
 						<div class="info">
 							<p>
-								<spring:message code="probe.jsp.cluster.name"/>&nbsp;<span class="value">${cluster.name}</span>
-								<spring:message code="probe.jsp.cluster.info"/>&nbsp;<span class="value">${cluster.info}</span>
-								<spring:message code="probe.jsp.cluster.manager"/>&nbsp;<span class="value">${cluster.managerClassName}</span>
-								<spring:message code="probe.jsp.cluster.mode"/>&nbsp;<span class="value">${cluster.senderReplicationMode}</span>
-								<spring:message code="probe.jsp.cluster.mcastAddress"/>&nbsp;<span class="value">${cluster.mcastAddress}:${cluster.mcastPort}</span>
-								<spring:message code="probe.jsp.cluster.mcastTtl"/>&nbsp;<span class="value">${cluster.mcastTtl}</span>
-								<spring:message code="probe.jsp.cluster.mcastBindAddress"/>&nbsp;
+								<spring:message code="probe.jsp.cluster.name"/>&#160;<span class="value">${cluster.name}</span>
+								<spring:message code="probe.jsp.cluster.info"/>&#160;<span class="value">${cluster.info}</span>
+								<spring:message code="probe.jsp.cluster.manager"/>&#160;<span class="value">${cluster.managerClassName}</span>
+								<spring:message code="probe.jsp.cluster.mode"/>&#160;<span class="value">${cluster.senderReplicationMode}</span>
+								<spring:message code="probe.jsp.cluster.mcastAddress"/>&#160;<span class="value">${cluster.mcastAddress}:${cluster.mcastPort}</span>
+								<spring:message code="probe.jsp.cluster.mcastTtl"/>&#160;<span class="value">${cluster.mcastTtl}</span>
+								<spring:message code="probe.jsp.cluster.mcastBindAddress"/>&#160;
 								<span class="value">
 									<c:choose>
 										<c:when test="${! empty cluster.mcastBindAddress}">
 											${cluster.mcastBindAddress}
 										</c:when>
 										<c:otherwise>
-											<spring:message code="probe.jsp.cluster.mcastBindAddress.all"/>&nbsp;
+											<spring:message code="probe.jsp.cluster.mcastBindAddress.all"/>&#160;
 										</c:otherwise>
 									</c:choose>
 								</span>
-								<spring:message code="probe.jsp.cluster.heartbeatFreq"/>&nbsp;<span class="value">${cluster.mcastFrequency}ms.</span>
-								<spring:message code="probe.jsp.cluster.heartbeatTimeout"/>&nbsp;<span class="value">${cluster.mcastDropTime}ms.</span>
-								<spring:message code="probe.jsp.cluster.receiverAddress"/>&nbsp;<span class="value">${cluster.tcpListenAddress}</span>
-								<spring:message code="probe.jsp.cluster.receiverPort"/>&nbsp;<span class="value">${cluster.tcpListenPort}</span>
+								<spring:message code="probe.jsp.cluster.heartbeatFreq"/>&#160;<span class="value">${cluster.mcastFrequency}ms.</span>
+								<spring:message code="probe.jsp.cluster.heartbeatTimeout"/>&#160;<span class="value">${cluster.mcastDropTime}ms.</span>
+								<spring:message code="probe.jsp.cluster.receiverAddress"/>&#160;<span class="value">${cluster.tcpListenAddress}</span>
+								<spring:message code="probe.jsp.cluster.receiverPort"/>&#160;<span class="value">${cluster.tcpListenPort}</span>
 							</p>
 						</div>
 					</div>
@@ -138,7 +135,7 @@
 					new Ajax.ImgUpdater('cl_requests', '${probe:max(collectionPeriod, 5)}');
 					new Ajax.PeriodicalUpdater('dd_traffic', '<c:url value="/cluster/traffic.ajax"/>', {frequency: 3});
 					new Ajax.PeriodicalUpdater('dd_requests', '<c:url value="/cluster/requests.ajax"/>', {frequency: 3});
-					new Ajax.PeriodicalUpdater('members', '<c:url value="/cluster/members.ajax"/>?<%=request.getQueryString()%>', {method:'get',frequency: 3});
+					new Ajax.PeriodicalUpdater('members', '<c:url value="/cluster/members.ajax"/>?<%=StringEscapeUtils.escapeHtml4(request.getQueryString())%>', {method:'get',frequency: 3});
 				</script>
 
 			</c:otherwise>

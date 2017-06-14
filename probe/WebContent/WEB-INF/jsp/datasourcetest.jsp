@@ -13,7 +13,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
-<%@ taglib uri="http://displaytag.sf.net" prefix="display" %>
 <%@ taglib uri="https://github.com/psi-probe/psi-probe/jsp/tags" prefix="probe" %>
 
 <html>
@@ -24,18 +23,14 @@
 		<link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}<spring:theme code='scroller.css'/>"/>
 		<script type="text/javascript" src="<c:url value='/js/prototype.js'/>"></script>
 		<script type="text/javascript" src="<c:url value='/js/behaviour.js'/>"></script>
-		<script type="text/javascript" src="<c:url value='/js/scriptaculous.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/scriptaculous/scriptaculous.js'/>"></script>
 		<script type="text/javascript" src="<c:url value='/js/func.js'/>"></script>
 		<script type="text/javascript" src="<c:url value='/js/areascroller.js'/>"></script>
 		<script type="text/javascript" src="<c:url value='/js/datasourcetest.js'/>"></script>
 	</head>
 
-	<%--
-		Provides GUI for datasource connectivity testing.
-		Allows a user to enter an SQL query and displays results returned by the query.
-
-		Author: Andy Shapoval, Vlad Ilyushchenko
-	--%>
+	<%-- Provides GUI for datasource connectivity testing. Allows a user to enter an SQL query and
+     displays results returned by the query. --%>
 
 	<body>
 
@@ -95,14 +90,14 @@
 
 			<form id="sqlForm" action="" method="post">
 				<c:if test="${param.webapp != null}">
-					<input type="hidden" name="webapp" value="${param.webapp}"/>
+					<input type="hidden" name="webapp" value='<c:out value="${param.webapp}" />'/>
 				</c:if>
-				<input type="hidden" name="resource" value="${param.resource}"/>
+				<input type="hidden" name="resource" value='<c:out value="${param.resource}" />'/>
 				<dl id="sqlDL">
 					<dt><label for="sql"><spring:message code="probe.jsp.dataSourceTest.sqlForm.sql.label"/></label></dt>
 					<dd id="sqlContainer">
 						<textarea id="sql" name="sql" rows="5" cols="80"></textarea>
-						<div id="sqlDragHandle">&nbsp;</div>
+						<div id="sqlDragHandle">&#160;</div>
 					</dd>
 				</dl>
 				<dl id="optionsDL" style="display: none;">
@@ -131,7 +126,7 @@
 				</ul>
 				<div id="queryHistoryBorder">
 					<div id="queryHistoryHolder"></div>
-					<div id="historyDragHandle">&nbsp;</div>
+					<div id="historyDragHandle">&#160;</div>
 				</div>
 			</div>
 
@@ -149,10 +144,10 @@
 				</div>
 				<table id="resultsTable" style="border-spacing:0;border-collapse:separate;">
 					<tr>
-						<td id="left_scroller" class="scroller" style="display: none;">&nbsp;</td>
-						<td id="separator" width="1%" style="display: none;">&nbsp;</td>
+						<td id="left_scroller" class="scroller" style="display: none;">&#160;</td>
+						<td id="separator" width="1%" style="display: none;">&#160;</td>
 						<td><div id="outputHolder"></div></td>
-						<td id="right_scroller" class="scroller" style="display: none;">&nbsp;</td>
+						<td id="right_scroller" class="scroller" style="display: none;">&#160;</td>
 					</tr>
 				</table>
 			</div>
@@ -174,14 +169,14 @@
 				<dl>
 					<dt><spring:message code="probe.jsp.dataSourceTest.chart.usage.title"/></dt>
 					<dd class="image">
-						<img id="usage-${param.resource}" border="0" src="${usage_img}" width="${chartWidth}" height="${chartHeight}" alt="Datasource usage"/>
+						<img id='<c:out value="usage-${param.resource}" />' border="0" src="${usage_img}" width="${chartWidth}" height="${chartHeight}" alt="Datasource usage"/>
 					</dd>
 				</dl>
 			</div>
 		</div>
 
 		<script type="text/javascript">
-			new Ajax.ImgUpdater('usage-${param.resource}', '${probe:max(collectionPeriod, 5)}');
+			new Ajax.ImgUpdater('<c:out value="usage-${param.resource}" />', '${probe:max(collectionPeriod, 5)}');
 			setupAjaxActions(
 				'<c:url value="/sql/connection.ajax"/>',
 				'<c:url value="/sql/recordset.ajax"/>',

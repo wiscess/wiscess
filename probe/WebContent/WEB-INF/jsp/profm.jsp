@@ -18,8 +18,10 @@
 		
 		<script type="text/javascript" language="javascript" src="<c:url value="/js/prototype.js"/>"></script>
 		<script type="text/javascript" language="javascript" src="<c:url value="/js/behaviour.js"/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/scriptaculous/scriptaculous.js'/>"></script>
 		<script type="text/javascript" language="javascript" src="<c:url value="/js/scriptaculous.js"/>"></script>
 		<script type="text/javascript" language="javascript" src="<c:url value="/js/func.js"/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/areascroller.js'/>"></script>
 		<script type="text/javascript" language="javascript" src="<c:url value="/js/profm.js"/>"></script>
 	</head>
 	<body>

@@ -2,6 +2,8 @@
     <wb-module deploy-name="probe">
         <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/resources"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/java"/>
         <property name="context-root" value="probe"/>
         <property name="java-output-path" value="/probe/build/classes"/>
     </wb-module>

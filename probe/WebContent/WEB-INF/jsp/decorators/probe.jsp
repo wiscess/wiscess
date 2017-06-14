@@ -18,11 +18,7 @@
 <%@ taglib uri="https://github.com/psi-probe/psi-probe/jsp/tags" prefix="probe" %>
 
 
-<%--
-	Main site decorator. Face of the Probe.
-
-	Author: Vlad Ilyushchenko
---%>
+<%-- Main site decorator. Face of the Probe. --%>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -46,7 +42,7 @@
 				<li id="logo"><a href="<c:url value='/index.htm'/>"><img src="<c:url value='/css/the-probe-logo.gif'/>"
 																		alt="PSI Probe Logo"/></a></li>
 				<li id="runtime">
-					<spring:message code="probe.jsp.version" arguments="3.0.0-SNAPSHOT,<b>${hostname}</b>"/>,
+					<spring:message code="probe.jsp.version" arguments="${version},<b>${hostname}</b>"/>,
 					<span class="uptime"><spring:message code="probe.jsp.uptime"
 														arguments="${uptime_days},${uptime_hours},${uptime_mins}"/></span></li>
 				<li id="title"><decorator:title default="Probe"/></li>
@@ -69,12 +65,13 @@
 					<a class="${navTabDeploy}" href="<c:url value='/adm/deploy.htm'/>">
 						<spring:message code="probe.jsp.menu.deployment"/>
 					</a>
-				</li>
+				</li>				
 				<li>
 					<a class="${navTabProfm}" href="<c:url value='/profm.htm'/>">
 						<spring:message code="probe.jsp.menu.profm"/>
 					</a>
 				</li>
+				
 				<li>
 					<a class="${navTabLogs}" href="<c:url value='/logs/list.htm'/>">
 						<spring:message code="probe.jsp.menu.logs"/>
@@ -106,7 +103,7 @@
 					</a>
 				</li>
 				<li>
-					<a class="${navTabQuickCheck}" href="<c:url value='/adm/quickcheck.htm'/>">
+					<a class="${navTabQuickCheck}" href="<c:url value='/quickcheck.htm'/>">
 						<spring:message code="probe.jsp.menu.quickcheck"/>
 					</a>
 				</li>
@@ -179,7 +176,7 @@
 					</a>
 				</li>
 				<li class="last">
-					<a href="<c:url value='/adm/quickcheck.htm'/>">
+					<a href="<c:url value='/quickcheck.htm'/>">
 						<spring:message code="probe.jsp.menu.quickcheck"/>
 					</a>
 				</li>
@@ -191,23 +188,23 @@
 			</p>
 			<div id="locales">
 				<a href="?<probe:addQueryParam param='lang' value='en'/>"><img
-						src="<c:url value='/flags/gb.gif'/>" alt="EN" /></a>
+						src="<c:url value='/flags/gb.png'/>" alt="EN" /></a>
 				<a href="?<probe:addQueryParam param='lang' value='ru'/>"><img
-						src="<c:url value='/flags/ru.gif'/>" alt="RU" /></a>
+						src="<c:url value='/flags/ru.png'/>" alt="RU" /></a>
 				<a href="?<probe:addQueryParam param='lang' value='ja'/>"><img
-						src="<c:url value='/flags/jp.gif'/>" alt="JP" /></a>
+						src="<c:url value='/flags/jp.png'/>" alt="JP" /></a>
 				<a href="?<probe:addQueryParam param='lang' value='it'/>"><img
-						src="<c:url value='/flags/it.gif'/>" alt="IT" /></a>
+						src="<c:url value='/flags/it.png'/>" alt="IT" /></a>
 				<a href="?<probe:addQueryParam param='lang' value='de'/>"><img
-						src="<c:url value='/flags/de.gif'/>" alt="DE" /></a>
+						src="<c:url value='/flags/de.png'/>" alt="DE" /></a>
 				<a href="?<probe:addQueryParam param='lang' value='es'/>"><img
-						src="<c:url value='/flags/es.gif'/>" alt="ES" /></a>
+						src="<c:url value='/flags/es.png'/>" alt="ES" /></a>
 				<a href="?<probe:addQueryParam param='lang' value='fr'/>"><img
-						src="<c:url value='/flags/fr.gif'/>" alt="FR" /></a>
+						src="<c:url value='/flags/fr.png'/>" alt="FR" /></a>
 				<a href="?<probe:addQueryParam param='lang' value='pt_br'/>"><img
-						src="<c:url value='/flags/br.gif'/>" alt="BR" /></a>
+						src="<c:url value='/flags/br.png'/>" alt="BR" /></a>
 				<a href="?<probe:addQueryParam param='lang' value='zh_cn'/>"><img
-						src="<c:url value='/flags/cn.gif'/>" alt="CN" /></a>
+						src="<c:url value='/flags/cn.png'/>" alt="CN" /></a>
 			</div>
 			<p>
 				<spring:message code="probe.jsp.i18n.credit"/>

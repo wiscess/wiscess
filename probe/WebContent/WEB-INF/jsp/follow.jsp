@@ -16,18 +16,14 @@
 <%@ taglib uri="http://displaytag.sf.net" prefix="display" %>
 <%@ taglib uri="https://github.com/psi-probe/psi-probe/jsp/tags" prefix="probe" %>
 
-<%--
-	Log file view. The view is a simple markup that gets updated via AJAX calls. Top menu does not go to the server but
-	rather does DOM tricks to modify content appearance.
-
-	Author: Vlad Ilyushchenko.
---%>
+<%-- Log file view. The view is a simple markup that gets updated via AJAX calls. Top menu does not go to the server but
+ rather does DOM tricks to modify content appearance. --%>
 
 <html>
 	<head>
 		<title><spring:message code="probe.jsp.title.follow"/></title>
 		<script type="text/javascript" src="<c:url value='/js/prototype.js'/>"></script>
-		<script type="text/javascript" src="<c:url value='/js/scriptaculous.js'/>"></script>
+		<script type="text/javascript" src="<c:url value='/js/scriptaculous/scriptaculous.js'/>"></script>
 		<script type="text/javascript" src="<c:url value='/js/func.js'/>"></script>
 		<script type="text/javascript" src="<c:url value='/js/behaviour.js'/>"></script>
 	</head>
@@ -86,7 +82,7 @@
 							<c:param name="context" value="${log.context}"/>
 						</c:if>
 					</c:if>
-					<c:if test="${!log.context}">
+					<c:if test="${!log.context || log.logType == 'log4j2'}">
 						<c:choose>
 							<c:when test="${log.root}">
 								<c:param name="root" value="${log.root}"/>
@@ -136,7 +132,7 @@
 
 				<display:column titleKey="probe.jsp.logs.col.name" sortable="true">
 					<c:choose>
-						<c:when test="${logsource.context}">
+						<c:when test="${logsource.context && logsource.logType != 'log4j2'}">
 							(CONTEXT)
 						</c:when>
 						<c:when test="${logsource.root}">
@@ -169,7 +165,7 @@
 									<c:param name="context" value="${logsource.context}"/>
 								</c:if>
 							</c:if>
-							<c:if test="${!logsource.context}">
+							<c:if test="${!logsource.context || logsource.logType == 'log4j2'}">
 								<c:choose>
 									<c:when test="${logsource.root}">
 										<c:param name="root" value="${logsource.root}"/>
@@ -234,7 +230,7 @@
 				method:'get',
 				parameters: {
 					logType: '${probe:escapeJS(log.logType)}',
-					webapp: '${param.webapp}',
+					webapp: '<c:out value="${param.webapp}" />',
 					context: '${log.context}',
 					root: '${log.root}',
 					logName: '${probe:escapeJS(log.name)}',
@@ -257,7 +253,7 @@
 					method:'get',
 					parameters: {
 						logType: '${probe:escapeJS(log.logType)}',
-						webapp: '${param.webapp}',
+						webapp: '<c:out value="${param.webapp}" />',
 						context: '${log.context}',
 						root: '${log.root}',
 						logName: '${probe:escapeJS(log.name)}',
@@ -398,7 +394,7 @@
 		<c:if test="${cookie['file_content_font_size'] != null}">
 			<script type="text/javascript">
 				Event.observe(window, 'load', function() {
-					setFontSize($(file_content_div), '${cookie["file_content_font_size"].value}', false);
+					setFontSize($(file_content_div), `<c:out value='${cookie["file_content_font_size"].value}' />`, false);
 				});
 			</script>
 		</c:if>

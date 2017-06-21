@@ -57,6 +57,11 @@ public class WechatBaseService implements WechatService{
 				else if (eventType.equals(MessageUtil.EVENT_TYPE_CLICK)) {
 					//处理菜单点击事件
 					return processClick(requestMap);
+				}
+				// 自定义菜单--View事件
+				else if (eventType.equals(MessageUtil.EVENT_TYPE_VIEW)) {
+					//处理View事件
+					return processView(requestMap);
 				// 自定义菜单--扫码推事件
 				}else if (eventType.equals(MessageUtil.EVENT_TYPE_SCANCODE_PUSH)){
 					//处理菜单点击事件
@@ -129,6 +134,16 @@ public class WechatBaseService implements WechatService{
 		log.debug("WechatBaseService.processClick");
 		return "";
 	}
+	/**
+	 * 菜单VIEW事件
+	 * @param fromUserName
+	 * @param eventKey
+	 * @return
+	 */
+	public String processView(Map<String, String> requestMap){
+		log.debug("WechatBaseService.processView");
+		return "";
+	}
 	
 	/**
 	 * 菜单扫码推事件
@@ -140,5 +155,10 @@ public class WechatBaseService implements WechatService{
 		log.debug("WechatBaseService.processScancodePush");
 		return "";
 	}
-	
+	/**
+	 * 微信支付回掉函数
+	 */
+	public void payResult(Map<String, String> map)throws Exception {
+	}
+
 }

@@ -23,6 +23,7 @@ import com.wiscess.common.utils.StringUtil;
 public class ZipPath {
 	static final int BUFFER = 2048000; // 200KB
 
+	@SuppressWarnings("rawtypes")
 	public static void unzip(String zipFileName, String outputDirectory)
 	 throws Exception { 
 		org.apache.tools.zip.ZipFile zipFile = new  org.apache.tools.zip.ZipFile(new File(zipFileName));
@@ -243,16 +244,12 @@ public class ZipPath {
 			base = base.length() == 0 ? "" : base + "/";
 			for (int i = 0; i < fl.length; i++) {
 				String fileName = fl[i].getName();
-				int position = fileName.lastIndexOf(".");
-				String extName = "";
-				if (position >= 0) {//扩展名
-					extName = fileName.substring(position + 1);	
-				}
-				/*if ("zip".equals(extName))
-				{
-					continue;
-				}*/
-				zip(out, fl[i], base + fl[i].getName());
+				//int position = fileName.lastIndexOf(".");
+//				String extName = "";
+//				if (position >= 0) {//扩展名
+//					extName = fileName.substring(position + 1);	
+//				}
+				zip(out, fl[i], base + fileName);
 			}
 		} else {
 			out.putNextEntry(new org.apache.tools.zip.ZipEntry(base));

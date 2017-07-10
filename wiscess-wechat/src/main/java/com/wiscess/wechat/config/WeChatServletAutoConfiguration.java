@@ -16,16 +16,18 @@ import com.wiscess.wechat.servlet.WechatServlet;
 @EnableConfigurationProperties(WechatProperties.class)
 @ConditionalOnWebApplication
 @ConditionalOnProperty(prefix = "wechat", value = "enabled", matchIfMissing = true)
-public class WeChatConfig {
+public class WeChatServletAutoConfiguration {
 	@Autowired
 	protected WechatProperties wechat;
 	
     @Bean
+    @ConditionalOnProperty(prefix = "wechat", name="servlet-url")
     public WechatServlet wechatServlet(){
         return new WechatServlet();
     }
     
     @Bean
+    @ConditionalOnBean(name="wechatServlet")
     public ServletRegistrationBean wechatServletRegistrationBean(WechatServlet wechatServlet){
         ServletRegistrationBean registration = new ServletRegistrationBean(wechatServlet);
         registration.setEnabled(true);

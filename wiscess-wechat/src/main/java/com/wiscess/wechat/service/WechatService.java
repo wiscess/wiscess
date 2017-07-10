@@ -13,6 +13,8 @@ public interface WechatService {
 	 */
 	public String processRequest(HttpServletRequest request);
 
+	
+	
 	/**
 	 * 微信支付回掉函数
 	 */

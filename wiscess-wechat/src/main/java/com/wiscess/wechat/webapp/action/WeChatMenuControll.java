@@ -425,48 +425,6 @@ public class WeChatMenuControll {
 		result.setMsg("禁用成功");
 		return result;
 	}
-	
-	public void doGenerate(HttpServletRequest req,HttpServletResponse res){
-		
-			// 获取所有菜单
-			WxMenuDto dto = new WxMenuDto();
-			dto.setName("我的");
-					WxMenuDto dto2 = new WxMenuDto();
-					dto2.setIsAuth(true);
-					dto2.setMenuType(MenuUtil.MENU_VIEW);
-					dto2.setName("绑定");
-					dto2.setOrder(1);
-					dto2.setUrl("http://www.wiscess.com.cn/dxwx/my/binding");
-					
-					WxMenuDto dto3 = new WxMenuDto();
-					dto3.setIsAuth(true);
-					dto3.setMenuType(MenuUtil.MENU_VIEW);
-					dto3.setName("解除绑定");
-					dto3.setOrder(2);
-					dto3.setUrl("http://www.wiscess.com.cn/dxwx/my/unbind");
-					
-					WxMenuDto dto4 = new WxMenuDto();
-					dto4.setIsAuth(true);
-					dto4.setMenuType(MenuUtil.MENU_VIEW);
-					dto4.setName("午餐交费");
-					dto4.setOrder(3);
-					dto4.setUrl("http://www.wiscess.com.cn/dxwx/my/pay/notice");
-					
-					WxMenuDto dto5 = new WxMenuDto();
-					dto5.setIsAuth(true);
-					dto5.setMenuType(MenuUtil.MENU_VIEW);
-					dto5.setName("支付记录");
-					dto5.setOrder(4);
-					
-					dto5.setUrl("http://www.wiscess.com.cn/dxwx/my/pay/record");
-					
-					WxMenuDto dto6 = new WxMenuDto();
-					dto6.setIsAuth(true);
-					dto6.setMenuType(MenuUtil.MENU_VIEW);
-					dto6.setName("帮助");
-					dto6.setOrder(5);
-					dto6.setUrl("http://www.wiscess.com.cn/dxwx/my/helper");
-	}
 
 	/**
 	 * 生成菜单
@@ -603,7 +561,7 @@ public class WeChatMenuControll {
 		try {
 			authUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=APPID&redirect_uri=REDIRECT_URI&response_type=code&scope=SCOPE&state=STATE#wechat_redirect";
 			authUrl = authUrl
-					.replace("APPID",wechat.getPay().getAppId()!=null?wechat.getPay().getAppId():wechat.getAppId())
+					.replace("APPID",wechat.getAppId())
 					.replace("REDIRECT_URI", URLEncoder.encode(url,"UTF-8"))
 					.replace("SCOPE", "snsapi_base");
 		} catch (UnsupportedEncodingException e) {
@@ -612,17 +570,5 @@ public class WeChatMenuControll {
 		return authUrl;
 	}
 	
-	public static void main(String[] args) {
-//		try {
-//			String url = "http://www.wiscess.com.cn/xsfx/weixin/PayManagerAction.a?topay";
-//			String authUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=APPID&redirect_uri=REDIRECT_URI&response_type=code&scope=SCOPE&state=STATE#wechat_redirect";
-//			authUrl = authUrl.replace("APPID","wxe2d81a00a53183ec").replace("REDIRECT_URI", URLEncoder.encode(url,"UTF-8")).replace("SCOPE", "snsapi_user");
-//			System.out.println(authUrl);
-//		} catch (UnsupportedEncodingException e) {
-//			e.printStackTrace();
-//		}
-//		
-		
-	}
 
 }

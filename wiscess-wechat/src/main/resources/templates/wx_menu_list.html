@@ -96,8 +96,8 @@ $(document).ready(function($){
 			menuOrder:$("#menuOrder").val(),
 			parentMenuId:$("#parentMenuId").val(),
 			menuType:$("#menuType").val(),
-			isAuth:$("input[name='isAuth'][checked]").val(),
-			isUsed:$("input[name='isUsed'][checked]").val()
+			isAuth:$("input[name='isAuth']:checked").val(),
+			isUsed:$("input[name='isUsed']:checked").val()
 		};
 	}
 });

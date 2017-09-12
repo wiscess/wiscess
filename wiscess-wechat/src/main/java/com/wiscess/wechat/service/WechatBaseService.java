@@ -23,6 +23,11 @@ public class WechatBaseService implements WechatService{
 		try {
 			// 调用parseXml方法解析请求消息
 			Map<String, String> requestMap = MessageUtil.parseXml(request);
+			if(log.isDebugEnabled()){
+				for(String key:requestMap.keySet()){
+					log.debug(key+":"+requestMap.get(key));
+				}
+			}
 			// 消息类型
 			String msgType = requestMap.get("MsgType");
 			//事件推送

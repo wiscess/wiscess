@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
-import com.wiscess.exporter.exception.ManagerException;
 
 /**
  * 表格单元格
@@ -59,7 +58,8 @@ public class AssignedTableCell extends AssignedElement {
 			this.cellList.add(ae);
 		}else{
 			//
-			throw new ManagerException("不支持的内容");
+			this.cellList.add(ae);
+//			throw new ManagerException("不支持的内容");
 		}
 		return this;
 	}

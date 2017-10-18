@@ -226,7 +226,7 @@ public abstract class ExcelReader{
 		List<String[]> list = new ArrayList<String[]>();
 		// 总行数
 		int count = getRowCount(sheetNum);
-		if(count>0){
+		if(count>=0){
 			for (int i = forEachNum; i <= count; i++) {
 				//每行内容
 				String[] rows = readExcelLine(sheetNum,i);

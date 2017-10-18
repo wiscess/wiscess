@@ -239,15 +239,15 @@ public class JdbcJpaSupport {
 		this.importBaseData(session, importStatus, titleRow, null, rowList, preExcuteSqlList, fill);
 	}
 	@SuppressWarnings("unchecked")
-	public void importBaseData(HttpSession session,String importStatus,final String[] titleRow,	final Map<String,Integer> fieldMap,	
+	public List<String>  importBaseData(HttpSession session,String importStatus,final String[] titleRow,	final Map<String,Integer> fieldMap,	
 			List<String[]> rowList,List<String> preExcuteSqlList,IFillStataData<String[]> fill){
-		this.importBaseDataByTemplate(jdbcTemplate, session, importStatus, titleRow, fieldMap, rowList, preExcuteSqlList, new IFillStataData[]{fill});
+		return this.importBaseDataByTemplate(jdbcTemplate, session, importStatus, titleRow, fieldMap, rowList, preExcuteSqlList, new IFillStataData[]{fill});
 	}
-	public void importBaseData(HttpSession session,String importStatus,final String[] titleRow,	final Map<String,Integer> fieldMap,	
+	public List<String>  importBaseData(HttpSession session,String importStatus,final String[] titleRow,	final Map<String,Integer> fieldMap,	
 			List<String[]> rowList,List<String> preExcuteSqlList,IFillStataData<String[]>[] fillDatas){
-		this.importBaseDataByTemplate(jdbcTemplate, session, importStatus, titleRow, fieldMap, rowList, preExcuteSqlList, fillDatas);
+		return this.importBaseDataByTemplate(jdbcTemplate, session, importStatus, titleRow, fieldMap, rowList, preExcuteSqlList, fillDatas);
 	}
-	public void importBaseDataByTemplate(JdbcTemplate template,HttpSession session,String importStatus,final String[] titleRow,	final Map<String,Integer> fieldMap,	
+	protected List<String> importBaseDataByTemplate(JdbcTemplate template,HttpSession session,String importStatus,final String[] titleRow,	Map<String,Integer> fieldMap,	
 			List<String[]> rowList,List<String> preExcuteSqlList,IFillStataData<String[]>[] fillDatas){
 		//错误列表
 		List<String> errorList=new ArrayList<String>();
@@ -256,91 +256,115 @@ public class JdbcJpaSupport {
 		String[] rows=rowList.get(rownum);
 		session.setAttribute(importStatus, "正在校验字段名称");
 		if(fieldMap==null){
-			//按原始方法校验字段的顺序
-			for(int i=0;i<titleRow.length;i++){
-				if(StringUtil.isNotEmpty(rows[i]))
-					if(!titleRow[i].trim().equals(rows[i].trim())){
-						errorList.add("第"+(i+1)+"列列名应为["+titleRow[i]+"];");
-						continue;
-				}
-			}
-		}else{
-			//按新方法校验字段是否存在
-			for(int i=0;i<titleRow.length;i++){
-				if(!fieldMap.containsKey(titleRow[i])){
-					errorList.add("缺少列："+titleRow[i]+";");
-					continue;
-				}
+			fieldMap=fillFieldMap(fieldMap, rows);
+		}
+		//按新方法校验字段是否存在
+		for(int i=0;i<titleRow.length;i++){
+			if(!fieldMap.containsKey(titleRow[i])){
+				errorList.add("缺少列："+titleRow[i]+";");
+				continue;
 			}
 		}
 		if(errorList.size()>0){
-			checkResult(session, importStatus, "字段名称不正确，"+errorList.toString());
+			checkResult(session, importStatus, "字段名称不正确。");
+			return errorList;
 		}
-		
-		//批量处理数据
-		Connection con = null;// 本地库连接
-		PreparedStatement deleteState = null;
-		try {
-			con = template.getDataSource().getConnection();// 获取数据库连接
-			con.setAutoCommit(false);// 手动提交
-			//预处理的sql
-			if(preExcuteSqlList!=null){
-				for(String sql:preExcuteSqlList){
-					deleteState=con.prepareStatement(sql);
-					deleteState.execute();
+		//总记录数
+		int totalCount=rowList.size()-1;
+		//校验每行数据是否合法
+		session.setAttribute(importStatus, "正在校验数据，共有数据"+totalCount+"条。");
+		for(String[] row: rowList) {
+			rownum++;
+			if(fieldMap!=null){
+				//新方法校验
+				if(rownum==1 || row==null || ( StringUtil.isNotEmpty(titleRow[0]) && StringUtil.isEmpty(row[fieldMap.get(titleRow[0])]))) {
+					continue;
 				}
-				JdbcUtils.closeStatement(deleteState);
 			}
+			for(IFillStataData<String[]> fill:fillDatas){
+				//校验row是否合法
+				if(!fill.checkRow(row))
+					continue;
+				//校验row的数据内容
+				fill.checkRowData(rownum,row,errorList);
+			}
+		}
+		if(errorList.size()==0){
+			rownum=0;
+			//批量处理数据
+			Connection con = null;// 本地库连接
+			PreparedStatement deleteState = null;
+			try {
+				con = template.getDataSource().getConnection();// 获取数据库连接
+				con.setAutoCommit(false);// 手动提交
+				//预处理的sql
+				if(preExcuteSqlList!=null){
+					for(String sql:preExcuteSqlList){
+						deleteState=con.prepareStatement(sql);
+						deleteState.execute();
+					}
+					JdbcUtils.closeStatement(deleteState);
+				}
 			
-			//输入项目
-			for(IFillStataData<String[]> fill:fillDatas){
-				//读取sql的模板
-				fill.insertState=con.prepareStatement(processSql(new HashMap<String, Object>(), fill.sqlKey).getSql());
-			}
-			//总记录数
-			int totalCount=rowList.size()-1;
-			//已处理记录
-			int dealCount=0;
-			session.setAttribute(importStatus, "开始导入数据，共有数据"+totalCount+"条。");
-			Thread.sleep(500);
-			//开始处理数据
-			for(String[] row: rowList) {
-				rownum++;
-//				if(rownum==1 || row==null || row.length<titleRow.length ||( StringUtil.isNotEmpty(titleRow[0]) && StringUtil.isEmpty(row[0]))) {
-//					continue;
-//				}
+				//输入项目
 				for(IFillStataData<String[]> fill:fillDatas){
-					//处理数据
-					fill.fillData(row,rownum);
+					//读取sql的模板
+					fill.insertState=con.prepareStatement(processSql(new HashMap<String, Object>(), fill.sqlKey).getSql());
 				}
-				dealCount++;
-				session.setAttribute(importStatus, "已处理"+Math.round(dealCount*100.0/totalCount)+"%，"+dealCount+"/"+totalCount+"条。");
-				Thread.sleep(5);
-			}
-			//处理剩余的数据
-			for(IFillStataData<String[]> fill:fillDatas){
-				fill.closeStat();
-			}
-
-			session.setAttribute(importStatus, "已处理"+Math.round(dealCount*100.0/totalCount)+"%，"+dealCount+"/"+totalCount+"条。");
-			con.commit();
-			session.setAttribute(importStatus, "导入成功");
-			Thread.sleep(1000);
-			session.removeAttribute(importStatus);
-		} catch (Exception e) {
-			if (con != null) {
-				try {
-					con.rollback();
-				} catch (SQLException e1) {
+				//已处理记录
+				int dealCount=0;
+				session.setAttribute(importStatus, "开始导入数据，共有数据"+totalCount+"条。");
+				Thread.sleep(500);
+				//开始处理数据
+				for(String[] row: rowList) {
+					rownum++;
+					for(IFillStataData<String[]> fill:fillDatas){
+						//处理数据
+						fill.fillData(row,rownum);
+					}
+					dealCount++;
+					session.setAttribute(importStatus, "已处理"+Math.round(dealCount*100.0/totalCount)+"%，"+dealCount+"/"+totalCount+"条。");
+					Thread.sleep(5);
 				}
-			}
-			e.printStackTrace();
-			checkResult(session,importStatus, "导入失败，请联系管理员");
-		} finally {
-			JdbcUtils.closeConnection(con);
-		}
-	}
+				//处理剩余的数据
+				for(IFillStataData<String[]> fill:fillDatas){
+					fill.closeStat();
+				}
 	
+				session.setAttribute(importStatus, "已处理"+Math.round(dealCount*100.0/totalCount)+"%，"+dealCount+"/"+totalCount+"条。");
+				con.commit();
+				session.setAttribute(importStatus, "导入成功");
+				Thread.sleep(1000);
+				session.removeAttribute(importStatus);
+			} catch (Exception e) {
+				if (con != null) {
+					try {
+						con.rollback();
+					} catch (SQLException e1) {
+					}
+				}
+				e.printStackTrace();
+				checkResult(session,importStatus, "导入失败，请联系管理员");
+			} finally {
+				JdbcUtils.closeConnection(con);
+			}
+		}else{
+			checkResult(session, importStatus, "数据校验失败，请检查后重新导入。");
+			return errorList;
+		}
+		return null;
+	}
+	public Map<String,Integer> fillFieldMap(Map<String,Integer> fieldMap,String[] row){
+		if(fieldMap==null){
+			fieldMap=new HashMap<String, Integer>();
+		}
+		for(int i=0;i<row.length;i++){
+			//存储标题行对应的列数
+			row[i]=row[i].replaceAll("\n", "");
+			fieldMap.put(row[i], i);
+		}
+		return fieldMap;
+	}
 	private void checkResult(HttpSession session,String importStatus,Object result){
 		if(result!=null){
 			log.debug("get:"+session.getId()+":"+(String)session.getAttribute(importStatus));

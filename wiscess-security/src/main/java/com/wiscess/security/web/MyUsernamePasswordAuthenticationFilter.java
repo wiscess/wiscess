@@ -3,6 +3,7 @@ package com.wiscess.security.web;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -16,6 +17,7 @@ public class MyUsernamePasswordAuthenticationFilter extends
 	/**
 	 * 是否校验验证
 	 */
+	@Value("${security.needCheckCode:true}")
 	private boolean needCheckCode = true;
 	
 	public static final String SESSION_CODE="_session_image_code"; 

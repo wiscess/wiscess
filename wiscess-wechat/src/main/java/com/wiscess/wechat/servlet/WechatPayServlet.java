@@ -87,8 +87,10 @@ public class WechatPayServlet extends HttpServlet{
 					ret.append("]]></return_code><return_msg><![CDATA[");
 					ret.append("OK");
 					ret.append("]]></return_msg></xml>");
+					map.put("sign_status", "1");
 				}else{
 					//签名验证失败
+					map.put("sign_status", "0");
 				}
 				
 				wechatService.payResult(map);

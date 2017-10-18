@@ -142,7 +142,7 @@ public class ExcelExportUtil {
 	        	//构建方法的后缀   
 	        	String methodEnd = propertyName.substring(0,1).toUpperCase()+propertyName.substring(1);   
 	        	String getMethodName="get"+methodEnd;//构建get方法   
-	        	Method getMethod=clazz.getMethod(getMethodName, new Class[]{});
+				Method getMethod=clazz.getMethod(getMethodName, new Class[]{});
 	        	if(getMethod==null){
 	        		getMethodName="is"+methodEnd;//构建get方法   
 		        	getMethod=clazz.getMethod(getMethodName, new Class[]{});

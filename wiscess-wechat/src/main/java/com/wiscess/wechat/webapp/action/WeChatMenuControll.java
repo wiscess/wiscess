@@ -29,7 +29,6 @@ import com.wiscess.common.utils.StringUtil;
 import com.wiscess.wechat.config.WechatProperties;
 import com.wiscess.wechat.dto.ApiResult;
 import com.wiscess.wechat.dto.WxMenu;
-import com.wiscess.wechat.dto.WxMenuDto;
 import com.wiscess.wechat.menu.Button;
 import com.wiscess.wechat.menu.ClickButton;
 import com.wiscess.wechat.menu.ComplexButton;

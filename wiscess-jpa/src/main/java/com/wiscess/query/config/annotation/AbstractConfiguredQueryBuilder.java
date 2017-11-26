@@ -15,11 +15,11 @@ public abstract class AbstractConfiguredQueryBuilder implements QueryConfigurer<
 	public QueryBuilder addFilePatterns(List<String> patterns) {
 		if(patterns==null){
 			patterns=new ArrayList<>();
-			patterns.add("classpath:queryProviderMapping-*.xml");
+			patterns.add("classpath*:queryProviderMapping-*.xml");
 		}else{
 			for(String p:patterns){
 				if(!p.startsWith("classpath")){
-					patterns.set(patterns.indexOf(p), "classpath:"+p);
+					patterns.set(patterns.indexOf(p), "classpath*:"+p);
 				}
 			}
 		}

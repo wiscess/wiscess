@@ -399,6 +399,9 @@ public class RSA_Encrypt {
 	 * @throws Exception
 	 */
 	public static String sign(String data) throws Exception {
+		return sign(data,true);
+	}
+	public static String sign(String data,boolean useBase64) throws Exception {
 		getPrivateKey(false);
 		// 用私钥对信息生成数字签名
 		Signature signature = Signature.getInstance(SIGNATURE_ALGORITHM);
@@ -407,7 +410,11 @@ public class RSA_Encrypt {
 
 		signature.update(data.getBytes());
 		byte[] b1 = signature.sign();
-		return new BASE64Encoder().encode(b1);
+		if(useBase64){
+			return new BASE64Encoder().encodeBuffer(b1);
+		}else{
+			return HexConver.byte2HexStr(b1, b1.length);
+		}
 	}
 
 	/**
@@ -421,16 +428,24 @@ public class RSA_Encrypt {
 	 * @throws Exception
 	 */
 	public static boolean verify(String data, String sign) throws Exception {
+		return verify(data, sign,!HexConver.checkHexStr(sign));
+	}
+	public static boolean verify(String data, String sign,boolean useBase64) throws Exception {
 		// 取公钥匙对象
 		getPublicKey(false);
 		Signature signature = Signature.getInstance(SIGNATURE_ALGORITHM);
 
 		signature.initVerify(publicKey);
-		byte[] b1 = new BASE64Decoder().decodeBuffer(sign);
+		byte[] bytes = null;
+		if (useBase64) {
+			bytes = new BASE64Decoder().decodeBuffer(sign);
+		} else {
+			bytes = HexConver.hexStr2Bytes(sign);
+		}
 		signature.update(data.getBytes());
 
 		// 验证签名是否正常
-		return signature.verify(b1);
+		return signature.verify(bytes);
 	}
 
 	/**
@@ -485,10 +500,10 @@ public class RSA_Encrypt {
 		getPrivateKey(pra, true);
 
 		String source = "MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAJ1tcBkY6TNt28yTBX7BRFzzZhaYXCrlU/Dcbt8OlhGMOaBX8xUMJfblG/wuCnnEiRqNbfHuMw1IoBuwFAgbLJYVxud8YA8mMUzLLq4170HUVP2Kxnz4DIyA7t/qlB2uni6kdDsIcac8yzK6Njd705ZYfG+o0FOVXqP18RDyImOxAgMBAAECgYA1aTreGPiNzVkEaGE15yZljuL1CY5Ds3iuQGuRXCaIH5Yxk4VSf8Olp4e+IHTHaWnGy3Mg4NsLR7eijTPOqEGQxI7QUDwpBOq0JDJ0oVJupQHKz6YPsiCwcvgTZdDMGRb5L1XhKhZt2VqWBwxUkyG4PS87np+0NewLJwnxo+uqjQJBAOc8GeQXz9Z0X6ZmLBGGQ2rAySdpy19fRWNt/7webUQsqmeVsZh0eDX74vrGjtmi6wvib4loQPZ8q9LV1Jp3p/8CQQCuSbgt7XwCVjQLUf3bJlfdx0ez15JzVaSP0FBVpiZiGGxAeOQYHK9eZgpQl727dWZVzoy/rjnFOxfvpuiA6nRPAkBND9GNG4ZvcQ8jdG+BU56KKD+he/eEDEsirNkKh5VgoAYWSWQLa91YGF73tk6LJ2lv54HGaFEmFDxrIkodRH1fAkEAlZyO0E4mv9LEBlux8SfvEWB5+rW47+y6wQFvlLZ2CIsykf20v8YP/JbXj+tSYdMbr9kJFZo32Ukq+PxsZg3dHQJBAIFZWsw3u/2P6B8VO+zzEPO6K/g5hJN05BA0a/l7dHp0ZBtriGbMzhK5C0GM96O5tEFmrs9Kqh5xIeS0F3MmMc8=";
-		System.out.println(source);
+		//System.out.println(source);
 		// 要加密的字符串
 		String cryptograph = encrypt(source, true);// 生成的密文
-		System.out.println(cryptograph);
+		//System.out.println(cryptograph);
 		// String
 		// cryptograph =
 		// "jJIDpSMhia6RMuhYYRDZdWWCsnTbJoMUO31JW/8a+48lcUszpD0n86NunpfyhPtWkq6k6Ehj3MgYia5sL/HmK73YY8rp/7g0IbAfeVZ+HfSpzQd+wpV03eqchVgItQH5jiGsfNmm78Wc+Sbyn+mUExlpZl8vCM0Q9yl6l3rSlTw=";
@@ -496,13 +511,13 @@ public class RSA_Encrypt {
 		// cryptograph="ZemClpI2zQe/PEJIA7Uk0H+ryMLvfyhJ8N+SvWJViNEgiVfjriPChXCYMsmLyNPDUNzxyxLeqOfSYn8F5GW9xLXzWXN5Cx+uK3yDqbTzHkX+xtd/YeVCN82Sivf7UfYUy7zXw5uOabZA3fV8tiyojfQtejx/eCJM7mPN48kUdAE=";
 		// cryptograph="SXDMOPeBKODMsVl/tPRz7baRIi9zLu0DmhQ5PM4b3XYwTNTIDDXBskhGUbk3sXj17okGfCGN3594Vmrc7Nb7WGb3UdHAqbxBt2U4U0ps6ISyk44Po8aC9RrvgbP2MGcwlQOCH3eCTp7Jg6bpayhEk0O4WkhBW0SJ7IS77E3dOdg=";
 		String target = decrypt(cryptograph, true);// 解密密文
-		System.out.println(target);
+		//System.out.println(target);
 
 		// 签名
-		// source="296502429874592438576248524admin";
-		// String s=sign(source);
-		// System.out.println(s);
-		// //验证
-		// System.out.println(verify(source, s));
+		 source="296502429874592438576248524admin";
+		 String s=sign(source);
+		 System.out.println(s);
+		 //验证
+		 System.out.println(verify(source, s));
 	}
 }

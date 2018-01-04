@@ -51,7 +51,7 @@ public class JdbcJpaSupport {
 	 * @throws Exception
 	 */
 	public ISqlElement processSql(Map<String, Object> params, String name)
-			throws Exception{
+			{
 		log.debug("processSql(Map<String,Object>, String) - start, name="+name);
 		//先根据name从sql缓存中查询出freemarker的模板，再进行模板解析
 		ISqlElement rs = DynamicSqlUtil.processSql(params, Query.getQuery(name));
@@ -71,7 +71,7 @@ public class JdbcJpaSupport {
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
-	public <E> List<E> findListByTemplate(JdbcTemplate template,String sqlName, Map<String, Object> params, RowMapper<E> rm) throws Exception {
+	public <E> List<E> findListByTemplate(JdbcTemplate template,String sqlName, Map<String, Object> params, RowMapper<E> rm)  {
 		log.debug("findList(String, Map<String,Object>, RowMapper) - start");
 		final ISqlElement se = processSql(params, sqlName);
 		if (rm == null) {
@@ -80,33 +80,33 @@ public class JdbcJpaSupport {
 			return template.query(se.getSql(), se.getParams(), rm);
 		}
 	}
-	public <E> List<E> findList(String sqlName, Map<String, Object> params, RowMapper<E> rm) throws Exception {
+	public <E> List<E> findList(String sqlName, Map<String, Object> params, RowMapper<E> rm) {
 		return findListByTemplate(jdbcTemplate, sqlName, params, rm);
 	}
-	public <E> List<E> findList(String sqlName, RowMapper<E> rm, String[] paramName, Object... paramValue) throws Exception {
+	public <E> List<E> findList(String sqlName, RowMapper<E> rm, String[] paramName, Object... paramValue) {
 		Map<String, Object> params = new HashMap<String, Object>();
 		for (int i = 0; i < paramName.length; i++) {
 			params.put(paramName[i], paramValue[i]);
 		}
 		return findList(sqlName, params, rm);
 	}
-	public <E> List<E> findList(String sqlName, RowMapper<E> rm, String paramName, Object paramValue) throws Exception {
+	public <E> List<E> findList(String sqlName, RowMapper<E> rm, String paramName, Object paramValue) {
 		return findList(sqlName, rm, new String[] { paramName }, paramValue);
 	}
-	public <E> List<E> findList(String sqlName, RowMapper<E> rm) throws Exception {
+	public <E> List<E> findList(String sqlName, RowMapper<E> rm) {
 		return findList(sqlName, rm, new String[] {}, "");
 	}	
-	public <E> List<E> findList(String sqlName, String paramName, Object paramValue) throws Exception {
+	public <E> List<E> findList(String sqlName, String paramName, Object paramValue) {
 		return findList(sqlName, null, new String[] { paramName }, paramValue);
 	}	
 	
-	public Integer insert(String sqlName) throws Exception{
+	public Integer insert(String sqlName){
 		return insert(sqlName,new HashMap<String, Object>());
 	}
-	public Integer insert(String sqlName,Map<String, Object> params)throws Exception {
+	public Integer insert(String sqlName,Map<String, Object> params){
 		return insertByTemplate(this.jdbcTemplate, sqlName, params);
 	}
-	public Integer insertByTemplate(JdbcTemplate template,String sqlName,Map<String, Object> params)throws Exception {
+	public Integer insertByTemplate(JdbcTemplate template,String sqlName,Map<String, Object> params){
 		final ISqlElement se=processSql(params, sqlName);
 		
 		KeyHolder kg = new GeneratedKeyHolder();
@@ -132,13 +132,13 @@ public class JdbcJpaSupport {
 	 * @return
 	 * @throws Exception
 	 */
-	public Integer update(String sqlName) throws Exception{
+	public Integer update(String sqlName){
 		return update(sqlName,new HashMap<String, Object>());
 	}
-	public Integer update(String sqlName,Map<String, Object> params)throws Exception {
+	public Integer update(String sqlName,Map<String, Object> params){
 		return updateByTemplate(this.jdbcTemplate, sqlName, params);
 	}
-	public Integer updateByTemplate(JdbcTemplate template,String sqlName,Map<String, Object> params)throws Exception {
+	public Integer updateByTemplate(JdbcTemplate template,String sqlName,Map<String, Object> params){
 		ISqlElement se=processSql(params, sqlName);
 		return template.update(se.getSql(), se.getParams());
 	}
@@ -169,23 +169,36 @@ public class JdbcJpaSupport {
 	 * 新分页查询方法
 	 * @throws Exception 
 	 */
-	public Page<Map<String, Object>> findPage(String querySqlName, Map<String, Object> params,Pageable pageable) throws Exception{
-		return findPage(querySqlName, null, params, pageable,new ColumnMapRowMapper());
-	}
-	public Page<Map<String, Object>> findPage(String querySqlName, String countSqlName,Map<String, Object> params,Pageable pageable) throws Exception{
-		return findPage(querySqlName, countSqlName, params, pageable,new ColumnMapRowMapper());
+	public Page<Map<String, Object>> findPage(String querySqlName, 
+			Map<String, Object> params,Pageable pageable){
+		return findPage(querySqlName, null, params, pageable);
 	}
 	public <E> Page<E> findPage(String querySqlName, 
-			Map<String, Object> params,Pageable pageable,RowMapper<E> rm) throws Exception{
+			Map<String, Object> params,Pageable pageable,Class<?> clazz){
+		return findPage(querySqlName, null, params, pageable,clazz);
+	}
+	public <E> Page<E> findPage(String querySqlName, 
+			Map<String, Object> params,Pageable pageable,RowMapper<E> rm){
 		return findPage(querySqlName, null, params, pageable,rm);
 	}
+	
+	public Page<Map<String, Object>> findPage(String querySqlName, String countSqlName,
+			Map<String, Object> params,Pageable pageable){
+		return findPage(querySqlName, countSqlName, params, pageable,new ColumnMapRowMapper());
+	}
 	public <E> Page<E> findPage(String querySqlName, String countSqlName,
-			Map<String, Object> params,Pageable pageable,RowMapper<E> rm) throws Exception{
+			Map<String, Object> params,Pageable pageable,Class<?> clazz){
+		return findPage(querySqlName, countSqlName, params, pageable, new ObjectRowMapper<E>(clazz));
+	}
+	
+	public <E> Page<E> findPage(String querySqlName, String countSqlName,
+			Map<String, Object> params,Pageable pageable,RowMapper<E> rm){
 		return findPageByTemplate(this.jdbcTemplate, querySqlName, countSqlName, params, pageable, rm);
 	}
+	
 	@SuppressWarnings("unchecked")
 	public <E> Page<E> findPageByTemplate(JdbcTemplate template, String querySqlName, String countSqlName,
-			Map<String, Object> params,Pageable pageable,RowMapper<E> rm) throws Exception{
+			Map<String, Object> params,Pageable pageable,RowMapper<E> rm){
 		if(rm==null){
 			rm=(RowMapper<E>) new ColumnMapRowMapper();
 		}

@@ -502,7 +502,7 @@ public class RSA_Encrypt {
 		String source = "MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAJ1tcBkY6TNt28yTBX7BRFzzZhaYXCrlU/Dcbt8OlhGMOaBX8xUMJfblG/wuCnnEiRqNbfHuMw1IoBuwFAgbLJYVxud8YA8mMUzLLq4170HUVP2Kxnz4DIyA7t/qlB2uni6kdDsIcac8yzK6Njd705ZYfG+o0FOVXqP18RDyImOxAgMBAAECgYA1aTreGPiNzVkEaGE15yZljuL1CY5Ds3iuQGuRXCaIH5Yxk4VSf8Olp4e+IHTHaWnGy3Mg4NsLR7eijTPOqEGQxI7QUDwpBOq0JDJ0oVJupQHKz6YPsiCwcvgTZdDMGRb5L1XhKhZt2VqWBwxUkyG4PS87np+0NewLJwnxo+uqjQJBAOc8GeQXz9Z0X6ZmLBGGQ2rAySdpy19fRWNt/7webUQsqmeVsZh0eDX74vrGjtmi6wvib4loQPZ8q9LV1Jp3p/8CQQCuSbgt7XwCVjQLUf3bJlfdx0ez15JzVaSP0FBVpiZiGGxAeOQYHK9eZgpQl727dWZVzoy/rjnFOxfvpuiA6nRPAkBND9GNG4ZvcQ8jdG+BU56KKD+he/eEDEsirNkKh5VgoAYWSWQLa91YGF73tk6LJ2lv54HGaFEmFDxrIkodRH1fAkEAlZyO0E4mv9LEBlux8SfvEWB5+rW47+y6wQFvlLZ2CIsykf20v8YP/JbXj+tSYdMbr9kJFZo32Ukq+PxsZg3dHQJBAIFZWsw3u/2P6B8VO+zzEPO6K/g5hJN05BA0a/l7dHp0ZBtriGbMzhK5C0GM96O5tEFmrs9Kqh5xIeS0F3MmMc8=";
 		//System.out.println(source);
 		// 要加密的字符串
-		String cryptograph = encrypt(source, true);// 生成的密文
+		//String cryptograph = encrypt(source, true);// 生成的密文
 		//System.out.println(cryptograph);
 		// String
 		// cryptograph =
@@ -510,7 +510,7 @@ public class RSA_Encrypt {
 		// cryptograph="dkKhC7sM3ElHmyQ1qiuzZOipjj5lmI8vVdH1AATzeV4E88WjEiGVhFI/Nu8L5jN6mx2ydEn8gwYnfcS6E5dwzCshkCoRMz8rxbVBXIh7cI9scEs/Hek8PiKevjMSalitB/UTk7J84Zy8omjLV/74YKNn7JQlm5UZggPD6BbCTS4=";
 		// cryptograph="ZemClpI2zQe/PEJIA7Uk0H+ryMLvfyhJ8N+SvWJViNEgiVfjriPChXCYMsmLyNPDUNzxyxLeqOfSYn8F5GW9xLXzWXN5Cx+uK3yDqbTzHkX+xtd/YeVCN82Sivf7UfYUy7zXw5uOabZA3fV8tiyojfQtejx/eCJM7mPN48kUdAE=";
 		// cryptograph="SXDMOPeBKODMsVl/tPRz7baRIi9zLu0DmhQ5PM4b3XYwTNTIDDXBskhGUbk3sXj17okGfCGN3594Vmrc7Nb7WGb3UdHAqbxBt2U4U0ps6ISyk44Po8aC9RrvgbP2MGcwlQOCH3eCTp7Jg6bpayhEk0O4WkhBW0SJ7IS77E3dOdg=";
-		String target = decrypt(cryptograph, true);// 解密密文
+		//String target = decrypt(cryptograph, true);// 解密密文
 		//System.out.println(target);
 
 		// 签名

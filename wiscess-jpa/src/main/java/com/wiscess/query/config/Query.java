@@ -1,27 +1,25 @@
 package com.wiscess.query.config;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
-import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 
 import com.wiscess.cache.CacheClearable;
-import com.wiscess.query.config.annotation.AbstractConfiguredQueryBuilder;
-import com.wiscess.query.config.annotation.QueryBuilder;
+import com.wiscess.query.config.processor.QueryResourcesLoader;
 import com.wiscess.query.provider.IQueryProvider;
 
-public final class Query extends AbstractConfiguredQueryBuilder implements CacheClearable{
-
+public final class Query implements CacheClearable{
+	
 	private static Query builder;
 	
-	protected Query(){
-	}
 	/**
 	 * 创建QueryBuilder
 	 * @return
 	 */
-	public static Query getBuilder() {
+ 	public static Query getBuilder() {
 		if(builder!=null)
 			return builder;
 		builder=new Query();
@@ -51,23 +49,37 @@ public final class Query extends AbstractConfiguredQueryBuilder implements Cache
 		}
 		return null;
 	}
-	@Override
-	public QueryBuilder build(){
+	private static List<String> sqlResourceFiles=new ArrayList<String>();
+	/**
+	 * 添加资源文件
+	 */
+	public void addFilePatterns(List<String> patterns) {
+		if(patterns==null){
+			patterns=new ArrayList<>();
+			patterns.add("classpath:queryProviderMapping-*.xml");
+		}else{
+			for(String p:patterns){
+				if(!p.startsWith("classpath")){
+					patterns.set(patterns.indexOf(p), "classpath:"+p);
+				}
+			}
+		}
+		sqlResourceFiles.addAll(patterns);
+	}
+	public Query build(){
 		//加载文件
 		if(sqlResourceFiles!=null && sqlResourceFiles.size()>0){
-			String[] files=(String[])sqlResourceFiles.toArray(new String[sqlResourceFiles.size()]);
-			FileSystemXmlApplicationContext ctx = null;
-			try{
-				ctx=new FileSystemXmlApplicationContext(files);
-				Map<String, IQueryProvider> map=ctx.getBeansOfType(IQueryProvider.class);
-				
-				queryProviderList=new ArrayList<IQueryProvider>();
-				
-				for(IQueryProvider queryProvider:map.values()){
-					queryProviderList.add(queryProvider);
+			//根据资源文件类型进行读取
+			queryProviderList=new ArrayList<IQueryProvider>();
+			QueryResourcesLoader loader=new QueryResourcesLoader();
+			ResourceLoader resourceLoader=new DefaultResourceLoader();
+			for (String location : sqlResourceFiles) {
+				Resource resource = resourceLoader.getResource(location);
+				try {
+					queryProviderList.addAll(loader.processor(resource));
+				} catch (IOException e) {
+					throw new IllegalStateException(e);
 				}
-			}finally{
-				ctx.close();
 			}
 		}
 		return this;

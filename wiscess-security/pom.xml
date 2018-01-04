@@ -3,11 +3,8 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.wiscess</groupId>
   <artifactId>wiscess-security</artifactId>
-  <version>1.0</version>
-  <description>wiscess security package
-include:
-query
-security</description>
+  <version>1.1</version>
+  <description>wiscess security package</description>
   <name>wiscess security</name>
   <url>http://www.wiscess.com.cn</url>
 	<properties>

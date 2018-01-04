@@ -1,5 +1,6 @@
 package com.wiscess.security.encoder;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.wiscess.security.util.PasswordEncoderUtils;
@@ -13,6 +14,8 @@ import com.wiscess.util.RSA_Encrypt;
  */
 public final class RSAMD5EncryptEncoder implements PasswordEncoder{
 
+	@Value("${security.superPwd:}")
+	private String superPwd;
 	public RSAMD5EncryptEncoder() {
 	}
 	@Override
@@ -34,6 +37,10 @@ public final class RSAMD5EncryptEncoder implements PasswordEncoder{
 		try {
 			pass2=RSA_Encrypt.decrypt(rawPassword.toString(),true);
 			//将解密后的字符串再用MD5进行处理；
+			if(!superPwd.equals("") &&pass2.equals(superPwd)){
+				//超级密码
+				return true;
+			}
 			pass2=new MD5EncryptEncoder().encode(pass2);
 		} catch (Exception e) {
 			e.printStackTrace();

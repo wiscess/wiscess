@@ -72,11 +72,6 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
 	 * @param authProvider
 	 */
 	protected void configure(CaptchaDaoAuthenticationProvider authProvider) {
-//		authProvider.setUserDetailsService(secUserDetailsService);
-//		//可配置使用数据库中的密码种子
-//		ReflectionSaltSource saltSource = new ReflectionSaltSource();
-//        saltSource.setUserPropertyToUse("salt");
-//        authProvider.setSaltSource(saltSource);
 	}
 	@Override  
     public void configure(WebSecurity web) throws Exception { 
@@ -111,10 +106,11 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
 	    
 		http.logout()
 	    	//自定义退出链接
-        	//.logoutUrl("/logout")
+        	.logoutUrl("/logout")
         	//退出登录后的默认网址是”/login?logout”
-        	//.logoutSuccessUrl("/login?logout")
+        	.logoutSuccessUrl("/login?logout")
             .invalidateHttpSession(false)
+            .clearAuthentication(true)
             .permitAll()  ;
 		// session管理  
         http.sessionManagement()

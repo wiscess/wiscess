@@ -19,11 +19,9 @@ public class JdbcWithCaptchaUserDetailsManagerConfigurer<B extends ProviderManag
 	}
 	@Override
 	public void configure(AuthenticationManagerBuilder auth) throws Exception {
-		//使用salt生成密码
-//		ReflectionSaltSource saltSource = new ReflectionSaltSource();
-//        saltSource.setUserPropertyToUse("salt");
-//        authProvider.setSaltSource(saltSource);
         authProvider.setUserDetailsService(this.getUserDetailsService());
+        authProvider = postProcess(authProvider);
 		auth.authenticationProvider(authProvider);
 	}
+
 }

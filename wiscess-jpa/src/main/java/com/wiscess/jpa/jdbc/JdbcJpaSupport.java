@@ -24,6 +24,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.SingleColumnRowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.jdbc.support.KeyHolder;
@@ -50,8 +51,7 @@ public class JdbcJpaSupport {
 	 * @return
 	 * @throws Exception
 	 */
-	public ISqlElement processSql(Map<String, Object> params, String name)
-			{
+	public ISqlElement processSql(Map<String, Object> params, String name){
 		log.debug("processSql(Map<String,Object>, String) - start, name="+name);
 		//先根据name从sql缓存中查询出freemarker的模板，再进行模板解析
 		ISqlElement rs = DynamicSqlUtil.processSql(params, Query.getQuery(name));
@@ -75,7 +75,7 @@ public class JdbcJpaSupport {
 		log.debug("findList(String, Map<String,Object>, RowMapper) - start");
 		final ISqlElement se = processSql(params, sqlName);
 		if (rm == null) {
-			return (List<E>)template.queryForList(se.getSql(),	se.getParams());
+			return (List<E>)template.query(se.getSql(),	se.getParams(),new ColumnMapRowMapper());
 		} else {
 			return template.query(se.getSql(), se.getParams(), rm);
 		}
@@ -96,9 +96,37 @@ public class JdbcJpaSupport {
 	public <E> List<E> findList(String sqlName, RowMapper<E> rm) {
 		return findList(sqlName, rm, new String[] {}, "");
 	}	
+	@SuppressWarnings("unchecked")
 	public <E> List<E> findList(String sqlName, String paramName, Object paramValue) {
-		return findList(sqlName, null, new String[] { paramName }, paramValue);
+		return (List<E>)findList(sqlName, new ColumnMapRowMapper(), new String[] { paramName }, paramValue);
 	}	
+
+	/**
+	 * 
+	 * @param template
+	 * @param sqlName
+	 * @param params
+	 * @param clazz
+	 * @return
+	 */
+	public <E> List<E> findListByTemplate(JdbcTemplate template,String sqlName, Map<String, Object> params, Class<E> clazz)  {
+		return findListByTemplate(template, sqlName, params, new SingleColumnRowMapper<E>(clazz));
+	}
+	public <E> List<E> findList(String sqlName, Map<String, Object> params, Class<E> clazz) {
+		return findList(sqlName, params, new SingleColumnRowMapper<E>(clazz));
+	}
+	public <E> List<E> findList(String sqlName, Class<E> clazz, String[] paramName, Object... paramValue) {
+		return findList(sqlName, new SingleColumnRowMapper<E>(clazz),paramName,paramValue);
+	}
+	public <E> List<E> findList(String sqlName, Class<E> clazz, String paramName, Object paramValue) {
+		return findList(sqlName, new SingleColumnRowMapper<E>(clazz), paramName, paramValue);
+	}
+	public <E> List<E> findList(String sqlName, Class<E> clazz) {
+		return findList(sqlName, new SingleColumnRowMapper<E>(clazz));
+	}	
+	
+	
+	
 	
 	public Integer insert(String sqlName){
 		return insert(sqlName,new HashMap<String, Object>());
@@ -151,17 +179,16 @@ public class JdbcJpaSupport {
 	 * @return
 	 * @throws Exception
 	 */
-	public <E> Object queryForObject(String sqlName,Map<String, Object> params,Class<E> requiredType)throws Exception {
+	public <E> Object queryForObject(String sqlName,Map<String, Object> params,Class<E> requiredType){
 		return queryForObjectByTemplate(this.jdbcTemplate, sqlName, params, requiredType);
 	}
-	public <E> Object queryForObjectByTemplate(JdbcTemplate template,String sqlName,Map<String, Object> params,Class<E> requiredType)throws Exception {
-		ISqlElement se=processSql(params, sqlName);
-		return template.queryForObject(se.getSql(),se.getParams(), requiredType);
+	public <E> Object queryForObjectByTemplate(JdbcTemplate template,String sqlName,Map<String, Object> params,Class<E> requiredType) {
+		return queryForObjectByTemplate(template, sqlName, params, new ObjectRowMapper<E>(requiredType));
 	}
-	public <E> Object queryForObject(String sqlName,Map<String, Object> params,RowMapper<E> rowMapper)throws Exception {
+	public <E> Object queryForObject(String sqlName,Map<String, Object> params,RowMapper<E> rowMapper) {
 		return queryForObjectByTemplate(this.jdbcTemplate, sqlName, params, rowMapper);
 	}
-	public <E> Object queryForObjectByTemplate(JdbcTemplate template,String sqlName,Map<String, Object> params,RowMapper<E> rowMapper)throws Exception {
+	public <E> Object queryForObjectByTemplate(JdbcTemplate template,String sqlName,Map<String, Object> params,RowMapper<E> rowMapper) {
 		ISqlElement se=processSql(params, sqlName);
 		return template.queryForObject(se.getSql(),se.getParams(), rowMapper);
 	}

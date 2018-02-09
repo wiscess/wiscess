@@ -344,4 +344,48 @@ public class AdvancedUtil {
 		}
 		return weixinUserInfo;
 	}
+	/**
+	 * 下载临时素材文件
+	 * 
+	 * @param accessToken 接口访问凭证
+	 * @param mediaId 媒体文件标识
+	 * @param savePath 文件在服务器上的存储路径
+	 * @return
+	 */
+	public static String getTempMedia(String accessToken, String mediaId, String savePath) {
+		String filePath = null;
+		// 拼接请求地址
+		String requestUrl = "https://api.weixin.qq.com/cgi-bin/media/get?access_token=ACCESS_TOKEN&media_id=MEDIA_ID";
+		requestUrl = requestUrl.replace("ACCESS_TOKEN", accessToken).replace("MEDIA_ID", mediaId);
+		try {
+			URL url = new URL(requestUrl);
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setDoInput(true);
+			conn.setRequestMethod("GET");
+
+			if (!savePath.endsWith("/")) {
+				savePath += "/";
+			}
+			// 根据内容类型获取扩展名
+			String fileExt = CommonUtil.getFileExt(conn.getHeaderField("Content-Type"));
+			// 将mediaId作为文件名
+			filePath = savePath + mediaId + fileExt;
+
+			BufferedInputStream bis = new BufferedInputStream(conn.getInputStream());
+			FileOutputStream fos = new FileOutputStream(new File(filePath));
+			byte[] buf = new byte[8096];
+			int size = 0;
+			while ((size = bis.read(buf)) != -1)
+				fos.write(buf, 0, size);
+			fos.close();
+			bis.close();
+			conn.disconnect();
+			log.info("下载临时媒体文件成功，filePath=" + filePath);
+		} catch (Exception e) {
+			filePath = null;
+			log.error("下载临时媒体文件失败：{}", e);
+		}
+		return filePath;
+	}
+
 }

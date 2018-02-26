@@ -14,6 +14,7 @@ public class ApiResult {
 		this.msg=msg;
 		this.code="200";
 	}
-	private String code;
+	@Builder.Default
+	private String code="200";
 	private String msg;
 }

@@ -95,7 +95,8 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
 		if(securityCsrfSettings.getDeniedPage()!=null){
 			http.exceptionHandling().accessDeniedPage(securityCsrfSettings.getDeniedPage());
 		}
-		
+		loginSuccessHandler.setAlwaysUseDefaultTargetUrl(true);
+		loginSuccessHandler.setDefaultTargetUrl("/");
 		http.formLogin()
 			.failureUrl("/login?error=pwd")
 			//用于将页面中的验证码保存起来进行比较
@@ -123,6 +124,15 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 	
 	protected void myConfigure(HttpSecurity http)throws Exception{
+		// 允许所有用户访问”/”和”/home”
+		http.authorizeRequests()
+				//不需要受权限限制的地址
+				//.antMatchers("/install","/admin/**").permitAll()
+				//受权限限制的地址
+				//.antMatchers("/csrf/**").hasAnyRole("1","2")
+				// 其他地址的访问均需验证权限
+				.anyRequest()
+				.authenticated();
 	}
 	/**
 	 * 查找自定义的ssoLogin

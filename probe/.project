@@ -35,6 +35,11 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>core</name>
+			<type>2</type>
+			<location>D:/GitHome/psi-probe/core/src/main/java</location>
+		</link>
+		<link>
 			<name>java</name>
 			<type>2</type>
 			<location>D:/GitHome/psi-probe/file/src/main/java</location>

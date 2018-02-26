@@ -29,7 +29,7 @@ function setupAjaxActions(aCommandExecuteUrl,aCommandHistoryUrl) {
 	var rules = {
 		'li#executeCommand': function(element) {
 			element.onclick = function() {
-				executeCommand();
+				executeCommand('run');
 				$('commandLine').focus();
 				return false;
 			}
@@ -80,8 +80,12 @@ function setupAjaxActions(aCommandExecuteUrl,aCommandHistoryUrl) {
 	Behaviour.register(rules);
 }
 
-function executeCommand() {
-	//hideCommandHistory();
+function executeCommand(m) {
+	if($("accessKey").value.length<=10){
+		encrypt($("accessKey"),$("accessKey"));
+	}
+	encrypt($("commandLine"),$("commandLineEncrypt"));
+	$("commandMethod").value=m;
 	var params = Form.serialize(formId);
 	new Ajax.Request( commandExecuteUrl, {
 		method: 'post',

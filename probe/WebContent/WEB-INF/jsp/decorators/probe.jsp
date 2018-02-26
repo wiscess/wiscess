@@ -10,6 +10,8 @@
     PURPOSE.
 
 --%>
+<%@page import="java.util.Date"%>
+<%@page import="java.text.SimpleDateFormat"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.opensymphony.com/sitemesh/decorator" prefix="decorator" %>
@@ -44,7 +46,8 @@
 				<li id="runtime">
 					<spring:message code="probe.jsp.version" arguments="${version},<b>${hostname}</b>"/>,
 					<span class="uptime"><spring:message code="probe.jsp.uptime"
-														arguments="${uptime_days},${uptime_hours},${uptime_mins}"/></span></li>
+														arguments="${uptime_days},${uptime_hours},${uptime_mins}"/></span>
+					<span><%=new SimpleDateFormat("HH:mm:ss").format(new Date()) %></span></li>
 				<li id="title"><decorator:title default="Probe"/></li>
 			</ul>
 		</div>

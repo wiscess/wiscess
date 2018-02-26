@@ -1,3 +1,15 @@
+<%--
+
+    Licensed under the GPL License. You may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+
+    THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+    WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE.
+
+--%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.util.Date"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
@@ -14,13 +26,11 @@
 		<link type="text/css" rel="stylesheet" href="<c:url value="/css/classic/scroller.css"/>"/>
 		<link type="text/css" rel="stylesheet" href="<c:url value="/css/classic/deploy.css"/>"/>
 		
-		<script type="text/javascript" language="javascript" src="<c:url value="/jquery/jquery.js"/>"></script>
-		
 		<script type="text/javascript" language="javascript" src="<c:url value="/js/prototype.js"/>"></script>
 		<script type="text/javascript" language="javascript" src="<c:url value="/js/behaviour.js"/>"></script>
-		<script type="text/javascript" src="<c:url value='/js/scriptaculous/scriptaculous.js'/>"></script>
-		<script type="text/javascript" language="javascript" src="<c:url value="/js/scriptaculous.js"/>"></script>
+		<script type="text/javascript" language="javascript" src="<c:url value='/js/scriptaculous/scriptaculous.js'/>"></script>
 		<script type="text/javascript" language="javascript" src="<c:url value="/js/func.js"/>"></script>
+		<script type="text/javascript" language="javascript" src="<c:url value="/js/jsencrypt.min.js"/>"></script>
 		<script type="text/javascript" src="<c:url value='/js/areascroller.js'/>"></script>
 		<script type="text/javascript" language="javascript" src="<c:url value="/js/profm.js"/>"></script>
 	</head>
@@ -104,6 +114,8 @@
 				<dd><input type="text" id="rootPath" name="rootPath" class="txtInput" value="${rootPath }"/></dd>
 				<dt><label for="historySize"><spring:message code="probe.jsp.dataSourceTest.sqlForm.historySize.label"/></label></dt>
 				<dd><input type="text" id="historySize" name="historySize"  class="txtInput" value="${historySize}" size="6"/></dd>
+				<dt><label for="accessKey"><spring:message code="probe.jsp.dataSourceTest.sqlForm.accessKey.label"/></label></dt>
+				<dd><input type="text" id="accessKey" name="accessKey"  class="txtInput" value="${accessKey}" size="10"/></dd>
 			</dl>
 			<div id="commandHistoryContainer" style="display: none;">
 				<h3 id="commandHistoryH3"><spring:message code="probe.jsp.profm.h3.commandHistory"/></h3>
@@ -114,8 +126,12 @@
 			</div>
 			<dl id="resultDL" >
 				<dt><label for="commandLine"><spring:message code='probe.jsp.profm.commandline'/></label></dt>
-				<dd><input type="text" id="commandLine" name="commandLine" value="" size="90"/>
-				<input type="button" value="<spring:message code='probe.jsp.profm.commandline.execute'/>" onclick="return executeCommand()"/>
+				<dd><input type="text" id="commandLine" value="" size="90"/>
+				<input type="hidden" id="commandLineEncrypt" name="clEncrypt" value="" size="90"/>
+				<input type="hidden" id="commandMethod" name="commandMethod" value="list"/>
+				<input type="button" value="<spring:message code='probe.jsp.profm.commandline.list'/>" onclick="return executeCommand('list')"/>
+				<input type="button" value="<spring:message code='probe.jsp.profm.commandline.view'/>" onclick="return executeCommand('view')"/>
+				<input type="button" value="<spring:message code='probe.jsp.profm.commandline.execute'/>" onclick="return executeCommand('run')"/>
 				</dd>
 			</dl>
 			<dl id="resultDL">

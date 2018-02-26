@@ -16,6 +16,7 @@
 		<pattern>/*.xml.htm</pattern>
 		<pattern>/*.ajax*</pattern>
 		<pattern>/WEB-INF/*</pattern>
+		<pattern>/login*</pattern>
 	</excludes>
 	<decorator name="system" page="system.jsp"/>
 	<decorator name="application" page="application.jsp"/>

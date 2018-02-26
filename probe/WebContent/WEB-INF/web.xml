@@ -46,7 +46,22 @@
 		<exception-type>java.lang.Throwable</exception-type>
 		<location>/WEB-INF/jsp/errors/servleterror.jsp</location>
 	</error-page>
+	<!-- 
+	<login-config>
+        <auth-method>CLIENT-CERT</auth-method>
+        <realm-name>Client Cert Users-only Area</realm-name>
+    </login-config>
 
+    <security-constraint>
+        <web-resource-collection >
+            <web-resource-name >SSL</web-resource-name>
+            <url-pattern>/*</url-pattern>
+        </web-resource-collection>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+</security-constraint> -->
+<!-- 
 	<security-constraint>
 		<display-name>No anonymous access</display-name>
 		<web-resource-collection>
@@ -63,15 +78,15 @@
 		<user-data-constraint>
 			<transport-guarantee>NONE</transport-guarantee>
 		</user-data-constraint>
-	</security-constraint>
+	</security-constraint> -->
 
-	<!-- Defines the Login Configuration for this Application -->
+	<!-- Defines the Login Configuration for this Application
 	<login-config>
 		<auth-method>BASIC</auth-method>
 		<realm-name>PSI Probe</realm-name>
-	</login-config>
+	</login-config> -->
 
-	<!--Security roles referenced by this web application -->
+	<!--Security roles referenced by this web application 
 	<security-role>
 		<role-name>manager-gui</role-name>
 	</security-role>
@@ -90,6 +105,6 @@
 
 	<security-role>
 		<role-name>probeuser</role-name>
-	</security-role>
+	</security-role>-->
 
 </web-app>

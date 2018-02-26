@@ -8,7 +8,7 @@
 		<!-- github server corresponds to entry in ~/.m2/settings.xml -->
 		<github.global.server>github</github.global.server>
 		<maven.dir>D:/GitHome/mvn-repo</maven.dir>
-		<lombok.version>1.16.16</lombok.version>
+		<lombok.version>1.16.18</lombok.version>
 	</properties>
 	<!-- 
 	<distributionManagement>

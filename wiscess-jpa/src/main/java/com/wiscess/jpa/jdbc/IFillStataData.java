@@ -8,7 +8,6 @@ import java.sql.Types;
 import java.util.List;
 
 import org.springframework.jdbc.support.JdbcUtils;
-import org.springframework.util.StringUtils;
 
 /**
  * 用于向批量插入数据的state中填充数据
@@ -77,7 +76,7 @@ public abstract class IFillStataData<T> {
 	
 	public void setValue(int order , Object obj ,int type) throws SQLException
 	{
-		if(obj == null || StringUtils.isEmpty(obj))
+		if(obj == null)
 		{
 			insertState.setNull(order, type);
 			return;

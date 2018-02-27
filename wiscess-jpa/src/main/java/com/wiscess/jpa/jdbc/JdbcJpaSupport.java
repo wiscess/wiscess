@@ -54,9 +54,14 @@ public class JdbcJpaSupport {
 	public ISqlElement processSql(Map<String, Object> params, String name){
 		log.debug("processSql(Map<String,Object>, String) - start, name="+name);
 		//先根据name从sql缓存中查询出freemarker的模板，再进行模板解析
-		ISqlElement rs = DynamicSqlUtil.processSql(params, Query.getQuery(name));
-		log.debug("processSql(Map<String,Object>, String) - end");
-		return rs;
+		String sqlTemplate=Query.getQuery(name);
+		if(StringUtil.isNotEmpty(sqlTemplate)){
+			sqlTemplate="<#setting number_format=\"0\">"+sqlTemplate;
+			ISqlElement rs = DynamicSqlUtil.processSql(params, sqlTemplate);
+			log.debug("processSql(Map<String,Object>, String) - end");
+			return rs;
+		}
+		return null;
 	}
 
 	public JdbcTemplate getJdbcTemplate(){
@@ -110,23 +115,31 @@ public class JdbcJpaSupport {
 	 * @return
 	 */
 	public <E> List<E> findListByTemplate(JdbcTemplate template,String sqlName, Map<String, Object> params, Class<E> clazz)  {
-		return findListByTemplate(template, sqlName, params, new SingleColumnRowMapper<E>(clazz));
+		return findListByTemplate(template, sqlName, params, getRowMaperByClazz(clazz));
 	}
 	public <E> List<E> findList(String sqlName, Map<String, Object> params, Class<E> clazz) {
-		return findList(sqlName, params, new SingleColumnRowMapper<E>(clazz));
+		return findList(sqlName, params,getRowMaperByClazz(clazz));
 	}
 	public <E> List<E> findList(String sqlName, Class<E> clazz, String[] paramName, Object... paramValue) {
-		return findList(sqlName, new SingleColumnRowMapper<E>(clazz),paramName,paramValue);
+		return findList(sqlName, getRowMaperByClazz(clazz),paramName,paramValue);
 	}
 	public <E> List<E> findList(String sqlName, Class<E> clazz, String paramName, Object paramValue) {
-		return findList(sqlName, new SingleColumnRowMapper<E>(clazz), paramName, paramValue);
+		return findList(sqlName, getRowMaperByClazz(clazz), paramName, paramValue);
 	}
 	public <E> List<E> findList(String sqlName, Class<E> clazz) {
-		return findList(sqlName, new SingleColumnRowMapper<E>(clazz));
+		return findList(sqlName, getRowMaperByClazz(clazz));
 	}	
 	
-	
-	
+	private <E> RowMapper<E> getRowMaperByClazz(Class<E> clazz){
+		try {
+			if(((Class<?>) clazz.getField("TYPE").get(null)).isPrimitive())
+				return new SingleColumnRowMapper<E>(clazz);
+		} catch (NoSuchFieldException | SecurityException e) {
+		} catch (IllegalArgumentException e) {
+		} catch (IllegalAccessException e) {
+		}
+		return new ObjectRowMapper<E>(clazz);
+	}
 	
 	public Integer insert(String sqlName){
 		return insert(sqlName,new HashMap<String, Object>());
@@ -183,7 +196,7 @@ public class JdbcJpaSupport {
 		return queryForObjectByTemplate(this.jdbcTemplate, sqlName, params, requiredType);
 	}
 	public <E> Object queryForObjectByTemplate(JdbcTemplate template,String sqlName,Map<String, Object> params,Class<E> requiredType) {
-		return queryForObjectByTemplate(template, sqlName, params, new ObjectRowMapper<E>(requiredType));
+		return queryForObjectByTemplate(template, sqlName, params, getRowMaperByClazz(requiredType));
 	}
 	public <E> Object queryForObject(String sqlName,Map<String, Object> params,RowMapper<E> rowMapper) {
 		return queryForObjectByTemplate(this.jdbcTemplate, sqlName, params, rowMapper);
@@ -201,7 +214,7 @@ public class JdbcJpaSupport {
 		return findPage(querySqlName, null, params, pageable);
 	}
 	public <E> Page<E> findPage(String querySqlName, 
-			Map<String, Object> params,Pageable pageable,Class<?> clazz){
+			Map<String, Object> params,Pageable pageable,Class<E> clazz){
 		return findPage(querySqlName, null, params, pageable,clazz);
 	}
 	public <E> Page<E> findPage(String querySqlName, 
@@ -214,8 +227,8 @@ public class JdbcJpaSupport {
 		return findPage(querySqlName, countSqlName, params, pageable,new ColumnMapRowMapper());
 	}
 	public <E> Page<E> findPage(String querySqlName, String countSqlName,
-			Map<String, Object> params,Pageable pageable,Class<?> clazz){
-		return findPage(querySqlName, countSqlName, params, pageable, new ObjectRowMapper<E>(clazz));
+			Map<String, Object> params,Pageable pageable,Class<E> clazz){
+		return findPage(querySqlName, countSqlName, params, pageable, getRowMaperByClazz(clazz));
 	}
 	
 	public <E> Page<E> findPage(String querySqlName, String countSqlName,

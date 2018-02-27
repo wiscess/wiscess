@@ -24,15 +24,15 @@ public abstract class PasswordUtil {
     	return PasswordUtil.getInstance(pwd).check();
     }
     /**
-     * ÓÃ·¨
+     * ç”¨æ³•
      */
     public static void usage(){
-		System.out.println("ÃÜÂëÇ¿¶ÈÅĞ¶Ï¹¤¾ß");
+		System.out.println("å¯†ç å¼ºåº¦åˆ¤æ–­å·¥å…·");
 		System.out.println("java -jar wiscess-util.jar -pwdcheck <password>");
 		System.out.println("");
-		System.out.println("Ñ¡Ïî£º");
+		System.out.println("é€‰é¡¹ï¼š");
 		System.out.println("");
-		System.out.println("  <password>   ²âÊÔÃÜÂë´®");
+		System.out.println("  <password>   æµ‹è¯•å¯†ç ä¸²");
 	}
     public static void main(String[] args) {
     	if(args.length<1){
@@ -42,7 +42,7 @@ public abstract class PasswordUtil {
     	String pwd=args[0];
 		int total=PasswordUtil.check(pwd);
     	
-		System.out.println("×Ü·Ö="+(total));
+		System.out.println("æ€»åˆ†="+(total));
 	} 
 }
 

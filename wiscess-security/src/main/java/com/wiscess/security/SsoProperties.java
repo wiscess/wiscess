@@ -1,7 +1,6 @@
 package com.wiscess.security;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.util.Assert;
 
 
 @ConfigurationProperties(prefix = "security.sso")
@@ -16,7 +15,6 @@ public class SsoProperties {
 	private String logoutUrl="/logout";
 	
 	public String getAuthUrl() {
-		Assert.notNull(authUrl);
 		return authUrl;
 	}
 

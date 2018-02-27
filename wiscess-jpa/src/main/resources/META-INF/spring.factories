@@ -1,1 +1,6 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.wiscess.query.config.autoconfig.QueryAutoConfiguration,com.wiscess.jpa.config.MultiDataSourceConfig
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.wiscess.query.config.autoconfig.QueryAutoConfiguration,\
+com.wiscess.jpa.config.MultiDataSourceConfig
+com.wiscess.query.config.processor.QueryResourceLoader=\
+com.wiscess.query.config.processor.XmlResourceLoader,\
+com.wiscess.query.config.processor.YamlResourceLoader

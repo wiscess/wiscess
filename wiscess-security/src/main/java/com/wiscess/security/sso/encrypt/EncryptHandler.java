@@ -15,6 +15,7 @@ public interface EncryptHandler {
 	 * 加密
 	 * @param data
 	 * @return
+	 * @throws Exception 
 	 */
 	public String encode(String data);
 	/**

@@ -127,10 +127,13 @@ public class WordExportUtil {
 					//如果是图片，则查找key所在的XWPFRun
 					XWPFRun run=findRun(doc,key);
 					AssignedRun ar = (AssignedRun)ae;
-		 			if(run==null){
-						run=doc.createParagraph().createRun();
-						run.setText(ar.getText(),0);
-					}else{
+					if(ar.getText()==null){
+						ar.setText("");
+					}
+					//未找到的时候不处理
+		 			if(run!=null){
+						//run=doc.createParagraph().createRun();
+						//run.setText(ar.getText(),0);
 			 			//避免run中含有除key以外的数据，所以不能直接替换
 			 			String newValue=run.getText(run.getTextPosition()).replaceAll(key, ar.getText());
 						run.setText(newValue,0);
@@ -234,6 +237,7 @@ public class WordExportUtil {
  		//在段落中增加一个新的Run，并获得当前的位置
 		XWPFRun r = p.createRun();
 		XmlCursor cursor = r.getCTR().newCursor();
+		cursor=p.getCTP().newCursor();
  		if(ae instanceof AssignedTable){
  			//在段落中增加一个新表格,1*1
  			XWPFTable table = p.getDocument().insertNewTbl(p.getCTP().newCursor());
@@ -289,6 +293,7 @@ public class WordExportUtil {
 		if(ae.hasCR()){
  			r.addCarriageReturn();
  		}
+		r.getCTR().newCursor();
  	}
  	/**
  	 * 设置table的属性，并根据AssignedTable的数据填充表格
@@ -536,7 +541,7 @@ public class WordExportUtil {
  	 * @param content2 
 	 * @return
 	 */
- 	public static List<AssignedElement> parserHtmlContent(String workPath,String content){
+ 	public static List<AssignedElement> parserHtmlContent(String prefixUrl,String workPath,String content){
 		List<AssignedElement> contentList=new ArrayList<AssignedElement>();
 		content=html(content);
 		
@@ -581,7 +586,7 @@ public class WordExportUtil {
 				Matcher imageHMatcher=imgHPattern.matcher(m.group(1));
 				if(imageMatcher.find()){
 					String src=imageMatcher.group(1);
-					src=src.replace("http://blog.cysy.bjedu.cn", "");
+					src=src.replace(prefixUrl, "");
 					String imgfile=workPath+src;
 					File imgF=new File(imgfile);
 					if(imgF.exists()){

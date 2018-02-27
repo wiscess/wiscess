@@ -49,13 +49,13 @@ public class ExcelExportUtil {
 	public static final SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
 	
 	/**
-	 * ¸ù¾İÄ£°åµ¼³öÎÄ¼ş
+	 * æ ¹æ®æ¨¡æ¿å¯¼å‡ºæ–‡ä»¶
 	 */
 	public static String exportExcelByTemplate(ExportExcelParameter para,String filename, HttpServletResponse res,
 			List<AssignedCell[]> data){
 		try {
 			if(res!=null){
-				//Êä³öµ½ä¯ÀÀÆ÷
+				//è¾“å‡ºåˆ°æµè§ˆå™¨
 				filename=filename.substring(filename.lastIndexOf("\\")+1);
 				res.setContentType("APPLICATION/ms-excel");
 				res.setHeader("Content-Disposition", "attachment; filename="
@@ -66,7 +66,7 @@ public class ExcelExportUtil {
 				os.close();
 				return null;
 			}else{
-				//Êä³öµ½Ä¿Â¼
+				//è¾“å‡ºåˆ°ç›®å½•
 				FileOutputStream fos = new FileOutputStream(filename);
 				ExcelExportUtil.export(para, fos,data);
 				fos.flush();
@@ -74,17 +74,17 @@ public class ExcelExportUtil {
 				return filename;
 			}
 		} catch (Exception e) {
-			throw new ManagerException("µ¼³ö³ö´í¡£", e);
+			throw new ManagerException("å¯¼å‡ºå‡ºé”™ã€‚", e);
 		}
 	}
 
 	/**
-	 * ¸ù¾İÄ£°åµ¼³öÎÄ¼ş,Ö§³Ö¶à¸ösheetµÄµ¼³öÎÄ¼ş
+	 * æ ¹æ®æ¨¡æ¿å¯¼å‡ºæ–‡ä»¶,æ”¯æŒå¤šä¸ªsheetçš„å¯¼å‡ºæ–‡ä»¶
 	 */
 	public static Object exportExcelByTemplate(ExportExcelParameter para,String filename, HttpServletResponse res){
 		try {
 			if(res!=null){
-				//Êä³öµ½ä¯ÀÀÆ÷
+				//è¾“å‡ºåˆ°æµè§ˆå™¨
 				res.setContentType("APPLICATION/ms-excel");
 				res.setHeader("Content-Disposition", "attachment; filename="
 						+ new String(filename.getBytes("gbk"), "iso8859-1"));
@@ -94,7 +94,7 @@ public class ExcelExportUtil {
 				os.close();
 				return null;
 			}else{
-				//Êä³öµ½Ä¿Â¼
+				//è¾“å‡ºåˆ°ç›®å½•
 				FileOutputStream fos = new FileOutputStream(filename);
 				ExcelExportUtil.export(para, fos);
 				fos.flush();
@@ -102,16 +102,17 @@ public class ExcelExportUtil {
 				return filename;
 			}
 		} catch (Exception e) {
-			throw new ManagerException("µ¼³ö³ö´í¡£", e);
+			throw new ManagerException("å¯¼å‡ºå‡ºé”™ã€‚", e);
 		}
 	}
 	
 	/**
-	 * ´Ómap¶ÔÏóÖĞ»ñÈ¡Öµ
+	 * ä»mapå¯¹è±¡ä¸­è·å–å€¼
 	 * @param cell
 	 * @param obj
 	 * @param propertyName
 	 */
+	@SuppressWarnings({ "unused", "rawtypes" })
 	private static void setValueFormMap(Cell cell,Map obj,String propertyName){
 		if(obj.containsKey(propertyName)){
 			Object returnValue=obj.get(propertyName);
@@ -131,23 +132,23 @@ public class ExcelExportUtil {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "unused", "rawtypes" })
 	private static void setValueFromObj(Cell cell,Object obj,String propertyName){
 		try {
 			Class clazz=obj.getClass();
 			Field f = clazz.getDeclaredField(propertyName);
-			//¸ù¾İ×Ö¶ÎÃûÀ´»ñÈ¡×Ö¶Î   
+			//æ ¹æ®å­—æ®µåæ¥è·å–å­—æ®µ   
 	        if(f!=null){   
-	        	//¹¹½¨·½·¨µÄºó×º   
+	        	//æ„å»ºæ–¹æ³•çš„åç¼€   
 	        	String methodEnd = propertyName.substring(0,1).toUpperCase()+propertyName.substring(1);   
-	        	String getMethodName="get"+methodEnd;//¹¹½¨get·½·¨   
-	        	Method getMethod=clazz.getMethod(getMethodName, new Class[]{});
+	        	String getMethodName="get"+methodEnd;//æ„å»ºgetæ–¹æ³•   
+				Method getMethod=clazz.getMethod(getMethodName, new Class[]{});
 	        	if(getMethod==null){
-	        		getMethodName="is"+methodEnd;//¹¹½¨get·½·¨   
+	        		getMethodName="is"+methodEnd;//æ„å»ºgetæ–¹æ³•   
 		        	getMethod=clazz.getMethod(getMethodName, new Class[]{});
 	        	}
 	        	if(getMethod!=null){
-	        		Object returnValue = getMethod.invoke(obj,  new Class[]{});
+	        		Object returnValue = getMethod.invoke(obj, new Class[]{});
 	        		if(returnValue==null){
 	        			cell.setCellValue("");
 	        			return;
@@ -175,7 +176,7 @@ public class ExcelExportUtil {
 	}
 	
 	/**
-	 * µ¼³öÊı¾İ£¬Ö§³Ö¶à¸ösheetµÄµ¼³öÎÄ¼ş
+	 * å¯¼å‡ºæ•°æ®ï¼Œæ”¯æŒå¤šä¸ªsheetçš„å¯¼å‡ºæ–‡ä»¶
 	 * 
 	 * @param para
 	 * @param os
@@ -185,7 +186,7 @@ public class ExcelExportUtil {
 	public static void export(ExportExcelParameter para, OutputStream os) {
 		InputStream ins = null;
 		try {
-			// ¶ÁÄ£°æÎÄ¼ş
+			// è¯»æ¨¡ç‰ˆæ–‡ä»¶
 			Workbook wb = null;
 			ins=ExcelExportUtil.class.getResourceAsStream(para.getTemplateName());
 			if(para.getTemplateName().endsWith(".xls")){
@@ -195,10 +196,10 @@ public class ExcelExportUtil {
 			}
 			List<String> sheetNames = new ArrayList<String>();
 			
-			//¼ÇÂ¼µ±Ç°sheetºÍÒª×·¼Óµ½µÄsheet
+			//è®°å½•å½“å‰sheetå’Œè¦è¿½åŠ åˆ°çš„sheet
 			Map<String,List<String>> mergedSheets=new HashMap<String,List<String>>();
 			
-			//ÏÈÈ¥µô²»´æÔÚµÄSheetÒ³£¬Ö»±£ÁôÊ¹ÓÃµÄSheet
+			//å…ˆå»æ‰ä¸å­˜åœ¨çš„Sheeté¡µï¼Œåªä¿ç•™ä½¿ç”¨çš„Sheet
 			List<String> usedSheetNameList=new ArrayList<String>();
 			for (AssignedSheet aSheet : para.getSheets()) {
 				if(!usedSheetNameList.contains(aSheet.getTemplateSheetName()))
@@ -214,14 +215,14 @@ public class ExcelExportUtil {
 					wb.removeSheetAt(j);
 				}
 			}
-			// ´´½¨sheet£¬²¢¸´ÖÆÄ£°åÒ³ÖĞµÄËùÓĞĞĞ
+			// åˆ›å»ºsheetï¼Œå¹¶å¤åˆ¶æ¨¡æ¿é¡µä¸­çš„æ‰€æœ‰è¡Œ
 			for (AssignedSheet aSheet : para.getSheets()) {
 				//
 				Sheet sheet = null;
 				String newSheetName="";
 				if(aSheet.getTemplateSheetName()
 						.equals(aSheet.getSheetName())){
-					//µ¼³öSheetNameºÍÄ£°åSheetÃûÒ»ÖÂ
+					//å¯¼å‡ºSheetNameå’Œæ¨¡æ¿Sheetåä¸€è‡´
 					sheet = wb.getSheet(aSheet.getTemplateSheetName());
 					sheetNames.add(aSheet.getSheetName());
 					newSheetName=aSheet.getSheetName();
@@ -236,13 +237,13 @@ public class ExcelExportUtil {
 					sheetNames.add(sName);
 				}
 				if(aSheet.isHidden()){
-					//¸ÃÒ³ÒªÒş²Ø
+					//è¯¥é¡µè¦éšè—
 					wb.setSheetHidden(wb.getSheetIndex(sheet), true);
 				}
-				//Ã»ÓĞÊı¾İ£¬ÂÔ¹ı´¦Àí
+				//æ²¡æœ‰æ•°æ®ï¼Œç•¥è¿‡å¤„ç†
 				if(aSheet.getData()==null)
 					continue;
-				// ¿ªÊ¼´¦Àí
+				// å¼€å§‹å¤„ç†
 				int rowNumber = aSheet.getDataRow().getRow();
 				Row templateDataRow = sheet.getRow(rowNumber);
 				Row templateHlDataRow = null;
@@ -256,7 +257,7 @@ public class ExcelExportUtil {
 				if (templateHlDataRow == null)
 					templateHlDataRow = sheet.getRow(rowNumber);
 
-				// Êä³öÊı¾İ
+				// è¾“å‡ºæ•°æ®
 				outputData(wb, sheet, templateDataRow, templateHlDataRow, aSheet.getDataRow(),
 						aSheet.getColumnWidths(),
 						aSheet.getData(), 
@@ -266,16 +267,16 @@ public class ExcelExportUtil {
 						aSheet.getDataRowSpan(), aSheet.getTotalCol(),
 						templateHlDataCol);
 				
-				//´¦ÀíºÏ²¢sheetµÄ¼ÇÂ¼
+				//å¤„ç†åˆå¹¶sheetçš„è®°å½•
 				if(StringUtil.isEmpty(aSheet.getAppendToSheet()) || 
 						!mergedSheets.containsKey(aSheet.getAppendToSheet())){
-					//Èç¹û¸ÃsheetÃ»ÓĞÖ¸¶¨×·¼ÓÄ¿±ê£¬Ôò¸Ãsheet×÷ÎªÒ»¸ö±»±£ÁôµÄsheet£¬½¨Á¢Ò»¸ö¿ÕÁĞ±í
+					//å¦‚æœè¯¥sheetæ²¡æœ‰æŒ‡å®šè¿½åŠ ç›®æ ‡ï¼Œåˆ™è¯¥sheetä½œä¸ºä¸€ä¸ªè¢«ä¿ç•™çš„sheetï¼Œå»ºç«‹ä¸€ä¸ªç©ºåˆ—è¡¨
 					List<String> list=new ArrayList<String>();
 					list.add(newSheetName);
 					mergedSheets.put(aSheet.getSheetName(),list);
 				}else{
-					//Èç¹û¸ÃsheetÖ¸¶¨ÁËÒª×·¼Óµ½Ä³¸ösheetÉÏ£¬ÔòÏÈÈ¡³öÄ¿±êsheetµÄÁĞ±í£¬²¢×·¼Óµ½sheetÖĞ
-					//ÏÈ¼ì²éÄ¿±êsheetÊÇ·ñ´æÔÚ
+					//å¦‚æœè¯¥sheetæŒ‡å®šäº†è¦è¿½åŠ åˆ°æŸä¸ªsheetä¸Šï¼Œåˆ™å…ˆå–å‡ºç›®æ ‡sheetçš„åˆ—è¡¨ï¼Œå¹¶è¿½åŠ åˆ°sheetä¸­
+					//å…ˆæ£€æŸ¥ç›®æ ‡sheetæ˜¯å¦å­˜åœ¨
 					if(mergedSheets.containsKey(aSheet.getAppendToSheet())){
 						List<String> list=mergedSheets.get(aSheet.getAppendToSheet());
 						list.add(newSheetName);
@@ -283,12 +284,12 @@ public class ExcelExportUtil {
 				}
 			}
 			
-			//ºÏ²¢sheet
+			//åˆå¹¶sheet
 			for(String sn:mergedSheets.keySet()){
 				List<String> slist=mergedSheets.get(sn);
-				//ÁĞ±íÖĞµÚÒ»¸öÎªÄ¿±êsheet£¬
+				//åˆ—è¡¨ä¸­ç¬¬ä¸€ä¸ªä¸ºç›®æ ‡sheetï¼Œ
 				Sheet targetSheet=wb.getSheet(slist.get(0));
-				//ÆäËûÎªsourceSheet
+				//å…¶ä»–ä¸ºsourceSheet
 				for(int i=1;i<slist.size();i++){
 					Sheet sourceSheet = wb.getSheet(slist.get(i));
 					copySheet(sourceSheet, targetSheet);
@@ -298,7 +299,7 @@ public class ExcelExportUtil {
 			}
 
 			
-			// É¾³ıÎÄ¼şÖĞ³ıÁËÓĞËùĞèÊı¾İµÄsheetÒ³ÍâµÄËùÓĞsheet£¬°üÀ¨Ä£°åsheetºÍ¿Õ°×sheet
+			// åˆ é™¤æ–‡ä»¶ä¸­é™¤äº†æœ‰æ‰€éœ€æ•°æ®çš„sheeté¡µå¤–çš„æ‰€æœ‰sheetï¼ŒåŒ…æ‹¬æ¨¡æ¿sheetå’Œç©ºç™½sheet
 			int i = 0;
 			while (i < wb.getNumberOfSheets()) {
 				String sheetName = wb.getSheetName(i);
@@ -312,16 +313,16 @@ public class ExcelExportUtil {
 			wb.write(os);
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagerException("µ¼³ö³ö´í¡£", e);
+			throw new ManagerException("å¯¼å‡ºå‡ºé”™ã€‚", e);
 		}
 	}
 	private static String subSheetName(List<String> sheetNames, String sName){
 		String result=sName;
 		if((result.length()<=31 && !sheetNames.contains(result))){
-			//²»°üÀ¨²¢ÇÒ³¤¶È²»³¬³¤
+			//ä¸åŒ…æ‹¬å¹¶ä¸”é•¿åº¦ä¸è¶…é•¿
 			result=sName;
 		}else if(result.length()<=27 && sheetNames.contains(result)){
-			//ÒÑ¾­´æÔÚ£¬²¢ÇÒ³¤¶ÈĞ¡ÓÚ27£¬¿ÉÒÔÖ±½Ó¼ÓÁ½Î»ĞòºÅ
+			//å·²ç»å­˜åœ¨ï¼Œå¹¶ä¸”é•¿åº¦å°äº27ï¼Œå¯ä»¥ç›´æ¥åŠ ä¸¤ä½åºå·
 			int i=1;
 			while(sheetNames.contains(result)){
 				result=sName+"("+i+")";
@@ -345,14 +346,14 @@ public class ExcelExportUtil {
 		return result;
 	}
 	/**
-	 * µ¥sheetÒ³µÄµ¼³ö´¦Àí
+	 * å•sheeté¡µçš„å¯¼å‡ºå¤„ç†
 	 */
 	public static void export(ExportExcelParameter para, OutputStream os,
 			List<AssignedCell[]> data) {
 		InputStream ins = null;
 		try {
-			// ¶ÁÄ£°æÎÄ¼ş
-			// Ä£°æÎÄ¼şµÄ¾ø¶ÔÂ·¾¶
+			// è¯»æ¨¡ç‰ˆæ–‡ä»¶
+			// æ¨¡ç‰ˆæ–‡ä»¶çš„ç»å¯¹è·¯å¾„
 			Workbook wb = null;
 			ins=ExcelExportUtil.class.getResourceAsStream(para.getTemplateName());
 			if(para.getTemplateName().endsWith(".xls")){
@@ -361,7 +362,7 @@ public class ExcelExportUtil {
 				wb=new XSSFWorkbook(ins);
 			}
 			Sheet sheet = wb.getSheetAt(0);
-			// ¿ªÊ¼´¦Àí
+			// å¼€å§‹å¤„ç†
 			Row templateDataRow = sheet.getRow(para.getDataRow().getRow());
 
 			Row templateHlDataRow = null;
@@ -373,7 +374,7 @@ public class ExcelExportUtil {
 				templateHlDataRow = templateDataRow;
 			}
 
-			// Êä³öÊı¾İ
+			// è¾“å‡ºæ•°æ®
 			if(templateDataRow!=null)
 				outputData(wb, sheet, templateDataRow, templateHlDataRow, para.getDataRow(), 
 					para.getColumnWidths(),
@@ -382,15 +383,15 @@ public class ExcelExportUtil {
 					para.isAutoHeight(),
 					para.getDataRowSpan(), para.getTotalCol(), hldatacol);
 
-			//µ¥Ò³Ä£Ê½²»´¦ÀíºÏ²¢sheet²Ù×÷
+			//å•é¡µæ¨¡å¼ä¸å¤„ç†åˆå¹¶sheetæ“ä½œ
 			wb.write(os);
 		} catch (Exception e) {
-			throw new ManagerException("µ¼³ö³ö´í¡£", e);
+			throw new ManagerException("å¯¼å‡ºå‡ºé”™ã€‚", e);
 		}
 	}
 
 	/**
-	 * Êä³öÊı¾İ
+	 * è¾“å‡ºæ•°æ®
 	 * @param wb
 	 * @param sheet
 	 * @param datarow
@@ -422,30 +423,30 @@ public class ExcelExportUtil {
 
 		Row currRow = null;
 		if(columnWidths!=null){
-			//ÉèÖÃÁĞ¿í
+			//è®¾ç½®åˆ—å®½
 			for (int j = 0; j < totalCol; j++) {
 				sheet.setColumnWidth(j, columnWidths[j]*40);
 			}
 		}
-		// Êä³öÊı¾İ
+		// è¾“å‡ºæ•°æ®
 		for (AssignedCell[] rowData : data) {
 			if(totalCol==0)
 				totalCol=rowData.length;
-			// Èç¹ûÊÇÓÃ¸´ÖÆĞĞµÄÄ£Ê½£¬Ôòµ÷ÓÃcopyRows¸´ÖÆ³öĞèÒªµÄÄÚÈİĞĞ£¬·ñÔò£¬´´½¨ĞÂĞĞ£¬²¢³õÊ¼»¯Ã¿ÁĞÊı¾İ
+			// å¦‚æœæ˜¯ç”¨å¤åˆ¶è¡Œçš„æ¨¡å¼ï¼Œåˆ™è°ƒç”¨copyRowså¤åˆ¶å‡ºéœ€è¦çš„å†…å®¹è¡Œï¼Œå¦åˆ™ï¼Œåˆ›å»ºæ–°è¡Œï¼Œå¹¶åˆå§‹åŒ–æ¯åˆ—æ•°æ®
 			if (isNeedCopyTemplateRow) {
 				copyRows(sheet, rowNum, rowNum + dataRowSpan - 1, rowNumber,
 						totalCol);
 			} else {
-				// ´´½¨¶àĞĞ£¬°ÑËùÓĞÁĞ¶¼´´½¨³öÀ´£¬²¢Ê¹ÓÃÑùÊ½´¦Àí
+				// åˆ›å»ºå¤šè¡Œï¼ŒæŠŠæ‰€æœ‰åˆ—éƒ½åˆ›å»ºå‡ºæ¥ï¼Œå¹¶ä½¿ç”¨æ ·å¼å¤„ç†
 				for (int i = 0; i < dataRowSpan; i++) {
 					currRow=sheet.getRow(rowNumber + i);
 					if(currRow==null)
 						currRow = sheet.createRow(rowNumber + i);
-					// ÉèÖÃĞĞ¸ß£¬Ä£°åĞĞ´æÔÚ²¢ÇÒÎ´Ö¸¶¨×Ô¶¯ĞĞ¸ß£¬ÔòÊ¹ÓÃÄ£°åĞĞµÄĞĞ¸ß
+					// è®¾ç½®è¡Œé«˜ï¼Œæ¨¡æ¿è¡Œå­˜åœ¨å¹¶ä¸”æœªæŒ‡å®šè‡ªåŠ¨è¡Œé«˜ï¼Œåˆ™ä½¿ç”¨æ¨¡æ¿è¡Œçš„è¡Œé«˜
 					if (templateDataRow != null && !autoHeight){
 						currRow.setHeight(templateDataRow.getHeight());
 					}
-					// ´´½¨ËùÓĞµÄÁĞ
+					// åˆ›å»ºæ‰€æœ‰çš„åˆ—
 					for (int j = 0; j < totalCol; j++) {
 						Cell cell = currRow.getCell(j);
 						if(cell==null)
@@ -464,17 +465,17 @@ public class ExcelExportUtil {
 			}
 
 			int lastUserStyle=0;
-			// ¸ù¾İÁĞ×ÜÊı´¦ÀíËùÓĞÁĞ
+			// æ ¹æ®åˆ—æ€»æ•°å¤„ç†æ‰€æœ‰åˆ—
 			for (int k = 0; k < rowData.length; k++) {
 				CellStyle lastStyle=null;
 				AssignedCell acell = rowData[k];
 				if (acell == null)
 					continue;
-				// ¶ÔÌØÊâÑùÊ½µÄ´¦Àí
+				// å¯¹ç‰¹æ®Šæ ·å¼çš„å¤„ç†
 				
 				if (acell.getUseStyle() == AssignedCell.CELL_STYLE_PHOTO) {
-					// Ğ´ÕÕÆ¬
-					// ´¦ÀíÕÕÆ¬
+					// å†™ç…§ç‰‡
+					// å¤„ç†ç…§ç‰‡
 					ClientAnchor anchor = null;
 					if(wb instanceof HSSFWorkbook){
 						anchor = new HSSFClientAnchor(0, 0, 0, 0,
@@ -504,7 +505,7 @@ public class ExcelExportUtil {
 					continue;
 				}
 
-				// ¸ù¾İÊôĞÔºÏ²¢µ¥Ôª¸ñ
+				// æ ¹æ®å±æ€§åˆå¹¶å•å…ƒæ ¼
 				if (acell.getRow() != acell.getRowEnd()
 						|| acell.getCol() != acell.getColEnd())
 					sheet.addMergedRegion(new CellRangeAddress(rowNumber
@@ -517,12 +518,12 @@ public class ExcelExportUtil {
 				Cell cell = row.getCell(acell.getCol());
 				if (cell == null)
 					cell = row.createCell(acell.getCol());
-				// ¸ù¾İÀàĞÍÉèÖÃ
+				// æ ¹æ®ç±»å‹è®¾ç½®
 				int cType = HSSFCell.CELL_TYPE_STRING;
 				
 				Object value = acell.getValue();
 				if (acell.getUseStyle() == AssignedCell.CELL_STYLE_FORMULA) {
-					//¹«Ê½,¸ù¾İµ±Ç°ĞĞ½âÎö¹«Ê½,ÈçR[-2]C/R[-1]C
+					//å…¬å¼,æ ¹æ®å½“å‰è¡Œè§£æå…¬å¼,å¦‚R[-2]C/R[-1]C
 					//Pattern p
 					try {
 						String cformula=value.toString();
@@ -563,7 +564,7 @@ public class ExcelExportUtil {
 				lastUserStyle=acell.getUseStyle();
 				if(lastStyle==null)
 					lastStyle=cell.getCellStyle();
-				//µ÷ÕûĞĞ¸ß,±äÎª×Ô¶¯»»ĞĞ
+				//è°ƒæ•´è¡Œé«˜,å˜ä¸ºè‡ªåŠ¨æ¢è¡Œ
 				if(autoHeight){
 					lastStyle.setWrapText(true);
 				}
@@ -571,7 +572,7 @@ public class ExcelExportUtil {
 			}
 			rowNumber += dataRowSpan;
 		}
-		// Êä³öÖ¸¶¨Î»ÖÃµÄÖµ
+		// è¾“å‡ºæŒ‡å®šä½ç½®çš„å€¼
 		if (assignedCells != null && assignedCells.size() > 0) {
 			for (AssignedCell cell : assignedCells) {
 				if (cell.getValue() == null)
@@ -585,7 +586,7 @@ public class ExcelExportUtil {
 				if (sheet.getRow(cell.getRow()) == null) {
 					sheet.createRow(cell.getRow());
 				}
-				// ¸ù¾İÊôĞÔºÏ²¢µ¥Ôª¸ñ
+				// æ ¹æ®å±æ€§åˆå¹¶å•å…ƒæ ¼
 				if (cell.getRow() != cell.getRowEnd()
 						|| cell.getCol() != cell.getColEnd()) {
 					sheet.addMergedRegion(new CellRangeAddress(cell.getRow(), cell.getRowEnd(),
@@ -606,12 +607,12 @@ public class ExcelExportUtil {
 				assignCell.setCellValue(cell.getValue().toString());
 			}
 		}
-		//ÖØĞÂ¼ÆËã¹«Ê½
+		//é‡æ–°è®¡ç®—å…¬å¼
 		adjustformula(sheet);
 	}
 
 	/**
-	 * ¸ù¾İÑùÊ½¶¨Òå£¬»ñÈ¡Ê¹ÓÃµÄÑùÊ½
+	 * æ ¹æ®æ ·å¼å®šä¹‰ï¼Œè·å–ä½¿ç”¨çš„æ ·å¼
 	 * @param useStyle
 	 * @param templateDataRow
 	 * @param templateHlDataRow
@@ -620,10 +621,10 @@ public class ExcelExportUtil {
 	 * @return
 	 */
 	private static CellStyle getLastStyle(Workbook wb,int useStyle,Row templateDataRow,Row templateHlDataRow,int col,int hldatacol,boolean locked){
-		// Ê¹ÓÃÑùÊ½
+		// ä½¿ç”¨æ ·å¼
 		CellStyle lastStyle=null;
 		if (useStyle == AssignedCell.CELL_STYLE_NORMAL) {
-			// Ê¹ÓÃÄ¬ÈÏÑùÊ½
+			// ä½¿ç”¨é»˜è®¤æ ·å¼
 			if(locked)
 				lastStyle=(templateDataRow.getCell(col).getCellStyle());
 			else {
@@ -631,7 +632,7 @@ public class ExcelExportUtil {
 				lastStyle.cloneStyleFrom(templateDataRow.getCell(col).getCellStyle());
 			}
 		} else if (useStyle == AssignedCell.CELL_STYLE_HLROW_COL) {
-			// Ê¹ÓÃÊı¾İÑùÊ½
+			// ä½¿ç”¨æ•°æ®æ ·å¼
 			if(locked)
 				lastStyle=(templateHlDataRow.getCell(hldatacol).getCellStyle());
 			else{
@@ -639,7 +640,7 @@ public class ExcelExportUtil {
 				lastStyle.cloneStyleFrom(templateHlDataRow.getCell(hldatacol).getCellStyle());
 			}
 		} else if (useStyle == AssignedCell.CELL_STYLE_HLROW) {
-			// Ê¹ÓÃ¸ßÁÁÑùÊ½
+			// ä½¿ç”¨é«˜äº®æ ·å¼
 			if(locked)
 				lastStyle=(templateHlDataRow.getCell(col).getCellStyle());
 			else{
@@ -653,7 +654,7 @@ public class ExcelExportUtil {
 		return lastStyle;
 	}
 	/**
-	 * ´¦ÀíÕÕÆ¬
+	 * å¤„ç†ç…§ç‰‡
 	 * 
 	 * @param filePath
 	 * @param wb
@@ -676,7 +677,7 @@ public class ExcelExportUtil {
 	}
 
 	/**
-	 * ´¦ÀíÕÕÆ¬
+	 * å¤„ç†ç…§ç‰‡
 	 * 
 	 * @param filePath
 	 * @param wb
@@ -701,7 +702,7 @@ public class ExcelExportUtil {
 	}
 
 	/**
-	 * ¸´ÖÆsheetÖĞµÄĞĞÊı¾İ
+	 * å¤åˆ¶sheetä¸­çš„è¡Œæ•°æ®
 	 * 
 	 * @param sheet
 	 * @param pStartRow
@@ -721,7 +722,7 @@ public class ExcelExportUtil {
 		}
 		if (pStartRow == pPosition)
 			return;
-		// ¿½±´ºÏ²¢µÄµ¥Ôª¸ñ
+		// æ‹·è´åˆå¹¶çš„å•å…ƒæ ¼
 		int numregions = sheet.getNumMergedRegions();
 		for (int i = 0; i < numregions; i++) {
 			region = sheet.getMergedRegion(i);
@@ -736,7 +737,7 @@ public class ExcelExportUtil {
 				sheet.addMergedRegion(region2);
 			}
 		}
-		// ¿½±´ĞĞ²¢Ìî³äÊı¾İ
+		// æ‹·è´è¡Œå¹¶å¡«å……æ•°æ®
 		for (int i = pStartRow; i <= pEndRow; i++) {
 			sourceRow = sheet.getRow(i);
 			if (sourceRow == null) {
@@ -761,7 +762,7 @@ public class ExcelExportUtil {
 							.setCellErrorValue(sourceCell.getErrorCellValue());
 					break;
 				case Cell.CELL_TYPE_FORMULA:
-					//µ÷Õû¹«Ê½
+					//è°ƒæ•´å…¬å¼
 					int dataRowSpan=pPosition-pStartRow;
 					targetCell.setCellFormula(adjustFormula(sourceCell.getCellFormula(),dataRowSpan));
 					break;
@@ -777,7 +778,7 @@ public class ExcelExportUtil {
 	}
 
 	/**
-	 * µ÷Õû¹«Ê½
+	 * è°ƒæ•´å…¬å¼
 	 * @param cellFormula
 	 * @param dataRowSpan
 	 * @return
@@ -800,7 +801,7 @@ public class ExcelExportUtil {
 		return str;
 	}
 	/**
-	 * ½«sheetÖĞµÄËùÓĞĞĞ¸´ÖÆµ½Ä¿±êsheetÖĞ£¬²¢É¾³ıÔ­sheet
+	 * å°†sheetä¸­çš„æ‰€æœ‰è¡Œå¤åˆ¶åˆ°ç›®æ ‡sheetä¸­ï¼Œå¹¶åˆ é™¤åŸsheet
 	 * 
 	 * @param oriSheet
 	 * @param descSheet
@@ -812,14 +813,14 @@ public class ExcelExportUtil {
 		Cell targetCell = null;
 		CellRangeAddress region = null;
 
-		// Ê×ÏÈ»ñÈ¡sourceSheetµÄ×îºóÒ»ĞĞĞĞÊı
+		// é¦–å…ˆè·å–sourceSheetçš„æœ€åä¸€è¡Œè¡Œæ•°
 		int pStartRow = 0;
 		int pEndRow = sourceSheet.getLastRowNum();
 
-		// »ñÈ¡targetSheetµÄ×îºóÒ»ĞĞ
+		// è·å–targetSheetçš„æœ€åä¸€è¡Œ
 		int pPosition = targetSheet.getLastRowNum() + 3;
 
-		// ¿½±´ºÏ²¢µÄµ¥Ôª¸ñ
+		// æ‹·è´åˆå¹¶çš„å•å…ƒæ ¼
 		for (int i = 0; i < sourceSheet.getNumMergedRegions(); i++) {
 			region = sourceSheet.getMergedRegion(i);
 			CellRangeAddress region2 = null;
@@ -833,7 +834,7 @@ public class ExcelExportUtil {
 				targetSheet.addMergedRegion(region2);
 			}
 		}
-		// ¿½±´ĞĞ²¢Ìî³äÊı¾İ
+		// æ‹·è´è¡Œå¹¶å¡«å……æ•°æ®
 		for (int i = 0; i <= pEndRow; i++) {
 			sourceRow = sourceSheet.getRow(i);
 			if (sourceRow == null) {
@@ -874,16 +875,16 @@ public class ExcelExportUtil {
 	}
 
 	/**
-	 * ÖØĞÂ¼ÆËã¹«Ê½
+	 * é‡æ–°è®¡ç®—å…¬å¼
 	 */
 	private static void adjustformula(Sheet sourceSheet) {
 		Row sourceRow = null;
 		Cell sourceCell = null;
 
-		// Ê×ÏÈ»ñÈ¡sourceSheetµÄ×îºóÒ»ĞĞĞĞÊı
+		// é¦–å…ˆè·å–sourceSheetçš„æœ€åä¸€è¡Œè¡Œæ•°
 		int pEndRow = sourceSheet.getLastRowNum();
 
-		// ¿½±´ĞĞ²¢Ìî³äÊı¾İ
+		// æ‹·è´è¡Œå¹¶å¡«å……æ•°æ®
 		for (int i = 0; i <= pEndRow; i++) {
 			sourceRow = sourceSheet.getRow(i);
 			if (sourceRow == null) {

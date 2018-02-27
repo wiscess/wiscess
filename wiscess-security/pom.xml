@@ -3,26 +3,17 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.wiscess</groupId>
   <artifactId>wiscess-security</artifactId>
-  <version>1.0</version>
-  <description>wiscess security package
-include:
-query
-security</description>
+  <version>1.1</version>
+  <description>wiscess security package</description>
   <name>wiscess security</name>
   <url>http://www.wiscess.com.cn</url>
 	<properties>
 		<!-- github server corresponds to entry in ~/.m2/settings.xml -->
 		<github.global.server>github</github.global.server>
-		<maven.dir>D:/GitHome/mvn-repo</maven.dir>
+		<maven.dir>D:/GitHome/mvn-repo</maven.dir><!--  -->
+		<spring-boot.version>1.5.6.RELEASE</spring-boot.version>
+		<wiscess-common.version>1.3</wiscess-common.version>
 	</properties>
-<!-- 
-	<distributionManagement>
-	    <repository>
-	        <id>internal.repo</id>
-	        <name>Temporary Staging Repository</name>
-	        <url>file://${project.build.directory}/maven</url>
-	    </repository>
-	</distributionManagement>-->
   <build>
 		<plugins>
 			<plugin>
@@ -41,7 +32,6 @@ security</description>
 			<plugin>  
         <groupId>org.apache.maven.plugins</groupId>  
         <artifactId>maven-source-plugin</artifactId>  
-        <version>2.4</version>  
         <executions>  
           <execution>  
             <id>attach-sources</id>  
@@ -54,33 +44,10 @@ security</description>
       </plugin>  
 		<plugin>
 	        <artifactId>maven-deploy-plugin</artifactId>
-	        <version>2.8.1</version>
 	        <configuration>
 	            <altDeploymentRepository>internal.repo::default::file://${maven.dir}</altDeploymentRepository>
 	        </configuration>
-	    </plugin><!-- 
- 		<plugin>
-            <groupId>com.github.github</groupId>
-            <artifactId>site-maven-plugin</artifactId>
-            <version>0.12</version>
-            <configuration>
-                <message>Maven artifacts for ${project.version}</message>  
-                <noJekyll>true</noJekyll>                                  
-                <outputDirectory>${maven.dir}</outputDirectory>
-                <branch>ref/heads/release</branch>                      
-                <includes><include>**/*</include></includes>
-                <repositoryName>https://github.com/wiscess/maven/release/</repositoryName>     
-                <repositoryOwner>wanghai114@gmail.com</repositoryOwner>   
-            </configuration>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>site</goal>
-                </goals>
-                <phase>deploy</phase>
-              </execution>
-            </executions>
-        </plugin> -->
+	    </plugin>
 		</plugins>
 	</build>
 	<repositories>
@@ -105,22 +72,22 @@ security</description>
     	<dependency>
     		<groupId>org.springframework.boot</groupId>
     		<artifactId>spring-boot-starter-security</artifactId>
-    		<version>1.4.0.RELEASE</version>
-    	</dependency>
-    	<dependency>
-    		<groupId>org.projectlombok</groupId>
-    		<artifactId>lombok</artifactId>
-    		<version>1.16.10</version>
+    		<version>${spring-boot.version}</version>
     	</dependency>
     	<dependency>
     		<groupId>org.springframework.boot</groupId>
     		<artifactId>spring-boot-starter-tomcat</artifactId>
-    		<version>1.4.0.RELEASE</version>
+    		<version>${spring-boot.version}</version>
     	</dependency>
     	<dependency>
     		<groupId>org.springframework.boot</groupId>
     		<artifactId>spring-boot-starter-jdbc</artifactId>
-    		<version>1.4.0.RELEASE</version>
+    		<version>${spring-boot.version}</version>
+    	</dependency>
+    	<dependency>
+    		<groupId>com.wiscess</groupId>
+    		<artifactId>wiscess-common</artifactId>
+    		<version>${wiscess-common.version}</version>
     	</dependency>
     </dependencies>
 </project>

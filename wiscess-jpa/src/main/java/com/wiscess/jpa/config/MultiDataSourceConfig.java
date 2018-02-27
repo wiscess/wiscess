@@ -7,14 +7,22 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+import org.springframework.boot.autoconfigure.jdbc.JndiDataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.XADataSourceAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
 import org.springframework.jmx.export.MBeanExporter;
 import org.springframework.jmx.support.JmxUtils;
@@ -24,6 +32,11 @@ import com.wiscess.util.DesUtils;
 
 @Slf4j
 @Configuration
+@AutoConfigureBefore({ JndiDataSourceAutoConfiguration.class,
+	XADataSourceAutoConfiguration.class,
+	DataSourceAutoConfiguration.class })
+@ConditionalOnClass({ DataSource.class, EmbeddedDatabaseType.class })
+@EnableConfigurationProperties(DataSourceProperties.class)
 public class MultiDataSourceConfig {
 
 	private final String DEFAULT_PREFIX="spring.datasource";
@@ -36,22 +49,22 @@ public class MultiDataSourceConfig {
 	@Resource
     protected Environment env;
 	
-	@Bean
+	@Bean(destroyMethod = "")
     @Primary
     @ConfigurationProperties(prefix=DEFAULT_PREFIX)
     public DataSource dataSource(){
     	log.info("************Config Main Datasource***********");
-    	return createDatasource(DEFAULT_PREFIX);
+    	return createDatasource(DEFAULT_PREFIX,"dataSource");
     }
 	
-	public DataSource createDatasource(String prifix){
+	public DataSource createDatasource(String prifix,String dataSourceName){
 		String jndiName=env.getProperty(prifix+".jndiName");
     	if(StringUtil.isNotEmpty(jndiName)){
     		//调用jndi
     		log.info(jndiName);
     		JndiDataSourceLookup dataSourceLookup = new JndiDataSourceLookup();
     		DataSource dataSource = dataSourceLookup.getDataSource(jndiName);
-    		excludeMBeanIfNecessary(dataSource, "dataSource");
+    		excludeMBeanIfNecessary(dataSource, dataSourceName);
     		return dataSource;
     	}
     	String url=readParameter(prifix,"url");

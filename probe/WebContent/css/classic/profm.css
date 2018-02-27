@@ -1,0 +1,236 @@
+/**
+ * Licensed under the GPL License. You may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ *
+ * THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+ * WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE.
+ */
+/*
+ * Licensed under the GPL License.  You may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ *
+ * THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
+ * MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+ */
+
+div.profmMenu, div.profmContent {
+	clear: both;
+}
+li#showUpload {
+	float: left;
+	background: url( "gifs/silk/application_form_edit.png" ) top left no-repeat;
+}
+
+li#hideUpload {
+	float: left;
+	background: url( "gifs/silk/application_form_delete.png" ) top left no-repeat;
+}
+li#executeCommand {
+	float: left;
+	background: url( "gifs/silk/database_lightning.png" ) top left no-repeat;
+}
+
+li#showHistory {
+	float: left;
+	background: url( "gifs/silk/script_go.png" ) top left no-repeat;
+}
+
+li#hideHistory {
+	float: left;
+	background: url( "gifs/silk/script_delete.png" ) top left no-repeat;
+}
+
+li#showOptions {
+	float: left;
+	background: url( "gifs/silk/application_form_edit.png" ) top left no-repeat;
+}
+
+li#hideOptions {
+	float: left;
+	background: url( "gifs/silk/application_form_delete.png" ) top left no-repeat;
+}
+
+li#wrap {
+	float: right;
+	padding-top: 10px;
+	background: url( "gifs/silk/arrow_undo.png" ) center left no-repeat;
+}
+
+li#nowrap {
+	float: right;
+	padding-top: 10px;
+	background: url( "gifs/silk/arrow_right.png" ) center left no-repeat;
+}
+
+#profmForm {
+	margin: 0;
+	padding: 0;
+}
+
+#result {
+	font-family: 'Lucida Sans Typewriter', 'Courier New', monospace;
+	font-size: 100%;
+	width: 99%;
+	border: none;
+	overflow: auto;
+	margin: 0;
+	padding: 2px 0px 2px 5px;
+	height: 100px;
+	background-color: #fff;
+}
+
+div#resultDragHandle {
+	background: #ddd;
+	cursor: n-resize;
+	height: 3px;
+	margin-top: 0px; /* for IE */
+	font-size: 0px;
+	line-height: 0px;
+}
+
+div#resultDragHandle:hover {
+	background: #000;
+}
+
+h3 {
+	float: left;
+	height: 2em;
+	margin: 0;
+	padding: 10px 0 5px 2px;
+}
+
+div#outputHolder {
+	padding: 0;
+	margin: 0;
+}
+
+#sqlResultsWrapper {
+	clear: both;
+}
+
+#commandHistoryContainer {
+	margin: 5px 0 0 0;
+	clear: both;
+	width: 100%;
+}
+
+#commandHistoryBorder {
+	margin: 0;
+	padding: 0;
+	border: 1px solid #ccc;
+	clear: both;
+}
+
+#commandHistoryHolder {
+	margin: 0;
+	padding: 0;
+	clear: both;
+	overflow: auto;
+	width: 100%;
+}
+
+#commandHistoryHolder ul {
+	margin: 5px 5px 5px 5px;
+	padding: 0;
+	list-style: none;
+	/*overflow: hidden;*/
+	width: 99%;
+}
+
+#commandHistoryHolder ul li {
+	padding: 0;
+	margin: 5px 0;
+}
+
+#commandHistoryHolder ul a {
+	display: block;
+}
+
+#commandHistoryHolder ul a:link, #commandHistoryHolder ul a:visited {
+	color: #40659B;
+	text-decoration: none;
+	padding-left: 10px;
+	padding-right: 10px;
+	border: 1px solid #fff;
+}
+
+#commandHistoryHolder ul a:hover, #commandHistoryHolder ul a:hover a {
+	background-color: #F0F8FF;
+	color: #000;
+	border: 1px solid #ccc;
+}
+
+#historyEmpty {
+	margin: 5px 5px 5px 10px;;
+	padding: 0;
+}
+
+div#historyDragHandle {
+	background: #ddd;
+	cursor: n-resize;
+	height: 3px;
+	margin-top: 0px; /* for IE */
+	font-size: 0px;
+	line-height: 0px;
+}
+
+div#historyDragHandle:hover {
+	background: #000;
+}
+
+.txtInput {
+	border: 1px solid #ccc;
+	padding: 0 0 0 3px;
+	font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+dl#optionsDL {
+	clear: both;
+	padding: 10px 0 0 0;
+	margin: 0;
+	list-style: none;
+}
+
+dl#optionsDL dt {
+	margin: 0;
+	padding: 0 5px 0 0;
+	float: left;
+}
+
+dl#optionsDL dd {
+	margin: 0;
+	padding: 0 10px 0 0;
+	float: left;
+}
+
+dl#resultDL {
+	clear: both;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+
+dl#resultDL dt {
+	margin: 0;
+	padding: 0;
+}
+
+dl#resultDL dd {
+	margin: 0;
+	padding: 0;
+}
+
+#resultContainer {
+	border: 1px solid #ccc;
+}
+
+#h3Container {
+	clear: both;
+}
+

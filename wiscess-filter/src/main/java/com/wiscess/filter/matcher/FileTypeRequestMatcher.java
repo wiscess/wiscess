@@ -31,7 +31,7 @@ filter:
 @Slf4j
 public class FileTypeRequestMatcher implements RequestMatcher{
 
-	private Pattern allowedMethods=Pattern.compile("^(POST|HEAD|TRACE|OPTIONS)$");
+	private Pattern allowedMethods=Pattern.compile("^(POST|HEAD|TRACE|OPTIONS|PUT|DELETE|PATCH)$");
 	
 	/**
 	 * 校验的路径

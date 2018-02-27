@@ -1,5 +1,6 @@
 package com.wiscess.wechat.util;
 
+import java.util.HashMap;
 import java.util.List;
 
 import net.sf.json.JSONArray;
@@ -7,6 +8,8 @@ import net.sf.json.JSONObject;
 
 import com.wiscess.wechat.message.model.Article;
 import com.wiscess.wechat.message.model.Music;
+import com.wiscess.wechat.template.TemplateMessage;
+import com.wiscess.wechat.template.TemplateMessageDataItem;
 
 import lombok.extern.slf4j.Slf4j;
 @Slf4j
@@ -27,6 +30,12 @@ public class SendMessageUtil {
 		// 对消息内容中的双引号进行转义
 		content = content.replace("\"", "\\\"");
 		String jsonMsg = "{\"touser\":\"%s\",\"msgtype\":\"text\",\"text\":{\"content\":\"%s\"}}";
+//		Map<String, Object> map=new HashMap<String,Object>();
+//		map.put("touser", openId);
+//		map.put("msgtype", "text");
+//		map.put("content", content);
+//		JSONObject jsonObject=JSONObject.fromObject(map);
+//		return jsonObject.toString();
 		return String.format(jsonMsg, openId, content);
 	}
 
@@ -204,16 +213,36 @@ public class SendMessageUtil {
 	/**
 	 * 组装模版消息
 	 * 		（acnam3uXKSmAnzl3iUXp_6wGkd022ziL7HkTwu_M9Hw -- 日历事件提醒模版）
-	 * 
 	 * @param openId 消息发送对象
 	 * @param content 文本消息内容
+	 * @param key 模板需要的字段名称
+	 * @param value 模板需要的值
 	 * @return
 	 */
-	public static String makeTextTemplateMessage(String openId,String templateId,String url,String topcolor, String first,String schedule,String time,String remark) {
-		// 对消息内容中的双引号进行转义
-		String jsonMsg = "{\"touser\":\"%s\",\"template_id\":\"%s\",\"url\":\"%s\",\"topcolor\":\"%s\"," +
-				"\"data\":{\"first\":{\"value\":\"%s\",\"color\":\"#743A3A\"},\"schedule\":{\"value\":\"%s\",\"color\":\"#743A3A\"}," +
-				"\"time\":{\"value\":\"%s\",\"color\":\"#743A3A\"},\"remark\":{\"value\":\"%s\",\"color\":\"#743A3A\"}}}";
-		return String.format(jsonMsg, openId,templateId,url,topcolor, first,schedule,time,remark);
+//	private static String makeTextTemplateMessage1(String openId,String templateId,String url,String topcolor, String first,String schedule,String time,String remark) {
+//		// 对消息内容中的双引号进行转义
+//		String jsonMsg = "{\"touser\":\"%s\",\"template_id\":\"%s\",\"url\":\"%s\",\"topcolor\":\"%s\"," +
+//				"\"data\":{\"first\":{\"value\":\"%s\",\"color\":\"#743A3A\"},\"schedule\":{\"value\":\"%s\",\"color\":\"#743A3A\"}," +
+//				"\"time\":{\"value\":\"%s\",\"color\":\"#743A3A\"},\"remark\":{\"value\":\"%s\",\"color\":\"#743A3A\"}}}";
+//		return String.format(jsonMsg, openId,templateId,url,topcolor, first,schedule,time,remark);
+//	}
+	
+	public static String makeTextTemplateMessage(String openId,String templateId,String url,String[] key, Object... value){
+		TemplateMessage tm=TemplateMessage.builder()
+				.touser(openId)
+				.template_id(templateId)
+				.url(url)
+				.Data(new HashMap<String,TemplateMessageDataItem>())
+				.build();
+		for (int i = 0; i < key.length; i++) {
+			tm.getData().put(key[i],TemplateMessageDataItem.builder()
+					.value(value[i].toString())
+					.color("#173177")
+					.build());
+		}
+		JSONObject jsonObject=JSONObject.fromObject(tm);
+		return jsonObject.toString();
 	}
+	
+
 }

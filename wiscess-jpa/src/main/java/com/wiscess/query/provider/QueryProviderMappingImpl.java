@@ -14,4 +14,8 @@ public class QueryProviderMappingImpl implements IQueryProvider {
 		return queryMap.get(name);
 	}
 
+	public Map<String, String> getQueryMap() {
+		return queryMap;
+	}
+
 }

@@ -1,0 +1,5 @@
+# Auto Configure
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.wiscess.wechat.config.WeChatServletAutoConfiguration,\
+com.wiscess.wechat.config.WechatServiceAutoConfiguration,\
+com.wiscess.wechat.config.WeChatMenuAutoConfiguration

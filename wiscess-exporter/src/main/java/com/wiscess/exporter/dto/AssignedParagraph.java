@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
-import com.wiscess.exporter.exception.ManagerException;
 
 /**
  * 段落信息
@@ -28,8 +27,8 @@ public class AssignedParagraph  extends AssignedElement{
 		if(ae instanceof AssignedPicture || ae instanceof AssignedRun){
 			this.contentList.add(ae);
 		}else{
-			//
-			throw new ManagerException("不支持的内容");
+			//throw new ManagerException("不支持的内容");
+			this.contentList.add(ae);
 		}
 		return this;
 	}

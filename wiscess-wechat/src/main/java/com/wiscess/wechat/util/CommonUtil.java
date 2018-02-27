@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.ConnectException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -32,6 +33,7 @@ public class CommonUtil {
 	// 凭证获取（GET）
 	public final static String token_url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=APPID&secret=APPSECRET";
 
+	public enum HttpProtocal{HTTP,HTTPS};
 	/**
 	 * 缓存的token
 	 */
@@ -46,8 +48,7 @@ public class CommonUtil {
 	 * @param outputStr 提交的数据
 	 * @return JSONObject(通过JSONObject.get(key)的方式获取json对象的属性值)
 	 */
-	public static JSONObject httpsRequest(String requestUrl, String requestMethod, String outputStr) {
-		JSONObject jsonObject = null;
+	public static String httpsRequestToString(String requestUrl, String requestMethod, String outputStr) {
 		try {
 			// 创建SSLContext对象，并使用我们指定的信任管理器初始化
 			TrustManager[] tm = { new MyX509TrustManager() };
@@ -59,46 +60,115 @@ public class CommonUtil {
 			URL url = new URL(requestUrl);
 			HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
 			conn.setSSLSocketFactory(ssf);
-			
-			conn.setDoOutput(true);
-			conn.setDoInput(true);
-			conn.setUseCaches(false);
-			// 设置请求方式（GET/POST）
-			conn.setRequestMethod(requestMethod);
-
-			// 当outputStr不为null时向输出流写数据
-			if (null != outputStr) {
-				OutputStream outputStream = conn.getOutputStream();
-				// 注意编码格式
-				outputStream.write(outputStr.getBytes("UTF-8"));
-				outputStream.close();
-			}
-
-			// 从输入流读取返回内容
-			InputStream inputStream = conn.getInputStream();
-			InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "utf-8");
-			BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-			String str = null;
-			StringBuffer buffer = new StringBuffer();
-			while ((str = bufferedReader.readLine()) != null) {
-				buffer.append(str);
-			}
-
-			// 释放资源
-			bufferedReader.close();
-			inputStreamReader.close();
-			inputStream.close();
-			inputStream = null;
-			conn.disconnect();
-			jsonObject = JSONObject.fromObject(buffer.toString());
+			return commonRequest(conn, requestMethod, outputStr);
 		} catch (ConnectException ce) {
 			log.error("连接超时：{}", ce);
 		} catch (Exception e) {
 			log.error("https请求异常：{}", e);
 		}
+		return null;
+	}
+	public static JSONObject httpsRequest(String requestUrl, String requestMethod, String outputStr){
+		JSONObject jsonObject = null;
+		String result=httpsRequestToString(requestUrl, requestMethod, outputStr);
+		if(result!=null)
+			jsonObject = JSONObject.fromObject(result);
 		return jsonObject;
 	}
+	
+	/**
+	 * 发送http请求
+	 * 
+	 * @param requestUrl 请求地址
+	 * @param requestMethod 请求方式（GET、POST）
+	 * @param outputStr 提交的数据
+	 * @return JSONObject(通过JSONObject.get(key)的方式获取json对象的属性值)
+	 */
+	public static String httpRequestToString(String requestUrl, String requestMethod, String outputStr) {
+		try {
+			URL url = new URL(requestUrl);
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			return commonRequest(conn, requestMethod, outputStr);
+		} catch (ConnectException ce) {
+			log.error("连接超时：{}", ce);
+		} catch (Exception e) {
+			log.error("http请求异常：{}", e);
+		}
+		return null;
+	}
+	public static JSONObject httpRequest(String requestUrl, String requestMethod, String outputStr){
+		JSONObject jsonObject = null;
+		String result=httpRequestToString(requestUrl, requestMethod, outputStr);
+		if(result!=null)
+			jsonObject = JSONObject.fromObject(result);
+		return jsonObject;
+	}
+	/**
+	 * 发送请求
+	 * @param protocal
+	 * @param requestUrl
+	 * @param requestMethod
+	 * @param outputStr
+	 * @return
+	 */
+	public static JSONObject httpRequest(HttpProtocal protocal,String requestUrl, String requestMethod, String outputStr){
+		JSONObject jsonObject = null;
+		String result=httpRequestToString(protocal,requestUrl, requestMethod, outputStr);
+		if(result!=null)
+			jsonObject = JSONObject.fromObject(result);
+		return jsonObject;
+	}
+	public static String httpRequestToString(HttpProtocal protocal,String requestUrl, String requestMethod, String outputStr){
+		if(protocal==HttpProtocal.HTTP){
+			return httpRequestToString(requestUrl, requestMethod, outputStr);
+		}else{
+			return httpsRequestToString(requestUrl, requestMethod, outputStr);
+		}
+	}
+	
+	/**
+	 * 通用方法
+	 * @param conn
+	 * @param requestMethod
+	 * @param outputStr
+	 * @return
+	 * @throws Exception 
+	 */
+	public static String commonRequest(HttpURLConnection conn,String requestMethod, String outputStr ) throws Exception{
+		conn.setDoOutput(true);
+		conn.setDoInput(true);
+		conn.setUseCaches(false);
+		// 设置请求方式（GET/POST）
+		conn.setRequestMethod(requestMethod);
 
+		// 当outputStr不为null时向输出流写数据
+		if (null != outputStr) {
+			OutputStream outputStream = conn.getOutputStream();
+			// 注意编码格式
+			outputStream.write(outputStr.getBytes("UTF-8"));
+			outputStream.close();
+		}
+
+		// 从输入流读取返回内容
+		InputStream inputStream = conn.getInputStream();
+		InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "utf-8");
+		BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+		String str = null;
+		StringBuffer buffer = new StringBuffer();
+		while ((str = bufferedReader.readLine()) != null) {
+			buffer.append(str);
+		}
+
+		// 释放资源
+		bufferedReader.close();
+		inputStreamReader.close();
+		inputStream.close();
+		inputStream = null;
+		conn.disconnect();
+		return buffer.toString();
+	}
+	
+	
 	/**
 	 * 获取接口访问凭证
 	 * 

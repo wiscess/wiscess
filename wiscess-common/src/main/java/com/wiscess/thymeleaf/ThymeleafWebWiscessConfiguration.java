@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.thymeleaf.Arguments;
 import org.thymeleaf.dom.Element;
+import org.thymeleaf.extras.conditionalcomments.dialect.ConditionalCommentsDialect;
 import org.thymeleaf.spring4.context.SpringWebContext;
 import org.thymeleaf.standard.expression.IStandardExpression;
 import org.thymeleaf.standard.expression.IStandardExpressionParser;
@@ -33,7 +34,13 @@ public class ThymeleafWebWiscessConfiguration {
 		wiscessDialect.getProcessors().add(new TreeInputProcessor());
 		return wiscessDialect;
 	}
-	
+	/*
+	 * 让thymeleaf支持解析注释中的内容
+	 */
+	@Bean
+	public ConditionalCommentsDialect conditionalCommentDialect() {
+		return new ConditionalCommentsDialect();
+	}
 	public static class ExpressionUtil{
 		
 		/**

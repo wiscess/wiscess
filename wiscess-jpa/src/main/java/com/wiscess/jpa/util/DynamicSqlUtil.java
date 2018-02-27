@@ -1,5 +1,6 @@
 package com.wiscess.jpa.util;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.regex.Pattern;
 import freemarker.template.Configuration;
 import freemarker.template.ObjectWrapper;
 import freemarker.template.Template;
+import freemarker.template.TemplateException;
 
 /**
  * Dynamic SQL processer, supportting Freemarker based syntax.
@@ -37,7 +39,7 @@ public class DynamicSqlUtil {
 	 * @return Sql result.
 	 * @throws Exception exception.
 	 */
-	public static ISqlElement processSql(Map<String, Object> params, String sqlTemplate) throws Exception {
+	public static ISqlElement processSql(Map<String, Object> params, String sqlTemplate) {
 		Map<String, Object> context = new HashMap<String, Object>();
 		if(params!=null){
 			for (Map.Entry<String, Object> paramEntry : params.entrySet()) {
@@ -48,11 +50,21 @@ public class DynamicSqlUtil {
 		
         Template tpl = templateCache.get(sqlTemplate);
         if (tpl == null) {
-            tpl = new Template("tpl", new StringReader(sqlTemplate), freeMarkerEngine);
+            try {
+				tpl = new Template("tpl", new StringReader(sqlTemplate), freeMarkerEngine);
+			} catch (IOException e) {
+				throw new DynamicSqlException("动态SQL语句读取出错。", e);
+			}
             templateCache.put(sqlTemplate, tpl);
         }
         
-        tpl.process(context, out);
+        try {
+			tpl.process(context, out);
+		} catch (TemplateException e) {
+			throw new DynamicSqlException("动态SQL中的FreeMarker语法错误。", e);
+		} catch (IOException e) {
+			throw new DynamicSqlException("动态SQL语句输出出错。", e);
+		}
         String sql = out.toString();
         
         // holder for avaliable parameters.

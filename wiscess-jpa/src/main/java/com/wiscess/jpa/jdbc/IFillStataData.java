@@ -1,9 +1,11 @@
 package com.wiscess.jpa.jdbc;
 
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.List;
 
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.util.StringUtils;
@@ -65,6 +67,13 @@ public abstract class IFillStataData<T> {
 	public boolean checkRow(T row){
 		return true;
 	}
+	/**
+	 * 校验row的内容是否满足条件
+	 * @param rownum
+	 * @param row
+	 */
+	public void checkRowData(Integer rownum,T row,List<String> errorList){
+	}
 	
 	public void setValue(int order , Object obj ,int type) throws SQLException
 	{
@@ -97,6 +106,9 @@ public abstract class IFillStataData<T> {
 			break;
 		case Types.BOOLEAN:
 			insertState.setBoolean(order, new Boolean(obj.toString()));
+			break;
+		case Types.DECIMAL:
+			insertState.setBigDecimal(order, new BigDecimal(obj.toString()));
 			break;
 		default:
 			break;

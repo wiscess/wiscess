@@ -16,7 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  *
  */
 public class FileTypeFilter extends OncePerRequestFilter{
-	private String errorPage="/403.jsp";
+	private String errorPage="/error";
 	private RequestMatcher requireMatcher = null;
 	
 	public FileTypeFilter(){

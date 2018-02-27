@@ -5,29 +5,29 @@ import com.wiscess.util.PasswordUtil;
 
 public class WiscessUtils {
 	public static void usage(){
-		System.out.println("Wiscess¹«Ë¾ÄÚ²¿¹ÜÀí¹¤¾ß");
+		System.out.println("Wiscesså…¬å¸å†…éƒ¨ç®¡ç†å·¥å…·");
 		System.out.println("");
-		System.out.println("ÃüÁî£º");
+		System.out.println("å‘½ä»¤ï¼š");
 		System.out.println("");
-		System.out.println(" -des           ¼ÓÃÜ½âÃÜ¹¤¾ß");
-		System.out.println(" -pwdcheck      ÃÜÂëÇ¿¶ÈÅĞ¶Ï¹¤¾ß");
+		System.out.println(" -des           åŠ å¯†è§£å¯†å·¥å…·");
+		System.out.println(" -pwdcheck      å¯†ç å¼ºåº¦åˆ¤æ–­å·¥å…·");
 		System.out.println("");
-		System.out.println("Ê¹ÓÃ \"java -jar wiscess-util.jar -command_name\" »ñÈ¡ command_name µÄÓÃ·¨ ");
+		System.out.println("ä½¿ç”¨ \"java -jar wiscess-util.jar -command_name\" è·å– command_name çš„ç”¨æ³• ");
 	}
 	public static void main(String[] args) {
-		//Ã»ÓĞ²ÎÊıÊ±£¬ÏÔÊ¾ÓÃ·¨¡£
+		//æ²¡æœ‰å‚æ•°æ—¶ï¼Œæ˜¾ç¤ºç”¨æ³•ã€‚
 		if(args.length<1){
 			usage();
 			return;
 		}
-		//²ÎÊı´óÓÚ1Ê±£¬µÚÒ»¸ö²ÎÊı±ØĞëÊÇÖ¸¶¨µÄcommand_name
+		//å‚æ•°å¤§äº1æ—¶ï¼Œç¬¬ä¸€ä¸ªå‚æ•°å¿…é¡»æ˜¯æŒ‡å®šçš„command_name
 		String commandName=args[0];
-		//Èç¹û²ÎÊıÊÇ-h|/h|-?|/?|-help|/helpÔòÏÔÊ¾ÓÃ·¨
+		//å¦‚æœå‚æ•°æ˜¯-h|/h|-?|/?|-help|/helpåˆ™æ˜¾ç¤ºç”¨æ³•
 		if(commandName.toLowerCase().matches("[-|/](help|h|\\?)")){
 			usage();
 			return;
 		}
-		//½«²ÎÊıÈ¥µôµÚÒ»¸öÃüÁî²ÎÊı£¬ºóÃæµÄ²ÎÊı×÷Îª¹¤¾ßÀàµÄ²ÎÊı
+		//å°†å‚æ•°å»æ‰ç¬¬ä¸€ä¸ªå‘½ä»¤å‚æ•°ï¼Œåé¢çš„å‚æ•°ä½œä¸ºå·¥å…·ç±»çš„å‚æ•°
 		String[] subArgs=new String[args.length-1];
 		System.arraycopy(args, 1, subArgs, 0, args.length-1);
 		if(commandName.equalsIgnoreCase("-des")){

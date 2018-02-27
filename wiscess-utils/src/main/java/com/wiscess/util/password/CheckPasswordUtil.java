@@ -9,37 +9,37 @@ import java.util.regex.Pattern;
 
 import com.wiscess.util.PasswordUtil;
 /**
- * ÃÜ´a×îµÍÒªÇó8¸ö³¤¶È
-    ×îÉÙ·ûºÏÏÂÁĞËÄí—ÖĞÈıí—Ò„t:
-    ´óŒ‘Ó¢ÎÄ³¤¶È
-    Ğ¡Œ‘Ó¢ÎÄ³¤¶È
-    ”µ×Ö³¤¶È
-    ·ûÌ–³¤¶È
+ * å¯†ç¢¼æœ€ä½è¦æ±‚8ä¸ªé•¿åº¦
+    æœ€å°‘ç¬¦åˆä¸‹åˆ—å››é …ä¸­ä¸‰é …è¦å‰‡:
+    å¤§å¯«è‹±æ–‡é•¿åº¦
+    å°å¯«è‹±æ–‡é•¿åº¦
+    æ•¸å­—é•¿åº¦
+    ç¬¦è™Ÿé•¿åº¦
 
-    Ôö¼Ó×ÖÔªµÄ×ƒ»¯ÄÜÌá¸ß·Ö”µ.
-    ×îááµÄ·Ö”µé¼Ó·Öí—Ä¿ºÍœp·Öí—Ä¿µÄ¿‚ºÍ.
-    ·Ö”µµÄ¹ ‡úé0~100·Ö.
-    ·Ö”µ²»Ğèß_µ½×îµÍ³¤¶È¼´¿ÉÓ‹Ëã.
+    å¢åŠ å­—å…ƒçš„è®ŠåŒ–èƒ½æé«˜åˆ†æ•¸.
+    æœ€å¾Œçš„åˆ†æ•¸ç‚ºåŠ åˆ†é …ç›®å’Œæ¸›åˆ†é …ç›®çš„ç¸½å’Œ.
+    åˆ†æ•¸çš„ç¯„åœç‚º0~100åˆ†.
+    åˆ†æ•¸ä¸éœ€é”åˆ°æœ€ä½é•¿åº¦å³å¯è¨ˆç®—.
  */
 public final class CheckPasswordUtil extends PasswordUtil{
 	
-	private int length;//ÃÜÂë³¤¶È
-    private int upperAlp = 0;//´óĞ´×ÖÄ¸³¤¶È
-    private int lowerAlp = 0;//Ğ¡Ğ´×ÖÄ¸³¤¶È
-    private int num = 0;//Êı×Ö³¤¶È
-    private int charlen = 0;//ÌØÊâ×Ö·û³¤¶È
+	private int length;//å¯†ç é•¿åº¦
+    private int upperAlp = 0;//å¤§å†™å­—æ¯é•¿åº¦
+    private int lowerAlp = 0;//å°å†™å­—æ¯é•¿åº¦
+    private int num = 0;//æ•°å­—é•¿åº¦
+    private int charlen = 0;//ç‰¹æ®Šå­—ç¬¦é•¿åº¦
 
 	public CheckPasswordUtil(String psw) {
 		super(psw);
 		this.psw = psw.replaceAll("\\s", "");
         this.length = psw.length();
 	}
-    //ÃÜÂë³¤¶È»ı·Ö
+    //å¯†ç é•¿åº¦ç§¯åˆ†
     protected int CheckPswLength(){
         return this.length*4;
     }
 
-    //´óĞ´×ÖÄ¸»ı·Ö
+    //å¤§å†™å­—æ¯ç§¯åˆ†
     protected int CheckPswUpper() {
         String reg = "[A-Z]";
         Pattern pattern = Pattern.compile(reg);
@@ -54,7 +54,7 @@ public final class CheckPasswordUtil extends PasswordUtil{
         }
         return (this.length-j)*2;
     }
-    //²âÊÔĞ¡Ğ´×ÖÄ¸×ÖÔª
+    //æµ‹è¯•å°å†™å­—æ¯å­—å…ƒ
     protected int CheckPwsLower(){
         String reg = "[a-z]";
         Pattern pattern = Pattern.compile(reg);
@@ -70,7 +70,7 @@ public final class CheckPasswordUtil extends PasswordUtil{
         return (this.length-j)*2;
     }
 
-    //²âÊÔÊı×Ö×ÖÔª
+    //æµ‹è¯•æ•°å­—å­—å…ƒ
     protected int checkNum(){
         String reg = "[0-9]";
         Pattern pattern = Pattern.compile(reg);
@@ -85,14 +85,14 @@ public final class CheckPasswordUtil extends PasswordUtil{
         }
         return j*4;
     }
-    //²âÊÔ·ûºÅ×ÖÔª
+    //æµ‹è¯•ç¬¦å·å­—å…ƒ
     protected int checkChar(){
         charlen = this.length -this.upperAlp
                 -this.lowerAlp - this.num;
         return this.charlen*6;
     }
 
-    //ÃÜ´aÖĞég´©²å”µ×Ö»ò·ûÌ–×ÖÔª
+    //å¯†ç¢¼ä¸­é–“ç©¿æ’æ•¸å­—æˆ–ç¬¦è™Ÿå­—å…ƒ
     protected int checkNumOrCharInStr(){
         int j = this.num + this.charlen -1;
         if (j<0) {
@@ -104,8 +104,8 @@ public final class CheckPasswordUtil extends PasswordUtil{
         return j*2;
     }
     /**
-     * ×îµÍÒªÇó±ê×¼
-     * ¸Ã·½·¨ĞèÒªÔÚÒÔÉÏ¼Ó·Ö·½·¨Ê¹ÓÃºó²Å¿ÉÒÔÊ¹ÓÃ
+     * æœ€ä½è¦æ±‚æ ‡å‡†
+     * è¯¥æ–¹æ³•éœ€è¦åœ¨ä»¥ä¸ŠåŠ åˆ†æ–¹æ³•ä½¿ç”¨åæ‰å¯ä»¥ä½¿ç”¨
      * @return
      */
     protected int LowerQuest(){
@@ -132,8 +132,8 @@ public final class CheckPasswordUtil extends PasswordUtil{
         }
         return j*2;
     }
-    /**=================·Ö¸îÏß===¿Û·ÖÏîÄ¿=====================**/
-    //Ö»°üº¬Ó¢ÎÄ×ÖÄ¸
+    /**=================åˆ†å‰²çº¿===æ‰£åˆ†é¡¹ç›®=====================**/
+    //åªåŒ…å«è‹±æ–‡å­—æ¯
     protected int OnlyHasAlp(){
         if (this.length == (this.upperAlp+this.lowerAlp)) {
             return -this.length;
@@ -141,14 +141,14 @@ public final class CheckPasswordUtil extends PasswordUtil{
         return 0;
     }
 
-    //Ö»°üº¬Êı×Ö
+    //åªåŒ…å«æ•°å­—
     protected int OnlyHasNum(){
         if (this.length == this.num) {
             return -this.length;
         }
         return 0;
     }
-    //ÖØ¸´×ÖÔª¿Û·Ö
+    //é‡å¤å­—å…ƒæ‰£åˆ†
     protected int repeatDex(){
         char[] c = this.psw.toLowerCase().toCharArray();
         HashMap<Character, Integer> hashMap =
@@ -172,7 +172,7 @@ public final class CheckPasswordUtil extends PasswordUtil{
         return -sum;
     }
 
-    //Á¬ĞøÓ¢ÎÄ´óĞ´×ÖÔª
+    //è¿ç»­è‹±æ–‡å¤§å†™å­—å…ƒ
     protected int seriseUpperAlp(){
         int j=0;
         char[] c = this.psw.toCharArray();
@@ -186,7 +186,7 @@ public final class CheckPasswordUtil extends PasswordUtil{
         return -2*j;
     }
 
-    //Á¬ĞøÓ¢ÎÄĞ¡Ğ´×ÖÔª
+    //è¿ç»­è‹±æ–‡å°å†™å­—å…ƒ
     protected int seriseLowerAlp(){
         String reg = "[a-z]";
         int j=0;
@@ -200,7 +200,7 @@ public final class CheckPasswordUtil extends PasswordUtil{
         return -2*j;
     }
 
-    //Á¬ĞøÊı×Ö×ÖÔª
+    //è¿ç»­æ•°å­—å­—å…ƒ
     protected int seriseNum(){
         String reg = "[0-9]";
         Pattern pattern = Pattern.compile(reg);
@@ -214,7 +214,7 @@ public final class CheckPasswordUtil extends PasswordUtil{
         }
         return -2*j;
     }
-    //Á¬Ğø×ÖÄ¸abc defÖ®Àà³¬¹ı3¸ö¿Û·Ö  ²»Çø·Ö´óĞ¡Ğ´×ÖÄ¸
+    //è¿ç»­å­—æ¯abc defä¹‹ç±»è¶…è¿‡3ä¸ªæ‰£åˆ†  ä¸åŒºåˆ†å¤§å°å†™å­—æ¯
     protected int seriesAlp2Three(){
         int j=0;
         char[] c = this.psw.toLowerCase(Locale.CHINA).toCharArray();
@@ -228,7 +228,7 @@ public final class CheckPasswordUtil extends PasswordUtil{
         return -3*j;
     }
 
-    //Á¬ĞøÊı×Ö123 234Ö®Àà³¬¹ı3¸ö¿Û·Ö  
+    //è¿ç»­æ•°å­—123 234ä¹‹ç±»è¶…è¿‡3ä¸ªæ‰£åˆ†  
     protected int seriesNum2Three(){
         int j=0;
         char[] c = this.psw.toLowerCase(Locale.CHINA).toCharArray();
@@ -243,25 +243,25 @@ public final class CheckPasswordUtil extends PasswordUtil{
     }
 
     public int jiafen(){
-        System.out.println("ÃÜ´a×Ö”µ="+CheckPswLength());
-        System.out.println("´óŒ‘Ó¢ÎÄ×ÖÔª="+CheckPswUpper());
-        System.out.println("Ğ¡Œ‘Ó¢ÎÄ×ÖÔª="+CheckPwsLower());
-        System.out.println("”µ×Ö×ÖÔª="+checkNum());
-        System.out.println("·ûÌ–×ÖÔª="+checkChar());
-        System.out.println("ÃÜ´aÖĞég´©²å”µ×Ö»ò·ûÌ–×ÖÔª="+checkNumOrCharInStr());
-        System.out.println("ÒÑß_ÃÜ´a×îµÍÒªÇóí—Ä¿="+LowerQuest());
+        System.out.println("å¯†ç¢¼å­—æ•¸="+CheckPswLength());
+        System.out.println("å¤§å¯«è‹±æ–‡å­—å…ƒ="+CheckPswUpper());
+        System.out.println("å°å¯«è‹±æ–‡å­—å…ƒ="+CheckPwsLower());
+        System.out.println("æ•¸å­—å­—å…ƒ="+checkNum());
+        System.out.println("ç¬¦è™Ÿå­—å…ƒ="+checkChar());
+        System.out.println("å¯†ç¢¼ä¸­é–“ç©¿æ’æ•¸å­—æˆ–ç¬¦è™Ÿå­—å…ƒ="+checkNumOrCharInStr());
+        System.out.println("å·²é”å¯†ç¢¼æœ€ä½è¦æ±‚é …ç›®="+LowerQuest());
         return CheckPswLength()+CheckPswUpper()+CheckPwsLower()+checkNum()+checkChar()+checkNumOrCharInStr()+LowerQuest();
     }
 
     public int jianfen(){
-        System.out.println("Ö»ÓĞÓ¢ÎÄ×ÖÔª="+OnlyHasAlp());
-        System.out.println("Ö»ÓĞ”µ×Ö×ÖÔª="+OnlyHasNum());
-        System.out.println("ÖØÑ}×ÖÔª (Case Insensitive)="+repeatDex());
-        System.out.println("ßBÀmÓ¢ÎÄ´óŒ‘×ÖÔª="+seriseUpperAlp());
-        System.out.println("ßBÀmÓ¢ÎÄĞ¡Œ‘×ÖÔª="+seriseLowerAlp());
-        System.out.println("ßBÀm”µ×Ö×ÖÔª="+seriseNum());
-        System.out.println("ßBÀm×ÖÄ¸³¬ß^Èı‚€(Èçabc,def)="+seriesAlp2Three());
-        System.out.println("ßBÀm”µ×Ö³¬ß^Èı‚€(Èç123,234)="+seriesNum2Three());
+        System.out.println("åªæœ‰è‹±æ–‡å­—å…ƒ="+OnlyHasAlp());
+        System.out.println("åªæœ‰æ•¸å­—å­—å…ƒ="+OnlyHasNum());
+        System.out.println("é‡è¤‡å­—å…ƒ (Case Insensitive)="+repeatDex());
+        System.out.println("é€£çºŒè‹±æ–‡å¤§å¯«å­—å…ƒ="+seriseUpperAlp());
+        System.out.println("é€£çºŒè‹±æ–‡å°å¯«å­—å…ƒ="+seriseLowerAlp());
+        System.out.println("é€£çºŒæ•¸å­—å­—å…ƒ="+seriseNum());
+        System.out.println("é€£çºŒå­—æ¯è¶…éä¸‰å€‹(å¦‚abc,def)="+seriesAlp2Three());
+        System.out.println("é€£çºŒæ•¸å­—è¶…éä¸‰å€‹(å¦‚123,234)="+seriesNum2Three());
         return OnlyHasAlp()+OnlyHasNum()+repeatDex()+seriseUpperAlp()+seriseLowerAlp()+seriseNum()+seriesAlp2Three()+seriesNum2Three();
     }
 	@Override

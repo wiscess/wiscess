@@ -30,6 +30,7 @@ public class MD5EncryptHandler implements EncryptHandler {
 	}
 	/**
 	 * 验证，将原数据进行加密后与签字数据进行比较
+	 * @throws Exception 
 	 */
 	@Override
 	public boolean encrypt(String data, String sign) {
@@ -37,6 +38,7 @@ public class MD5EncryptHandler implements EncryptHandler {
 	}
 	/**
 	 * 加密数据
+	 * @throws Exception 
 	 */
 	@Override
 	public String encode(String data) {

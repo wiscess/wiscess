@@ -14,6 +14,18 @@ import net.sf.json.JSONObject;
 @Slf4j
 public class MenuUtil {
 
+   	/**
+	 * 微信菜单事件类型
+	 */
+	public static final Integer MENU_VIEW = 1090010;
+	public static final Integer MENU_CLICK = 1090020;
+	public static final Integer MENU_SCANCODEPUSH = 1090030;
+	public static final Integer MENU_SCANCODEWAITMSG = 1090040;
+	public static final Integer MENU_PICSYSPHOTO = 1090050;
+	public static final Integer MENU_PICPHOTOORALBUM = 1090060;
+	public static final Integer MENU_PICWEIXIN = 1090070;
+	public static final Integer MENU_LOCATIONSELECT = 1090080;
+
 	// 菜单创建（POST）
 	public final static String menu_create_url = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token=ACCESS_TOKEN";
 	// 菜单查询（GET）
@@ -34,7 +46,7 @@ public class MenuUtil {
 		// 将菜单对象转换成json字符串
 		String jsonMenu = JSONObject.fromObject(menu).toString();
 		
-		System.out.println(jsonMenu);
+		log.debug(jsonMenu);
 		
 		// 发起POST请求创建菜单
 		JSONObject jsonObject = CommonUtil.httpsRequest(url, "POST", jsonMenu);

@@ -1,1 +1,5 @@
 #org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.wiscess.security.autoconfig.SecurityCsrfAutoConfiguration
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.wiscess.security.WebConfig,\
+com.wiscess.security.LoginSuccessHandler
+#,\com.wiscess.security.WiscessWebSecurityConfig

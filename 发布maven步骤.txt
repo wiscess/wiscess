@@ -5,6 +5,7 @@ mvn deploy
 
 
 2.git´°¿Ú
+cd mvn-rep\
 git add -f com\wiscess\wiscess-common\1.1
 git commit -m '×¢ÊÍ'
 git push origin release

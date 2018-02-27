@@ -95,8 +95,6 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
 		if(securityCsrfSettings.getDeniedPage()!=null){
 			http.exceptionHandling().accessDeniedPage(securityCsrfSettings.getDeniedPage());
 		}
-		loginSuccessHandler.setAlwaysUseDefaultTargetUrl(true);
-		loginSuccessHandler.setDefaultTargetUrl("/");
 		http.formLogin()
 			.failureUrl("/login?error=pwd")
 			//用于将页面中的验证码保存起来进行比较

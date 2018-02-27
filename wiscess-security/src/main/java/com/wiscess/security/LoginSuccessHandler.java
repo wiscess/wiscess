@@ -6,8 +6,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
@@ -17,14 +15,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Configuration
 public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler{
-	@Bean(name="loginSuccessHandler")
-	@ConditionalOnMissingBean
-	public SavedRequestAwareAuthenticationSuccessHandler loginSuccessHandler(){
+
+	public LoginSuccessHandler(){
 		log.debug("loginSuccessHandler init");
-		SavedRequestAwareAuthenticationSuccessHandler handler= new LoginSuccessHandler();
-		handler.setDefaultTargetUrl("/");
-		handler.setAlwaysUseDefaultTargetUrl(true);
-		return handler;
+		this.setAlwaysUseDefaultTargetUrl(true);
+		this.setDefaultTargetUrl("/");
 	}
 	
 	@Override

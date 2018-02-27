@@ -15,7 +15,7 @@ public class WiscessUtils {
 		System.out.println("使用 \"java -jar wiscess-util.jar -command_name\" 获取 command_name 的用法 ");
 	}
 	public static void main(String[] args) {
-		//没有参数时，显示用法。
+		//没有参数时，显示用法。。
 		if(args.length<1){
 			usage();
 			return;

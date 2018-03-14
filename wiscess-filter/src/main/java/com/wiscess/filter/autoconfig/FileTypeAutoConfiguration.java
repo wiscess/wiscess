@@ -2,8 +2,8 @@ package com.wiscess.filter.autoconfig;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +16,7 @@ import com.wiscess.filter.matcher.FileTypeRequestMatcher;
 @EnableConfigurationProperties(FileTypeFilterProperties.class)
 @ConditionalOnWebApplication
 @ConditionalOnClass(FileTypeFilter.class)
-@ConditionalOnProperty(prefix = "filter.filetype", value = "enabled", matchIfMissing = true)
+@ConfigurationProperties(prefix = "filter.filetype")
 public class FileTypeAutoConfiguration {
 	
 	private final FileTypeFilterProperties properties;
@@ -24,7 +24,7 @@ public class FileTypeAutoConfiguration {
 	public FileTypeAutoConfiguration(FileTypeFilterProperties properties) {
 		this.properties = properties;
 	}
-	@Bean
+	@Bean   
 	public FilterRegistrationBean fileTypeFilterRegistration() {
 	    FilterRegistrationBean registration = new FilterRegistrationBean();
 	    registration.setFilter(fileTypeFilter());
@@ -33,7 +33,6 @@ public class FileTypeAutoConfiguration {
 	    registration.setOrder(2);
 	    return registration;
 	} 
-	@Bean
 	@ConditionalOnMissingBean(FileTypeFilter.class)
 	public FileTypeFilter fileTypeFilter(){
 		FileTypeFilter filter=new FileTypeFilter();
@@ -42,7 +41,6 @@ public class FileTypeAutoConfiguration {
 		return filter;
 	}
 	
-	@Bean
 	public FileTypeRequestMatcher requireMatcher(){
 		FileTypeRequestMatcher requestMatcher=new FileTypeRequestMatcher();
 		requestMatcher.setUrlPatterns(this.properties.getUrlPatterns());

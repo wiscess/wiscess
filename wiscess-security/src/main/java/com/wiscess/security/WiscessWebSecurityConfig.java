@@ -82,7 +82,9 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
     }  
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.headers().frameOptions().sameOrigin();
+		http.headers()
+			.frameOptions()
+				.sameOrigin();
 		if(!securityCsrfSettings.isEnableCsrf()){
 			//禁用
 			http.csrf().disable();
@@ -116,6 +118,7 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
 		        	.sessionFixation()
 		        	.changeSessionId()
 		            .maximumSessions(10)
+		            .maxSessionsPreventsLogin(true)
 		    		.expiredUrl("/login?expired")
 		        ;  
 		myConfigure(http);

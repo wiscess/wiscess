@@ -33,7 +33,7 @@ public class CaptchaController {
 	@Autowired
 	private Config config;
 
-	@RequestMapping(value = "/captcha.jpg", method = RequestMethod.GET)
+	@RequestMapping(value = "${app.captcha.url:/captcha.jpg}", method = RequestMethod.GET)
 	public void captcha(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		// Set standard HTTP/1.1 no-cache headers.
 		resp.setHeader("Cache-Control", "no-store, no-cache");

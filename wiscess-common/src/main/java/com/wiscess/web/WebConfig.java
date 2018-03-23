@@ -15,6 +15,7 @@ import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
@@ -41,6 +42,18 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 //		registry.addViewController("/").setViewName("/index");
 //		registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
 //	}
+	
+	@Override
+    public void configurePathMatch(PathMatchConfigurer configurer) {
+    	//setUseSuffixPatternMatch(boolean useSuffixPatternMatch)：
+    	//设置是否是后缀模式匹配，如“/user”是否匹配/user.*，默认真即匹配；
+		//当此参数设置为true的时候，那么/user.html，/user.aa，/user.*都能是正常访问的。
+        //setUseTrailingSlashMatch (boolean useSuffixPatternMatch)：
+		//设置是否自动后缀路径模式匹配，如“/user”是否匹配“/user/”，默认真即匹配；
+		//当此参数设置为true的会后，那么地址/user，/user/都能正常访问。
+        configurer.setUseSuffixPatternMatch(false)
+                   .setUseTrailingSlashMatch(false);
+    }
 	/*
 	 * 设置通过URL参数改变语言环境
 	 */

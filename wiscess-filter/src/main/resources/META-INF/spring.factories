@@ -2,4 +2,5 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.wiscess.filter.autoconfig.P3pAutoConfiguration,\
 com.wiscess.filter.autoconfig.HttpMethodAutoConfiguration,\
-com.wiscess.filter.autoconfig.FileTypeAutoConfiguration
+com.wiscess.filter.autoconfig.FileTypeAutoConfiguration,\
+com.wiscess.filter.autoconfig.HeaderWriterAutoConfiguration

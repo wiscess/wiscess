@@ -135,22 +135,7 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.anyRequest()
 				.authenticated();
 	}
-	/**
-	 * 查找自定义的ssoLogin
-	 * @param http
-	 * @param configurer
-	 * @return
-	 * @throws Exception
-	 */
-//	protected <C extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity>> C getOrApply(
-//			HttpSecurity http,C configurer) throws Exception {
-//		@SuppressWarnings("unchecked")
-//		C existingConfig = (C) http.getConfigurer(configurer.getClass());
-//		if (existingConfig != null) {
-//			return existingConfig;
-//		}
-//		return http.apply(configurer);
-//	}
+
 	@Bean
 	public CaptchaAuthenticationDetailsSource captchaAuthenticationDetailsSource() {
 		return new CaptchaAuthenticationDetailsSource();

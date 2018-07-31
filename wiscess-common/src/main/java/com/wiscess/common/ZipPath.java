@@ -79,10 +79,8 @@ public class ZipPath {
 		ZipOutputStream out = new ZipOutputStream(new FileOutputStream(
 				zipFileName));
 		out.setMethod(ZipOutputStream.DEFLATED);
-		
 		//设置编码格式
 		out.setEncoding(System.getProperty("sun.jnu.encoding"));
-		
 		zip(out, inputFile, "");
 		out.close();
 	}

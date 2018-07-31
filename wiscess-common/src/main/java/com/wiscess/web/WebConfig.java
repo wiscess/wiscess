@@ -25,23 +25,12 @@ import com.google.code.kaptcha.util.Config;
 import com.wiscess.web.controller.CaptchaController;
 
 /**
- * 
  * @author wanghai
- *
  */
 @Configuration
 @EnableScheduling
 @EnableConfigurationProperties
 public class WebConfig extends WebMvcConfigurerAdapter {
-	
-//	/*
-//	 * 设置登录地址 
-//	 */
-//	@Override
-//	public void addViewControllers(ViewControllerRegistry registry) {
-//		registry.addViewController("/").setViewName("/index");
-//		registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
-//	}
 	
 	@Override
     public void configurePathMatch(PathMatchConfigurer configurer) {

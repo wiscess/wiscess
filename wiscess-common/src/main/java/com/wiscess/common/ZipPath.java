@@ -18,7 +18,7 @@ import java.util.List;
 
 import org.apache.tools.zip.ZipOutputStream;
 
-import com.wiscess.common.utils.StringUtil;
+import com.wiscess.utils.StringUtils;
 
 public class ZipPath {
 	static final int BUFFER = 2048000; // 200KB
@@ -189,7 +189,7 @@ public class ZipPath {
 		String path = System.getProperty("java.io.tmpdir") + File.separatorChar + ((new Date()).getTime()) + File.separatorChar;
 		boolean flag = false;
 		for (String inputFileName : inputFiles) {
-			if(StringUtil.isEmpty(inputFileName))
+			if(StringUtils.isEmpty(inputFileName))
 				continue;
 			File inputFile = new File(inputFileName);
 			if (null != inputFile && !inputFile.exists() && !inputFile.isFile()) {
@@ -212,7 +212,7 @@ public class ZipPath {
 	 */
 	public void zip(String zipFileName, List<String> inputFiles,List<String> scholNames) throws Exception {
 		boolean flag = false;
-		if (StringUtil.isEmpty(zipFileName) || null == inputFiles || null == scholNames || scholNames.isEmpty() || inputFiles.isEmpty() || inputFiles.size() != scholNames.size()) {
+		if (StringUtils.isEmpty(zipFileName) || null == inputFiles || null == scholNames || scholNames.isEmpty() || inputFiles.isEmpty() || inputFiles.size() != scholNames.size()) {
 			return;
 		}
 		String path = System.getProperty("java.io.tmpdir") + File.separatorChar + ((new Date()).getTime()) + File.separatorChar;
@@ -235,7 +235,7 @@ public class ZipPath {
 	private void zip(ZipOutputStream out, File f, String base) throws Exception {
 		if (f.isDirectory()) {
 			File[] fl = f.listFiles();
-			if (!StringUtil.isEmpty(base))
+			if (!StringUtils.isEmpty(base))
 			{
 				out.putNextEntry(new org.apache.tools.zip.ZipEntry(base + "/"));
 			}

@@ -1,10 +1,12 @@
 package com.wiscess.thymeleaf.element;
 
+import org.thymeleaf.model.IModelFactory;
+
 @SuppressWarnings("unchecked")
 public abstract class AbstractInput<T> extends WiscessElement<T>{
 
-	public AbstractInput(String type){
-		super("input");
+	public AbstractInput(IModelFactory modelFactory,String type){
+		super(modelFactory,"input");
 		
 		setAttribute("type",type);
 	}

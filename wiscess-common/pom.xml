@@ -3,28 +3,18 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.wiscess</groupId>
 	<artifactId>wiscess-common</artifactId>
-	<version>1.4</version>
-	<description>wiscess common package
-include:
-query
-security</description>
+	<version>2.0</version>
+	<description>wiscess common package</description>
 	<name>wiscess common</name>
 	<url>http://www.wiscess.com.cn</url>
 	<properties>
 		<!-- github server corresponds to entry in ~/.m2/settings.xml -->
 		<maven.dir>D:/GitHome/mvn-repo</maven.dir><!--  -->
-		<lombok.version>1.16.18</lombok.version>
-		<spring-boot.version>1.5.6.RELEASE</spring-boot.version>
-		<wiscess-utils.version>1.0</wiscess-utils.version>
+		<spring-boot.version>2.0.4.RELEASE</spring-boot.version>
+		<wiscess-utils.version>2.0</wiscess-utils.version>
+		<thymeleaf.version>3.0.9.RELEASE</thymeleaf.version>
+		<thymeleaf-layout-dialect.version>2.1.1</thymeleaf-layout-dialect.version>
 	</properties>
-	<!-- 
-	<distributionManagement>
-	    <repository>
-	        <id>internal.repo</id>
-	        <name>Temporary Staging Repository</name>
-	        <url>file://${project.build.directory}/maven</url>
-	    </repository>
-	</distributionManagement> -->
 	<build>
 	<plugins>
 		<plugin>
@@ -35,8 +25,8 @@ security</description>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-compiler-plugin</artifactId>
 			<configuration>
-				<source>1.7</source>
-				<target>1.7</target>
+				<source>1.8</source>
+				<target>1.8</target>
 				<encoding>utf8</encoding>
 			</configuration>
 		</plugin>
@@ -61,29 +51,6 @@ security</description>
 	            <altDeploymentRepository>internal.repo::default::file://${maven.dir}</altDeploymentRepository>
 	        </configuration>
 	    </plugin>
-	    <!-- 
- 		<plugin>
-            <groupId>com.github.github</groupId>
-            <artifactId>site-maven-plugin</artifactId>
-            <version>0.12</version>
-            <configuration>
-                <message>Maven artifacts for ${project.version}</message>  
-                <noJekyll>true</noJekyll>                                  
-                <outputDirectory>${maven.dir}</outputDirectory>
-                <branch>ref/heads/release</branch>                      
-                <includes><include>**/*</include></includes>
-                <repositoryName>https://github.com/wiscess/maven/release/</repositoryName>     
-                <repositoryOwner>wanghai114@gmail.com</repositoryOwner>   
-            </configuration>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>site</goal>
-                </goals>
-                <phase>deploy</phase>
-              </execution>
-            </executions>
-        </plugin> -->
 	</plugins>
 	</build>
 	<repositories>
@@ -125,16 +92,14 @@ security</description>
 			<version>1.8.2</version>
 		</dependency>
 		<dependency>
-			<groupId>org.thymeleaf.extras</groupId>
-			<artifactId>
-				thymeleaf-extras-conditionalcomments
-			</artifactId>
-			<version>2.1.1.RELEASE</version>
-		</dependency>
-		<dependency>
 			<groupId>com.github.axet</groupId>
 			<artifactId>kaptcha</artifactId>
 			<version>0.0.9</version>
+		</dependency>
+		<dependency>
+			<groupId>ognl</groupId>
+			<artifactId>ognl</artifactId>
+			<version>3.0.8</version>
 		</dependency>
 	</dependencies>
 </project>

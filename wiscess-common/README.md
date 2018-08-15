@@ -1,17 +1,14 @@
 # wiscess-common:
 
-## 版本：v1.4
+## 版本：v2.0
 
-更新时间：2018-03-24
+更新时间：2018-08-08
 
 更新内容：
 
-1\.WebConfig中添加路径匹配模式，只允许与Controll中的路径一致，如/user，不允许访问/user.xxxx或/user/方式；
+1\.适配springboot 2.0.4；
 
-2\.增加FileUtils，增加方法sendFile
-```html
-FileUtils.sendFile(request, response, file);
-```
+2\.使用ThymeLeaf3.0.9，更新自定义标签的处理方式；
 
-参见[wiscess](https://github.com/wiscess/wiscess).
+
 

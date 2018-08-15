@@ -8,6 +8,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.wiscess.utils.StringUtils;
+
 import ognl.Ognl;
 
 public class RequestUtils {
@@ -56,7 +58,7 @@ public class RequestUtils {
 	        	if(encoding.equals(defaultDestEnc)){
 	        		ifDecode=false;
 	        	}
-	        	if (StringUtil.isEmpty(encoding)) {
+	        	if (StringUtils.isEmpty(encoding)) {
 	        		encoding = defaultDestEnc;
 	        	}
         	}
@@ -97,9 +99,9 @@ public class RequestUtils {
 			//为p增加两个:，用于字符串拆分时确保至少有3个
 			String[] ps=(p+"::").split(":",3);
 			//添加默认值
-			if(StringUtil.isEmpty(ps[1]))
+			if(StringUtils.isEmpty(ps[1]))
 				ps[1]="String";
-			else if(ps[1].equalsIgnoreCase("Date") && StringUtil.isEmpty(ps[2])){
+			else if(ps[1].equalsIgnoreCase("Date") && StringUtils.isEmpty(ps[2])){
 				ps[2]="yyyy-MM-dd";
 			}
 			

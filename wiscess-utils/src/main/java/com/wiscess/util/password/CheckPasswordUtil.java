@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.wiscess.util.PasswordUtil;
+import com.wiscess.utils.PasswordUtil;
 /**
  * 密碼最低要求8个长度
     最少符合下列四項中三項規則:

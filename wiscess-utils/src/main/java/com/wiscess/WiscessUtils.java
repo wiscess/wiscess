@@ -1,7 +1,7 @@
 package com.wiscess;
 
-import com.wiscess.util.DesUtils;
-import com.wiscess.util.PasswordUtil;
+import com.wiscess.utils.DesUtils;
+import com.wiscess.utils.PasswordUtil;
 
 public class WiscessUtils {
 	public static void usage(){

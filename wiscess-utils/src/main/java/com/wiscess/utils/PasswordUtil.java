@@ -1,6 +1,6 @@
 package com.wiscess.utils;
 
-import com.wiscess.util.password.CheckPasswordUtil;
+import com.wiscess.utils.password.CheckPasswordUtil;
 
 public abstract class PasswordUtil {
 	

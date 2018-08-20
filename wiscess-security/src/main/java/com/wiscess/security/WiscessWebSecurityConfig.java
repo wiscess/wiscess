@@ -1,118 +1,154 @@
 package com.wiscess.security;
 
-import javax.sql.DataSource;
+import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.authentication.configurers.provisioning.JdbcUserDetailsManagerConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-import com.wiscess.security.autoconfig.SecurityCsrfSettings;
 import com.wiscess.security.encoder.MD5EncryptEncoder;
+import com.wiscess.security.encoder.RSAEncryptEncoder;
 import com.wiscess.security.encoder.RSAMD5EncryptEncoder;
+import com.wiscess.security.encoder.UpperCaseEncryptEncoder;
+import com.wiscess.security.sso.SSOAuthenticationEntryPoint;
+import com.wiscess.security.sso.SSOAuthenticationProvider;
+import com.wiscess.security.sso.SSOLoginConfigurer;
+import com.wiscess.security.sso.SSOLogoutJsSuccessHandler;
+import com.wiscess.security.sso.SSOLogoutSuccessHandler;
 import com.wiscess.security.web.CaptchaAuthenticationDetailsSource;
 import com.wiscess.security.web.CaptchaDaoAuthenticationProvider;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * 权限认证配置
+ * @author wh
+ */
 @Slf4j
-@Configuration
-@EnableConfigurationProperties(SecurityCsrfSettings.class)
+@EnableConfigurationProperties(WiscessSecurityProperties.class)
 @ConditionalOnWebApplication
-@ConditionalOnProperty(prefix = "security", value = "enabled", matchIfMissing = true)
-public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
+public abstract class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
+	/**
+	 * 默认静态资源文件
+	 */
+	public static String[] DEFAULT_IGNORES="/css/**,/js/**,/images/**,/webjars/**,/**/favicon.ico,/captcha.jpg".split(",");
+	
 	@Autowired
-	protected DataSource dataSource;
+	protected WiscessSecurityProperties wiscessSecurityProperties;
 	@Autowired
-	protected SecurityCsrfSettings securityCsrfSettings;
-	@Autowired
-	protected SavedRequestAwareAuthenticationSuccessHandler loginSuccessHandler;
-	@Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-		log.debug("WebSecurityConfig configureGlobal");
-		//
-		if(securityCsrfSettings.useJdbc()){
-			//使用jdbc
-			//调用自定义的配置，根据参数进行配置
-			jdbcWithCaptchaAuthentication(auth)
-				//定义数据源
-				.dataSource(dataSource)
-				//定义查询用户的语句
-				.usersByUsernameQuery(securityCsrfSettings.getJdbcAuthentication().getUserQuery())
-				//定义查询用户权限的语句
-				.authoritiesByUsernameQuery(securityCsrfSettings.getJdbcAuthentication().getAuthQuery())
-				//指定密码加密所使用的加密器为passwordEncoder()
-				//先MD5，再RSA
-				.passwordEncoder(passwordEncoder())
-				.rolePrefix("ROLE_")
-			.and()
-				.eraseCredentials(false);
+	protected AuthenticationSuccessHandler loginSuccessHandler;
+
+    public void configure(AuthenticationManagerBuilder auth) throws Exception {
+		DaoAuthenticationProvider authProvider;
+		if(wiscessSecurityProperties.isSsoMode()){
+			log.info("WebSecurityConfig configured SSOAuthenticationProvider with {}",wiscessSecurityProperties.getSso().getAuthUrl());
+			authProvider=new SSOAuthenticationProvider();
 		}else{
-			//不使用jdbc方式
-			if(securityCsrfSettings.isCaptcha()){
-				//有验证码
-				CaptchaDaoAuthenticationProvider authProvider = new CaptchaDaoAuthenticationProvider();
-				authProvider.setPasswordEncoder(passwordEncoder());
-				configure(authProvider);
-		        auth.authenticationProvider(authProvider);
-			}
+			log.info("WebSecurityConfig configured DaoAuthenticationProvider {} captcha.",(wiscessSecurityProperties.isCaptcha()?"with":"without"));
+			//从2.0开始，不再使用jdbc的方式来完成权限验证
+			authProvider = wiscessSecurityProperties.isCaptcha()
+					//有验证码
+					?new CaptchaDaoAuthenticationProvider()
+					//没有验证码
+					:new DaoAuthenticationProvider();
 		}
+		authProvider.setPasswordEncoder(passwordEncoder());
+		configure(authProvider);
+        auth.authenticationProvider(authProvider);
     }
 	/**
 	 * 配置provider
 	 * @param authProvider
 	 */
-	protected void configure(CaptchaDaoAuthenticationProvider authProvider) {
+	protected void configure(DaoAuthenticationProvider authProvider){
+		
 	}
-	@Override  
+	/**
+	 * 配置不需要进行权限认证的资源
+	 */
     public void configure(WebSecurity web) throws Exception { 
-        web.ignoring().antMatchers("/webjars/**","/js/**","/css/**","/images/**","/captcha.jpg");
-		if(securityCsrfSettings.getDeniedPage()!=null){
-			web.ignoring().antMatchers(securityCsrfSettings.getDeniedPage());
+    	Arrays.asList(DEFAULT_IGNORES).forEach((item)->log.info("ignored resource:{}",item.trim()));
+    	web.ignoring().antMatchers(DEFAULT_IGNORES);
+		if(wiscessSecurityProperties.getErrorPage()!=null){
+			web.ignoring().antMatchers(wiscessSecurityProperties.getErrorPage());
+		}
+		if(wiscessSecurityProperties.getIgnored()!=null && wiscessSecurityProperties.getIgnored().size()>0){
+			web.ignoring().antMatchers(wiscessSecurityProperties.getIgnored().toArray(new String[0]));
 		}
     }  
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+
+    /**
+     * 配置权限认证
+     */
+    protected void configure(HttpSecurity http) throws Exception {
+    	//处理Header的内容
 		http.headers()
 			.frameOptions()
 				.sameOrigin();
-		if(!securityCsrfSettings.isEnableCsrf()){
-			//禁用
-			http.csrf().disable();
-		}else{
-			if(this.securityCsrfSettings.getCsrf().getExecludeUrls()!=null && this.securityCsrfSettings.getCsrf().getExecludeUrls().size()>0){
-				//排除Csrf路径
-				http.csrf().ignoringAntMatchers(this.securityCsrfSettings.getCsrf().getExecludeUrls().toArray(new String[0]));
+		//排除Csrf路径
+		if(this.wiscessSecurityProperties.getExecludeUrls()!=null && this.wiscessSecurityProperties.getExecludeUrls().size()>0){
+			http.csrf().ignoringAntMatchers(this.wiscessSecurityProperties.getExecludeUrls().toArray(new String[0]));
+		}
+
+		if(wiscessSecurityProperties.isSsoMode()){
+			http.apply(new SSOLoginConfigurer<HttpSecurity>())
+				//认证失败后的跳转地址
+				.failureUrl(wiscessSecurityProperties.getSso().getFailureUrl())
+				//成功后的处理，必须放在defaultSuccessUrl后面，可以在Session中保存用户信息
+				.successHandler(loginSuccessHandler)
+				.permitAll();
+		
+			//自定义登录入口，当权限认证失败时，跳转到统一认证中心去进行验证
+			http.exceptionHandling()
+				.authenticationEntryPoint(new SSOAuthenticationEntryPoint(wiscessSecurityProperties.getSso().getAuthUrl()));
+			
+			// 自定义注销  ，两种方式，二选一，不能同时存在
+			if(wiscessSecurityProperties.getSso().getLogoutUrl().equals("/logout")){
+				//方式1：本系统退出后要通知统一认证中心退出
+				http.logout()
+					.logoutUrl("/logout")
+		        	//可以用GET方式退出
+		        	.logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+				    .logoutSuccessHandler(new SSOLogoutSuccessHandler()) 
+				    .permitAll();
+				
+			}else{
+				//方式2：本项目不是门户系统，不负责向统一认证中心发送退出指令，作为普通的系统，须实现jslogout功能，供门户系统调用。
+		        http.logout()
+		        	.logoutUrl("/jslogout")
+		        	//可以用GET方式退出
+		        	.logoutRequestMatcher(new AntPathRequestMatcher("/jslogout"))
+		        	.logoutSuccessHandler(new SSOLogoutJsSuccessHandler())
+		        	.permitAll();
 			}
+		}else{
+			//定义错误页面
+			http.exceptionHandling().
+					accessDeniedPage(wiscessSecurityProperties.getErrorPage());
+			http.formLogin()
+				//用于将页面中的验证码保存起来进行比较
+		        .authenticationDetailsSource(captchaAuthenticationDetailsSource())
+		        .loginPage("/login")
+		        .successHandler(loginSuccessHandler)
+		        .permitAll();
+		    
+			http.logout()
+		    	//自定义退出链接
+	        	.logoutUrl("/logout")
+	        	//可以用GET方式退出
+	        	.logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+	        	//退出登录后的默认网址是”/login?logout”
+	            .permitAll();
 		}
-		if(securityCsrfSettings.getDeniedPage()!=null){
-			http.exceptionHandling().accessDeniedPage(securityCsrfSettings.getDeniedPage());
-		}
-		http.formLogin()
-			.failureUrl("/login?error=pwd")
-			//用于将页面中的验证码保存起来进行比较
-	        .authenticationDetailsSource(captchaAuthenticationDetailsSource())
-	        .loginPage("/login")
-	        .successHandler(loginSuccessHandler)
-	        .permitAll();
-	    
-		http.logout()
-	    	//自定义退出链接
-        	.logoutUrl("/logout")
-        	//退出登录后的默认网址是”/login?logout”
-        	.logoutSuccessUrl("/login?logout")
-            .invalidateHttpSession(false)
-            .clearAuthentication(true)
-            .permitAll()  ;
 		// session管理  
         http.sessionManagement()
 		        	.sessionFixation()
@@ -142,25 +178,18 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 	@Bean
 	public PasswordEncoder passwordEncoder(){
-		if(securityCsrfSettings.getPasswordType().equalsIgnoreCase("md5")){
+		String passwordType=wiscessSecurityProperties.isSsoMode()
+				?wiscessSecurityProperties.getSso().getEncryptType()
+				:wiscessSecurityProperties.getPasswordType();
+		if(passwordType.equals("md5")){
 			return new MD5EncryptEncoder();
-		}else if(securityCsrfSettings.getPasswordType().equalsIgnoreCase("salt")){
-			return null;
-		}else{
+		}else if(passwordType.equals("MD5")){
+			return new MD5EncryptEncoder(new UpperCaseEncryptEncoder());
+		}else if(passwordType.equalsIgnoreCase("RSA")){
+			return new RSAEncryptEncoder();
+		}else if(passwordType.equalsIgnoreCase("RSAMD5")){
 			return new RSAMD5EncryptEncoder();
 		}
-	}
-	/**
-	 * 使用JDBC的方式处理用户验证问题，并且增加验证码的处理
-	 * @return
-	 * @throws Exception
-	 */
-	public JdbcUserDetailsManagerConfigurer<AuthenticationManagerBuilder> jdbcWithCaptchaAuthentication(AuthenticationManagerBuilder auth)
-			throws Exception {
-		if(securityCsrfSettings.isCaptcha()){
-			//有验证码，调用自定义的含验证码的处理方式
-			return auth.apply(new JdbcWithCaptchaUserDetailsManagerConfigurer<AuthenticationManagerBuilder>());
-		}
-		return auth.jdbcAuthentication();
+		return null;
 	}
 }

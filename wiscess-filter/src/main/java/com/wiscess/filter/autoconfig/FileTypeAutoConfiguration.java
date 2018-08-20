@@ -25,8 +25,8 @@ public class FileTypeAutoConfiguration {
 		this.properties = properties;
 	}
 	@Bean   
-	public FilterRegistrationBean fileTypeFilterRegistration() {
-	    FilterRegistrationBean registration = new FilterRegistrationBean();
+	public FilterRegistrationBean<FileTypeFilter> fileTypeFilterRegistration() {
+	    FilterRegistrationBean<FileTypeFilter> registration = new FilterRegistrationBean<FileTypeFilter>();
 	    registration.setFilter(fileTypeFilter());
 	    registration.addUrlPatterns("/*");
 	    registration.setName("fileTypeFilter");

@@ -10,12 +10,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.autoconfigure.jdbc.JndiDataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.XADataSourceAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,8 +27,8 @@ import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
 import org.springframework.jmx.export.MBeanExporter;
 import org.springframework.jmx.support.JmxUtils;
 
-import com.wiscess.common.utils.StringUtil;
-import com.wiscess.util.DesUtils;
+import com.wiscess.utils.StringUtils;
+import com.wiscess.utils.DesUtils;
 
 @Slf4j
 @Configuration
@@ -59,7 +59,7 @@ public class MultiDataSourceConfig {
 	
 	public DataSource createDatasource(String prifix,String dataSourceName){
 		String jndiName=env.getProperty(prifix+".jndiName");
-    	if(StringUtil.isNotEmpty(jndiName)){
+    	if(StringUtils.isNotEmpty(jndiName)){
     		//调用jndi
     		log.info(jndiName);
     		JndiDataSourceLookup dataSourceLookup = new JndiDataSourceLookup();

@@ -17,7 +17,7 @@ public class ThymeleafWebWiscessConfiguration {
 	@Bean(name="wiscessDialect")
 	@ConditionalOnMissingBean
 	public WiscessDialect wiscessDialect(){
-		log.debug("ThymeleafWebWiscessConfiguration init.");
+		log.info("ThymeleafWebWiscessConfiguration init.");
 		WiscessDialect wiscessDialect=new WiscessDialect();
 		configure(wiscessDialect);
 		wiscessDialect.addProcessor(new TreeInputProcessor(wiscessDialect.getPrefix()));

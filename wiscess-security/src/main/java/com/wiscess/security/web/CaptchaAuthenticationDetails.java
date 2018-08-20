@@ -8,14 +8,11 @@ import java.io.Serializable;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * @author audin
- *
+ * 验证码对象
+ * @author wh
  */
 public class CaptchaAuthenticationDetails implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -740464724350486529L;
 
 	private final String answer;

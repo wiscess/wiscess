@@ -1,76 +1,69 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>com.wiscess</groupId>
-  <artifactId>wiscess-filter</artifactId>
-  <version>1.1</version>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.wiscess</groupId>
+	<artifactId>wiscess-filter</artifactId>
+	<version>2.0</version>
 	<properties>
 		<!-- github server corresponds to entry in ~/.m2/settings.xml -->
-		<github.global.server>github</github.global.server>
-		<maven.dir>D:/GitHome/mvn-repo</maven.dir>
-		<spring-boot.version>1.5.6.RELEASE</spring-boot.version>
-		<wiscess-common.version>1.3</wiscess-common.version>
+		<maven.dir>D:/GitHome/mvn-repo</maven.dir><!--  -->
+		<spring-boot.version>2.0.4.RELEASE</spring-boot.version>
+		<wiscess-common.version>2.0</wiscess-common.version>
 	</properties>
-	<!-- 
-	<distributionManagement>
-	    <repository>
-	        <id>internal.repo</id>
-	        <name>Temporary Staging Repository</name>
-	        <url>file://${project.build.directory}/maven</url>
-	    </repository>
-	</distributionManagement>-->
-  <build>
-  <plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
-					<encoding>utf8</encoding>
-				</configuration>
-			</plugin>
-			<plugin>  
-        <groupId>org.apache.maven.plugins</groupId>  
-        <artifactId>maven-source-plugin</artifactId>  
-        <executions>  
-          <execution>  
-            <id>attach-sources</id>  
-            <phase>verify</phase><!--  要绑定到的生命周期的阶段 在verify之后，install之前执行下面指定的goal -->  
-            <goals>  
-              <goal>jar-no-fork</goal><!-- 类似执行mvn source:jar -->  
-            </goals>  
-          </execution>  
-        </executions>  
-      </plugin>  
+	<build>
+	<plugins>
+		<plugin>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-maven-plugin</artifactId>
+		</plugin>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-compiler-plugin</artifactId>
+			<configuration>
+				<source>1.8</source>
+				<target>1.8</target>
+				<encoding>utf8</encoding>
+			</configuration>
+		</plugin>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-source-plugin</artifactId>
+			<version>2.4</version>
+			<executions>
+				<execution>
+					<id>attach-sources</id>
+					<phase>verify</phase><!-- 要绑定到的生命周期的阶段 在verify之后，install之前执行下面指定的goal -->
+					<goals>
+						<goal>jar-no-fork</goal><!-- 类似执行mvn source:jar -->
+					</goals>
+				</execution>
+			</executions>
+		</plugin>
 		<plugin>
 	        <artifactId>maven-deploy-plugin</artifactId>
+	        <version>2.8.2</version>
 	        <configuration>
 	            <altDeploymentRepository>internal.repo::default::file://${maven.dir}</altDeploymentRepository>
 	        </configuration>
 	    </plugin>
-		</plugins>
+	</plugins>
 	</build>
 	<repositories>
-        <repository>
-            <id>spring-milestone</id>
-            <url>https://repo.spring.io/libs-release</url>
-        </repository>
+		<repository>
+			<id>spring-milestone</id>
+			<url>https://repo.spring.io/libs-release</url>
+		</repository>
         <repository>
             <id>github</id>
             <url>https://raw.github.com/wiscess/mvn-repo/release</url>
         </repository>
-    </repositories>
+	</repositories>
 
-    <pluginRepositories>
-        <pluginRepository>
-            <id>spring-milestone</id>
-            <url>https://repo.spring.io/libs-release</url>
-        </pluginRepository>
-    </pluginRepositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>spring-milestone</id>
+			<url>https://repo.spring.io/libs-release</url>
+		</pluginRepository>
+	</pluginRepositories>
     <dependencies>
     		<dependency>
     			<groupId>org.springframework.boot</groupId>

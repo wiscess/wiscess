@@ -21,7 +21,7 @@ import org.springframework.util.ReflectionUtils;
  *
  */
 public class ObjectRowMapper<T> implements RowMapper<T> {
-	private Class<?> clazz;
+	protected Class<?> clazz;
 	private Map<String, Method> methodMap = new ConcurrentHashMap<>();
 	private String[] propertyNames;
 	private String[] setterMethodNames;

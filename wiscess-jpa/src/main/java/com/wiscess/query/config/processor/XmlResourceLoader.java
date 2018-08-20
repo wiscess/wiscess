@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.core.io.Resource;
 
 import com.wiscess.query.provider.IQueryProvider;
 
@@ -15,12 +14,12 @@ public class XmlResourceLoader implements QueryResourceLoader{
 		return new String[] { "xml" };
 	}
 
-	public List<IQueryProvider> load(Resource resource) throws IOException {
+	public List<IQueryProvider> load(String location) throws IOException {
 		List<IQueryProvider> queryProviderList=new ArrayList<>();
 		
 		ClassPathXmlApplicationContext ctx = null;
 		try{
-			ctx=new ClassPathXmlApplicationContext(resource.getFilename());
+			ctx=new ClassPathXmlApplicationContext(location);
 			Map<String, IQueryProvider> map=ctx.getBeansOfType(IQueryProvider.class);
 			for(IQueryProvider queryProvider:map.values()){
 				queryProviderList.add(queryProvider);

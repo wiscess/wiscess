@@ -1,4 +1,4 @@
-package com.wiscess.util.password;
+package com.wiscess.utils.password;
 
 import java.util.HashMap;
 import java.util.Iterator;

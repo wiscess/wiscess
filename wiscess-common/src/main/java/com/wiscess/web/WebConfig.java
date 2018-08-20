@@ -31,8 +31,6 @@ import com.wiscess.web.controller.CaptchaController;
 @EnableScheduling
 @EnableConfigurationProperties
 public class WebConfig implements WebMvcConfigurer {
-	
-	@Override
     public void configurePathMatch(PathMatchConfigurer configurer) {
     	//setUseSuffixPatternMatch(boolean useSuffixPatternMatch)：
     	//设置是否是后缀模式匹配，如“/user”是否匹配/user.*，默认真即匹配；
@@ -43,6 +41,7 @@ public class WebConfig implements WebMvcConfigurer {
         configurer.setUseSuffixPatternMatch(false)
                    .setUseTrailingSlashMatch(false);
     }
+
 	/*
 	 * 设置通过URL参数改变语言环境
 	 */
@@ -86,6 +85,7 @@ public class WebConfig implements WebMvcConfigurer {
 		validator.setValidationMessageSource(messageSource());
 		return validator;
 	}
+
 	/**
 	 * 验证码的配置
 	 * @return

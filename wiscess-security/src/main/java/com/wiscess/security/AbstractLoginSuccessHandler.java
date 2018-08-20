@@ -6,23 +6,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 
-import lombok.extern.slf4j.Slf4j;
+public abstract class AbstractLoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler{
 
-@Slf4j
-@Configuration
-public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler{
-
-	public LoginSuccessHandler(){
-		log.debug("loginSuccessHandler init");
-		this.setAlwaysUseDefaultTargetUrl(true);
-		this.setDefaultTargetUrl("/");
-	}
-	
-	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request,
 			HttpServletResponse response, Authentication authentication)
 			throws ServletException, IOException {

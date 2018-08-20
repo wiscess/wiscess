@@ -11,8 +11,9 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 
 /**
- * @author audin
- *
+ * 验证码处理器
+ * 继承了DaoAuthenticationProvider，增加了对验证码的校验
+ * @author wh
  */
 public class CaptchaDaoAuthenticationProvider extends DaoAuthenticationProvider {
 	protected void additionalAuthenticationChecks(UserDetails userDetails,

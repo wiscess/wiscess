@@ -2,7 +2,7 @@ package com.wiscess.security.encoder;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.wiscess.util.RSA_Encrypt;
+import com.wiscess.utils.RSA_Encrypt;
 
 /**
  * RSA方式加密和验证

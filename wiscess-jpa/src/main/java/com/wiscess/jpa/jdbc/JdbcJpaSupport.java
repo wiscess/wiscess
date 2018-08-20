@@ -29,7 +29,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.jdbc.support.KeyHolder;
 
-import com.wiscess.common.utils.StringUtil;
+import com.wiscess.utils.StringUtils;
 import com.wiscess.jpa.util.DynamicSqlUtil;
 import com.wiscess.jpa.util.ISqlElement;
 import com.wiscess.query.config.Query;
@@ -55,7 +55,7 @@ public class JdbcJpaSupport {
 		log.debug("processSql(Map<String,Object>, String) - start, name="+name);
 		//先根据name从sql缓存中查询出freemarker的模板，再进行模板解析
 		String sqlTemplate=Query.getQuery(name);
-		if(StringUtil.isNotEmpty(sqlTemplate)){
+		if(StringUtils.isNotEmpty(sqlTemplate)){
 			sqlTemplate="<#setting number_format=\"0\">"+sqlTemplate;
 			ISqlElement rs = DynamicSqlUtil.processSql(params, sqlTemplate);
 			log.debug("processSql(Map<String,Object>, String) - end");
@@ -75,8 +75,8 @@ public class JdbcJpaSupport {
 	 * @return
 	 * @throws Exception
 	 */
-	@SuppressWarnings("unchecked")
-	public <E> List<E> findListByTemplate(JdbcTemplate template,String sqlName, Map<String, Object> params, RowMapper<E> rm)  {
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public <E> List<E> findListByTemplate(JdbcTemplate template,String sqlName, Map<String, Object> params, RowMapper rm)  {
 		log.debug("findList(String, Map<String,Object>, RowMapper) - start");
 		final ISqlElement se = processSql(params, sqlName);
 		if (rm == null) {
@@ -84,6 +84,9 @@ public class JdbcJpaSupport {
 		} else {
 			return template.query(se.getSql(), se.getParams(), rm);
 		}
+	}
+	public <E> List<E> findList(String sqlName, Map<String, Object> params) {
+		return findListByTemplate(jdbcTemplate, sqlName, params, new ColumnMapRowMapper());
 	}
 	public <E> List<E> findList(String sqlName, Map<String, Object> params, RowMapper<E> rm) {
 		return findListByTemplate(jdbcTemplate, sqlName, params, rm);
@@ -196,7 +199,7 @@ public class JdbcJpaSupport {
 		return queryForObjectByTemplate(this.jdbcTemplate, sqlName, params, requiredType);
 	}
 	public <E> Object queryForObjectByTemplate(JdbcTemplate template,String sqlName,Map<String, Object> params,Class<E> requiredType) {
-		return queryForObjectByTemplate(template, sqlName, params, getRowMaperByClazz(requiredType));
+		return queryForObjectByTemplate(template, sqlName, params, new SingleColumnRowMapper<E>(requiredType));
 	}
 	public <E> Object queryForObject(String sqlName,Map<String, Object> params,RowMapper<E> rowMapper) {
 		return queryForObjectByTemplate(this.jdbcTemplate, sqlName, params, rowMapper);
@@ -268,7 +271,7 @@ public class JdbcJpaSupport {
 		final int total = template.queryForObject(seCount.getSql(), seCount.getParams(),Integer.class);
 		//创建空集合
 		List<E> content = Collections.<E> emptyList();
-		if(total<=pageable.getOffset()){
+		while(total<=pageable.getOffset() && pageable.getOffset()>0){
 			pageable=pageable.previousOrFirst();
 		}
 		if(total>pageable.getOffset()){
@@ -326,22 +329,30 @@ public class JdbcJpaSupport {
 		int totalCount=rowList.size()-1;
 		//校验每行数据是否合法
 		session.setAttribute(importStatus, "正在校验数据，共有数据"+totalCount+"条。");
+		int dataCount=0;
 		for(String[] row: rowList) {
 			rownum++;
 			if(fieldMap!=null){
 				//新方法校验
-				if(rownum==1 || row==null || ( StringUtil.isNotEmpty(titleRow[0]) && StringUtil.isEmpty(row[fieldMap.get(titleRow[0])]))) {
+				if(rownum==1 || row==null || ( StringUtils.isNotEmpty(titleRow[0]) && StringUtils.isEmpty(row[fieldMap.get(titleRow[0])]))) {
 					continue;
 				}
 			}
+			boolean flag=true;
 			for(IFillStataData<String[]> fill:fillDatas){
 				//校验row是否合法
 				if(!fill.checkRow(row))
 					continue;
 				//校验row的数据内容
 				fill.checkRowData(rownum,row,errorList);
+				if(flag){
+					flag=false;
+					dataCount++;
+				}
 			}
 		}
+		session.setAttribute(importStatus, "正在校验数据，共有数据"+totalCount+"条，有效数据"+dataCount+"条。");
+
 		if(errorList.size()==0){
 			rownum=0;
 			//批量处理数据
@@ -366,8 +377,8 @@ public class JdbcJpaSupport {
 				}
 				//已处理记录
 				int dealCount=0;
-				session.setAttribute(importStatus, "开始导入数据，共有数据"+totalCount+"条。");
-				Thread.sleep(500);
+				session.setAttribute(importStatus, "开始导入数据，共有数据"+totalCount+"条，有效数据"+dataCount+"条。");
+				Thread.sleep(1000);
 				//开始处理数据
 				for(String[] row: rowList) {
 					rownum++;
@@ -376,6 +387,8 @@ public class JdbcJpaSupport {
 						fill.fillData(row,rownum);
 					}
 					dealCount++;
+					if(dealCount>=totalCount)
+						dealCount=totalCount;
 					session.setAttribute(importStatus, "已处理"+Math.round(dealCount*100.0/totalCount)+"%，"+dealCount+"/"+totalCount+"条。");
 					Thread.sleep(5);
 				}

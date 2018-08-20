@@ -10,8 +10,8 @@ import com.wiscess.filter.HttpMethodFilter;
 public class HttpMethodAutoConfiguration {
 	
 	@Bean
-	public FilterRegistrationBean httpMethodFilterRegistration() {
-	    FilterRegistrationBean registration = new FilterRegistrationBean();
+	public FilterRegistrationBean<HttpMethodFilter> httpMethodFilterRegistration() {
+	    FilterRegistrationBean<HttpMethodFilter> registration = new FilterRegistrationBean<HttpMethodFilter>();
 	    registration.setFilter(new HttpMethodFilter());
 	    registration.addUrlPatterns("/*");
 	    registration.setName("httpMethodFilter");

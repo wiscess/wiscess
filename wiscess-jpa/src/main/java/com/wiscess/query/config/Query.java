@@ -3,9 +3,6 @@ package com.wiscess.query.config;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.core.io.DefaultResourceLoader;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 
 import com.wiscess.cache.CacheClearable;
 import com.wiscess.query.config.processor.QueryResourcesLoader;
@@ -57,6 +54,7 @@ public final class Query implements CacheClearable{
 		if(patterns==null){
 			patterns=new ArrayList<>();
 			patterns.add("classpath:queryProviderMapping-*.xml");
+			patterns.add("classpath:sqls-*.yml");
 		}else{
 			for(String p:patterns){
 				if(!p.startsWith("classpath")){
@@ -72,11 +70,9 @@ public final class Query implements CacheClearable{
 			//根据资源文件类型进行读取
 			queryProviderList=new ArrayList<IQueryProvider>();
 			QueryResourcesLoader loader=new QueryResourcesLoader();
-			ResourceLoader resourceLoader=new DefaultResourceLoader();
 			for (String location : sqlResourceFiles) {
-				Resource resource = resourceLoader.getResource(location);
 				try {
-					queryProviderList.addAll(loader.processor(resource));
+					queryProviderList.addAll(loader.processor(location));
 				} catch (IOException e) {
 					throw new IllegalStateException(e);
 				}

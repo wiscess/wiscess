@@ -8,6 +8,7 @@
 	<properties>
 		<maven.dir>D:/GitHome/mvn-repo</maven.dir><!--  -->
 		<lombok.version>1.16.22</lombok.version>
+		<java.version>1.8</java.version>
 	</properties>
 	<build>
 	<plugins>
@@ -19,8 +20,8 @@
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-compiler-plugin</artifactId>
 			<configuration>
-				<source>1.8</source>
-				<target>1.8</target>
+				<source>${java.version}</source>
+				<target>${java.version}</target>
 				<encoding>utf8</encoding>
 			</configuration>
 		</plugin>

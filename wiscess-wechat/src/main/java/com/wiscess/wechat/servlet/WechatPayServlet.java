@@ -24,9 +24,9 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
 
 import com.wiscess.common.utils.StringUtil;
+import com.wiscess.utils.MD5Util;
 import com.wiscess.wechat.config.WechatProperties;
 import com.wiscess.wechat.service.WechatService;
 
@@ -181,25 +181,8 @@ public class WechatPayServlet extends HttpServlet{
             }
         }
         strSign += "&key="+keyStr;
-        String sign = md5(strSign.substring(1)).toUpperCase();
+        String sign = MD5Util.md5(strSign.substring(1)).toUpperCase();
         return sign;
     }
 	
-	/**
-	 * 一次md5加密
-	 * 
-	 * @param primalPass
-	 *            原始密码.
-	 * @return String.
-	 */
-	public static String md5(String primalPass) {
-		String ret = primalPass;
-		try {
-			Md5PasswordEncoder md5 = new Md5PasswordEncoder();
-			ret = md5.encodePassword(primalPass, null);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-		return ret;
-	}
 }

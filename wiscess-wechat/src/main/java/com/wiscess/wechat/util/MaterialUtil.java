@@ -17,7 +17,6 @@ import com.wiscess.wechat.dto.WxItemDto;
 import com.wiscess.wechat.dto.WxItemNewDto;
 import com.wiscess.wechat.dto.WxItemParamsDto;
 import com.wiscess.wechat.dto.WxItemsDto;
-import com.wiscess.wechat.pojo.Token;
 
 import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONArray;
@@ -95,6 +94,7 @@ public class MaterialUtil extends BaseUtil {
 				List<WxItemsDto> item_arr = new ArrayList<WxItemsDto>();
 				JSONArray itemsArray = jsonObject.getJSONArray("item");
 				if(itemsArray!=null && itemsArray.size()>0){
+					@SuppressWarnings("unchecked")
 					Iterator<Object> items = itemsArray.iterator();
 					while (items.hasNext()) {
 						JSONObject item = (JSONObject) items.next();
@@ -163,6 +163,7 @@ public class MaterialUtil extends BaseUtil {
 			JSONObject jsonObject = JSONObject.fromObject(content);
 			JSONArray newsArray = jsonObject.getJSONArray("news_item");
 			
+			@SuppressWarnings("unchecked")
 			Iterator<Object> new_items = newsArray.iterator();
 			while (new_items.hasNext()) {
 				JSONObject news = (JSONObject) new_items.next();

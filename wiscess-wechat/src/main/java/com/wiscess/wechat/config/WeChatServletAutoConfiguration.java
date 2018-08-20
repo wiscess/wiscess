@@ -28,8 +28,8 @@ public class WeChatServletAutoConfiguration {
     
     @Bean
     @ConditionalOnBean(name="wechatServlet")
-    public ServletRegistrationBean wechatServletRegistrationBean(WechatServlet wechatServlet){
-        ServletRegistrationBean registration = new ServletRegistrationBean(wechatServlet);
+    public ServletRegistrationBean<WechatServlet> wechatServletRegistrationBean(WechatServlet wechatServlet){
+        ServletRegistrationBean<WechatServlet> registration = new ServletRegistrationBean<WechatServlet>(wechatServlet);
         registration.setEnabled(true);
         registration.addUrlMappings(wechat.getServletUrl());
         return registration;
@@ -42,8 +42,8 @@ public class WeChatServletAutoConfiguration {
     
     @Bean
     @ConditionalOnBean(name="wechatPayServlet")
-    public ServletRegistrationBean wechatPayServletRegistrationBean(WechatPayServlet wechatPayServlet){
-        ServletRegistrationBean registration = new ServletRegistrationBean(wechatPayServlet);
+    public ServletRegistrationBean<WechatPayServlet> wechatPayServletRegistrationBean(WechatPayServlet wechatPayServlet){
+        ServletRegistrationBean<WechatPayServlet> registration = new ServletRegistrationBean<WechatPayServlet>(wechatPayServlet);
         registration.setEnabled(true);
         registration.addUrlMappings(wechat.getPayNotifyServletUrl());
         return registration;

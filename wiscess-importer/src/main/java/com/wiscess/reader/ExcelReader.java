@@ -13,6 +13,8 @@ import java.util.List;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellValue;
+import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -23,8 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * 操作Excel表格的功能类 
  * @author wanghai
- * @version V1.0
- * @date 2016-08-18
+ * @version V2.0
+ * @date 2018-08-18
  *
  */
 @Slf4j
@@ -43,17 +45,17 @@ public abstract class ExcelReader{
 	public static ExcelReader getInstance(InputStream input,String fileType) throws IOException{
 		if("xls".equalsIgnoreCase(fileType)){
 			return new HssfExcelReader(input);
-		}else if("xlsx".equalsIgnoreCase(fileType)){
-			return new XssfExcelReader(input);
 		}
-		return null;
+		return new XssfExcelReader(input);
 	}
 	
-	public Workbook wb = null;
+	protected Workbook wb = null;
 
-	public Sheet sheet = null;
+	protected Sheet sheet = null;
 
-	public Row row = null;
+	protected Row row = null;
+	
+	protected FormulaEvaluator ev =null;
 
 	public void close(){
 		sheet=null;
@@ -66,9 +68,7 @@ public abstract class ExcelReader{
 	 * @return int
 	 */
 	public int getSheetCount() {
-		int sheetCount = -1;
-		sheetCount = wb.getNumberOfSheets();
-		return sheetCount;
+		return wb.getNumberOfSheets();
 	}
 	
 	/**
@@ -89,8 +89,7 @@ public abstract class ExcelReader{
 	 * @return
 	 */
 	public String getSheetNameByNum(int sheetIndex){
-		if (wb == null){
-			log.debug("=============>WorkBook为空");
+		if (wb == null || sheetIndex>=getSheetCount()){
 			return "";
 		}
 		return wb.getSheetName(sheetIndex);
@@ -110,9 +109,7 @@ public abstract class ExcelReader{
 			log.debug("=============>Sheet不存在");
 			return -1;
 		}
-		int rowCount = -1;
-		rowCount = sheet.getLastRowNum();
-		return rowCount;
+		return sheet.getLastRowNum();
 	}
 
 
@@ -132,7 +129,7 @@ public abstract class ExcelReader{
 			row = sheet.getRow(rowNum);
 
 			if(row==null){
-				log.debug("=============>行为空或不存在");
+				log.debug("=============>Sheet{}的第{}行为空或不存在",sheetNum,rowNum);
 				return null;
 			}
 			//根据标题行读取总列数
@@ -173,39 +170,33 @@ public abstract class ExcelReader{
 			Cell cell = row.getCell(cellNum); 
 			if (cell != null) { // add this condition
 				// 判断列类型
-				switch (cell.getCellType()) {
-				case Cell.CELL_TYPE_STRING :
-					strExcelCell = cell.getRichStringCellValue().toString();
-				    break;
-				case Cell.CELL_TYPE_NUMERIC:// 数字类型
-					int dataFormat = cell.getCellStyle().getDataFormat();
-					if(dateFormatList.contains(dataFormat)){
-						strExcelCell = getDateValue(cell);
-						log.debug(strExcelCell);
-					} else {
-						//System.out.print("dataFormat:"+dataFormat+"  ");
-						double value = cell.getNumericCellValue();
-						DecimalFormat format = new DecimalFormat("#############0.######");
-						strExcelCell = format.format(value);
-					}
-					//log.debug(strExcelCell);
-					break;
-				case Cell.CELL_TYPE_FORMULA :
-					strExcelCell = getFormulaValue(cell);
-					
-				    break;
-				case Cell.CELL_TYPE_BLANK :
-					strExcelCell = String.valueOf(cell.getRichStringCellValue().toString());
-				    break;
-				case Cell.CELL_TYPE_BOOLEAN :
-					strExcelCell = String.valueOf(cell.getBooleanCellValue());
-				    break;
-				case Cell.CELL_TYPE_ERROR :
-					strExcelCell = String.valueOf(cell.getErrorCellValue());
-				    break;
-				default:
-					strExcelCell = "";
-					break;
+				CellValue cellValue=ev.evaluate(cell);
+				if(cellValue==null){
+					strExcelCell="";
+				}else{
+					switch (cellValue.getCellTypeEnum()) {
+			            case BOOLEAN:
+			            	strExcelCell = cellValue.getBooleanValue() ? "TRUE" : "FALSE";
+			            	break;
+			            case ERROR:
+			            	strExcelCell = String.valueOf(cellValue.getErrorValue());
+			            	break;
+						case NUMERIC:// 数字类型
+							if(DateUtil.isCellDateFormatted(cell)){
+								strExcelCell = getDateValue(cell);
+							} else {
+								double value = cell.getNumericCellValue();
+								strExcelCell = numberFormat.format(value);
+							}
+							break;
+			            case STRING:
+			            	strExcelCell = cellValue.getStringValue();
+			            	break;
+			            case BLANK:
+			            	strExcelCell = String.valueOf(cell.getRichStringCellValue().toString());
+			            default:
+			            	strExcelCell = "";
+			        }
 				}
 			}
 			
@@ -222,12 +213,12 @@ public abstract class ExcelReader{
 	 * 获取所有行内容(读取索引为0的工作表)
 	 * @return
 	 */
-	public List<String[]> getRowList(int sheetNum,int forEachNum) {
+	public List<String[]> getRowList(int sheetNum,int fromRowNum) {
 		List<String[]> list = new ArrayList<String[]>();
 		// 总行数
 		int count = getRowCount(sheetNum);
 		if(count>=0){
-			for (int i = forEachNum; i <= count; i++) {
+			for (int i = fromRowNum; i <= count; i++) {
 				//每行内容
 				String[] rows = readExcelLine(sheetNum,i);
 				list.add(rows);
@@ -242,9 +233,9 @@ public abstract class ExcelReader{
 	 * @param forEachNum
 	 * @return
 	 */
-	public List<String[]> getRowList(int sheetNum,int forEachNum,int toEachNum){
+	public List<String[]> getRowList(int sheetNum,int fromRowNum,int toRowNum){
 		List<String[]> list = new ArrayList<String[]>();
-		for (int i = forEachNum; i <= toEachNum; i++) {
+		for (int i = fromRowNum; i <= toRowNum; i++) {
 			//每行内容
 			String[] rows = readExcelLine(sheetNum, i);
 			if(row!=null)
@@ -258,7 +249,7 @@ public abstract class ExcelReader{
 	  * @param cell
 	  * @return
 	  */
-	public static String getDateValue(Cell cell){
+	protected static String getDateValue(Cell cell){
 		try{
 			Date d= cell.getDateCellValue();
 			return DEFAULT_DATE_FORMAT.format(d);
@@ -267,73 +258,11 @@ public abstract class ExcelReader{
 		}
 	}
 
-	/**
-	 * 返回公式的结果
-	 * @param cell
-	 * @return
-	 */
-	public abstract String getFormulaValue(Cell cell);
+	public boolean isCellDateFormatted(Cell cell){
+		return DateUtil.isCellDateFormatted(cell);
+	}
 
-	public String getStringCellValueByCellValue(CellValue cell)
-	{
-		if(cell == null) return "";
-		int cType = cell.getCellType();
-		String res = null;
-		switch (cType) {
-		case Cell.CELL_TYPE_BOOLEAN:
-			res = cell.getBooleanValue() +"" ;
-			break;
-		case Cell.CELL_TYPE_ERROR:
-			res = null;
-			break;
-		case Cell.CELL_TYPE_NUMERIC:
-			res = new DecimalFormat("############.##########").format(cell.getNumberValue());
-			break;
-		case Cell.CELL_TYPE_STRING:
-			res = cell.getStringValue();
-			break;
-		}
-		return res;
-	} 
-	protected static boolean isNotEmpty(String str) {
-        return (str != null && str.trim().length() > 0);
-    }
 	
 	public final static DateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-
-	public final static List<Integer> dateFormatList=new ArrayList<Integer>(){
-		private static final long serialVersionUID = 1L;
-	{
-		add(14);
-		add(20);
-		add(31);
-		add(32);
-		add(57);
-		add(58);
-		//add(177);
-//		add(181);
-//		add(182);
-//		add(185);
-//		add(186);
-//		add(187);
-//		add(188);
-//		add(189);
-//		add(190);
-//		add(191);
-//		add(192);
-//		add(193);
-//		add(194);
-//		add(195);
-//		add(196);
-//		add(197);
-//		add(198);
-//		add(199);
-//		add(200);
-//		add(201);
-//		add(202);
-//		add(203);
-//		add(204);
-//		add(205);
-	}};
-	
+	public final static DecimalFormat numberFormat = new DecimalFormat("#############0.######");
 } 

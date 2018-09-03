@@ -80,7 +80,7 @@ import java.util.StringTokenizer;
  * @author <a href="mailto:fredrik@westermarck.com>Fredrik Westermarck</a>
  * @version $Id$
  */
-public class StringUtils {
+public class StringUtils{
 
     // Empty
     //--------------------------------------------------------------------------

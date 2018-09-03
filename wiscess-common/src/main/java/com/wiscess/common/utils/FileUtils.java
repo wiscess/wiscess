@@ -10,12 +10,33 @@ import java.net.URLEncoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.util.StringUtils;
+import com.wiscess.utils.StringUtils;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 public class FileUtils {
+
+	/**
+	 * 分割路径
+	 * 
+	 * @param path
+	 * @return 返回分割后的路径
+	 */
+	public static String[] separatePath(String path) {
+		if (StringUtils.isEmpty(path)) {
+			return null;
+		}
+		String[] sep = path.split("\\.");
+		return new String[] { sep[0], sep[1] };
+	}
+	public static String encodingFileName(String fileName) {
+        String returnFileName = "";
+        try {
+            returnFileName = URLEncoder.encode(fileName, "UTF-8");
+            returnFileName = StringUtils.replace(returnFileName, "+", "%20");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return returnFileName;
+    }
 	/**
 	 * Send file.
 	 *
@@ -31,7 +52,9 @@ public class FileUtils {
 	public static void sendFile(HttpServletRequest request, HttpServletResponse response, File file)
 			throws IOException {
 
-		try (OutputStream out = response.getOutputStream(); RandomAccessFile raf = new RandomAccessFile(file, "r")) {
+		try (
+			OutputStream out = response.getOutputStream(); 
+			RandomAccessFile raf = new RandomAccessFile(file, "r")) {
 			long fileSize = raf.length();
 			long rangeStart = 0;
 			long rangeFinish = fileSize - 1;
@@ -48,8 +71,6 @@ public class FileUtils {
 						rangeStart = 0;
 					}
 				} catch (NumberFormatException e) {
-					// keep rangeStart unchanged
-					log.trace("", e);
 				}
 
 				if (rangeSep < pureRange.length() - 1) {
@@ -59,7 +80,6 @@ public class FileUtils {
 							rangeFinish = fileSize - 1;
 						}
 					} catch (NumberFormatException e) {
-						log.trace("", e);
 					}
 				}
 			}
@@ -101,14 +121,4 @@ public class FileUtils {
 			}
 		}
 	}
-	public static String encodingFileName(String fileName) {
-        String returnFileName = "";
-        try {
-            returnFileName = URLEncoder.encode(fileName, "UTF-8");
-            returnFileName = StringUtils.replace(returnFileName, "+", "%20");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return returnFileName;
-    }
 }

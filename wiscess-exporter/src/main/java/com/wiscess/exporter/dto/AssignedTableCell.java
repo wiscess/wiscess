@@ -25,6 +25,10 @@ public class AssignedTableCell extends AssignedElement {
 	public AssignedTableCell(){
 		cellList=new ArrayList<AssignedElement>();
 	}
+	public AssignedTableCell(String cellValue){
+		this();
+		cellList.add(new AssignedRun(cellValue));
+	}
 	public int getWidth() {
 		return width;
 	}
@@ -59,7 +63,6 @@ public class AssignedTableCell extends AssignedElement {
 		}else{
 			//
 			this.cellList.add(ae);
-//			throw new ManagerException("不支持的内容");
 		}
 		return this;
 	}
@@ -72,5 +75,8 @@ public class AssignedTableCell extends AssignedElement {
 	public AssignedTableCell setAlignment(ParagraphAlignment alignment) {
 		this.alignment = alignment;
 		return this;
+	}
+	public String toString(){
+		return cellList.toString();
 	}
 }

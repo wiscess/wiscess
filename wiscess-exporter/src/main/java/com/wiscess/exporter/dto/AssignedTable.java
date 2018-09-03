@@ -44,6 +44,10 @@ public class AssignedTable extends AssignedElement {
 	public void setContents(int row,int col,AssignedTableCell atc) {
 		this.contents[row][col] = atc;
 	}
+	public void setContents(int row,int col,String value) {
+		
+		this.contents[row][col] = new AssignedTableCell(value);
+	}
 
 	public int getWidth() {
 		return width;
@@ -53,4 +57,7 @@ public class AssignedTable extends AssignedElement {
 		this.width = width;
 	}
 	
+	public String toString(){
+		return "content="+contents;
+	}
 }

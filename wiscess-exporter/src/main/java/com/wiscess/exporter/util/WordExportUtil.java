@@ -1,5 +1,6 @@
 package com.wiscess.exporter.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -24,13 +25,13 @@ import org.apache.poi.util.Units;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFPicture;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
-import org.apache.xmlbeans.XmlCursor;
 
-import com.wiscess.common.utils.StringUtil;
+import com.wiscess.common.utils.FileUtils;
 import com.wiscess.exporter.dto.AssignedElement;
 import com.wiscess.exporter.dto.AssignedParagraph;
 import com.wiscess.exporter.dto.AssignedPicture;
@@ -38,6 +39,10 @@ import com.wiscess.exporter.dto.AssignedRun;
 import com.wiscess.exporter.dto.AssignedTable;
 import com.wiscess.exporter.dto.AssignedTableCell;
 import com.wiscess.exporter.exception.ManagerException;
+import com.wiscess.utils.StringUtils;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTHeight;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTShd;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTString;
@@ -49,13 +54,13 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTVerticalJc;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STShd;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STTblWidth;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STVerticalJc;
-import org.springframework.util.StringUtils;
 
 /**
  * word文件导出工具类
  * @author wh
  * @date 2015-07-27
  */
+@Slf4j
 public class WordExportUtil {
 
 	/**
@@ -96,7 +101,7 @@ public class WordExportUtil {
 				filename=filename.substring(filename.lastIndexOf("\\")+1);
 				res.setContentType("APPLICATION/ms-excel");
 				res.setHeader("Content-Disposition", "attachment; filename="
-						+ new String(filename.getBytes("gbk"), "iso8859-1"));
+						+ FileUtils.encodingFileName(filename));
 				os = res.getOutputStream();
 			}else{
 				os = new FileOutputStream(filename);
@@ -154,6 +159,17 @@ public class WordExportUtil {
 					}
 					//添加数据到段落中
 					fillParagraph(p, (AssignedParagraph)ae);
+				}else if(ae instanceof AssignedTable){
+					//表格数据，查找key所在的表格
+					XWPFTable table=findTable(doc,key);
+					if(table==null){
+						//没找到key所在的table，创建一个新表格
+						AssignedTable at=(AssignedTable)ae; 
+						fillTable(doc.createTable(at.getRow(),at.getCol()), at);
+					}else{
+						//从key所在行插入数据
+						fillTableFromKeyRow(table,key, (AssignedTable)ae);
+					}
 				}else{
 					//其他数据，查找key所在的段落
 					XWPFParagraph  p = findParagraph(doc,key);
@@ -236,8 +252,6 @@ public class WordExportUtil {
  	protected static void fillElementToParagraph(XWPFParagraph p,AssignedElement ae){
  		//在段落中增加一个新的Run，并获得当前的位置
 		XWPFRun r = p.createRun();
-		XmlCursor cursor = r.getCTR().newCursor();
-		cursor=p.getCTP().newCursor();
  		if(ae instanceof AssignedTable){
  			//在段落中增加一个新表格,1*1
  			XWPFTable table = p.getDocument().insertNewTbl(p.getCTP().newCursor());
@@ -260,11 +274,7 @@ public class WordExportUtil {
  			fillTable(table,at);
  		}else if(ae instanceof AssignedParagraph){
  			//在段落中增加一个段落
- 			XWPFParagraph newP = p.getDocument().insertNewParagraph(cursor);
- 			if(newP==null)
- 				return;
- 			//填充段落
- 			fillParagraph(newP, (AssignedParagraph)ae);
+ 			fillParagraph(p, (AssignedParagraph)ae);
  		}else if(ae instanceof AssignedPicture){
  			//添加照片
  			AssignedPicture ap = (AssignedPicture)ae;
@@ -377,6 +387,218 @@ public class WordExportUtil {
         } // for row
  	}
  	
+ 	/**
+ 	 * 设置table的属性，并根据AssignedTable的数据填充表格
+ 	 * @param table
+ 	 * @param at
+ 	 */
+ 	private static void fillTableFromKeyRow(XWPFTable table,String key,AssignedTable at){
+ 		//先找到key所在行序号
+ 		Integer startRow=0;
+ 		boolean find=false;
+ 		for(int r=0;r<table.getRows().size();r++){
+ 			XWPFTableRow row=table.getRow(r);
+ 			for (XWPFTableCell cell : row.getTableCells()) {  
+				for (XWPFParagraph para1 : cell.getParagraphs()) { 
+					String content=para1.getParagraphText();
+					if(content.indexOf(key)>=0){ 
+						//找到
+						startRow=r;
+						find=true;
+						break;
+					}
+				}
+				//跳出列循环
+				if(find)break;
+			}
+ 			if(find)break;
+ 		}
+ 		//从startRow行开始填充表格数据,记录该行数据为模板行，当表格总行数不够时，插入新行
+ 		XWPFTableRow rowTemplate=table.getRow(startRow);
+ 		//从模板行的下一行开始写输入
+ 		for(int r=0;r<at.getRow();r++){
+ 			//读取当前行列对象
+        	XWPFTableRow row=table.getRow(startRow+r);
+        	if(row==null){
+        		table.createRow();
+        		row= table.getRow(startRow+r);
+        		copyTableRow(row, rowTemplate);
+        	}
+        	// 行属性 (trPr)
+        	CTTrPr trPr = row.getCtRow().getTrPr();
+        	
+ 			for(int c=0;c<at.getCol();c++){
+ 				//处理每个单元格的内容
+ 		        AssignedTableCell atc=at.getContents(r,c);
+ 		        if(atc!=null){
+ 		        	XWPFTableCell cell=row.getCell(c);
+ 		        	//添加数据
+ 		        	if(cell!=null){
+ 		        		// 单元格属性 (tcPr)
+ 		        		CTTcPr tcpr = cell.getCTTc().addNewTcPr();
+ 		        		// 设置默认垂直居中方式 "center"
+ 		        		CTVerticalJc va = tcpr.addNewVAlign();
+ 		        		va.setVal(STVerticalJc.CENTER);
+ 		        		// 单元格背景色
+ 		        		CTShd ctshd = tcpr.addNewShd();
+ 		                ctshd.setColor("auto");
+ 		                ctshd.setVal(STShd.CLEAR);
+ 		                
+ 						// 获取单元格的段落
+ 		                XWPFParagraph para = cell.getParagraphs().get(0);
+ 		                while(!para.getRuns().isEmpty()){
+ 		                	para.removeRun(0);
+ 		                }
+ 		                //默认段落属性
+ 		       			
+ 		                //重新设置该行的高度
+ 		       			if(atc.getHeight()>0){
+ 		       				CTHeight ht =trPr.getTrHeightArray(0);
+ 		       				ht.setVal(BigInteger.valueOf(atc.getHeight()));
+ 		       			}
+ 		       			//设置单元格属性
+ 		       			if(atc.getBgColor()!=null && !atc.getBgColor().equals("")){
+ 		       				ctshd.setFill(atc.getBgColor());
+ 		       			}
+ 		                   
+						// 设置段落属性
+						if (atc.getAlignment() != null) {
+							para.setAlignment(atc.getAlignment());
+						}
+						// 设置单元格宽度
+						if (atc.getWidth() > 0) {
+							CTTblWidth cellw = tcpr.addNewTcW();
+							cellw.setType(STTblWidth.DXA);
+							cellw.setW(BigInteger.valueOf(atc.getWidth()));
+						}
+						// 添加单元格中的内容
+						for (AssignedElement ae : atc.getCellList()) {
+							fillElementToParagraph(para, ae);
+						}
+ 		        	}
+ 		        }
+ 				
+ 			}
+ 		}
+ 	}
+ 	
+ 	/**
+ 	 * 
+ 	 * 复制行，从source到target
+ 	 * @param target
+ 	 * @param source
+ 	 * 
+ 	 */
+ 	public static void copyTableRow(XWPFTableRow target, XWPFTableRow source) {
+ 	    // 复制样式
+ 	    if (source.getCtRow() != null) {
+ 	        target.getCtRow().setTrPr(source.getCtRow().getTrPr());
+ 	    }
+ 	    // 复制单元格
+ 	    for (int i = 0; i < source.getTableCells().size(); i++) {
+ 	        XWPFTableCell cell1 = target.getCell(i);
+ 	        XWPFTableCell cell2 = source.getCell(i);
+ 	        if (cell1 == null) {
+ 	            cell1 = target.addNewTableCell();
+ 	        }
+ 	        copyTableCell(cell1, cell2);
+ 	    }
+ 	}
+ 	/**
+ 	 * 复制单元格，从source到target
+ 	 * @param target
+ 	 * @param source
+ 	 * 
+ 	 */
+ 	public static void copyTableCell(XWPFTableCell target, XWPFTableCell source) {
+ 	    // 列属性
+ 	    if (source.getCTTc() != null) {
+ 	        target.getCTTc().setTcPr(source.getCTTc().getTcPr());
+ 	    }
+ 	    // 删除段落
+ 	    for (int pos = target.getParagraphs().size() - 1; pos >= 0; pos--) {
+ 	        target.removeParagraph(pos);
+ 	    }
+ 	    // 添加段落
+ 	    for (XWPFParagraph sp : source.getParagraphs()) {
+ 	        XWPFParagraph targetP = target.addParagraph();
+ 	        copyParagraph(targetP, sp);
+ 	    }
+ 	}
+ 	/**
+ 	 * 复制段落，从source到target
+ 	 * @param target
+ 	 * @param source
+ 	 * 
+ 	 */
+ 	public static void copyParagraph(XWPFParagraph target, XWPFParagraph source) {
+
+ 	    // 设置段落样式
+ 	    target.getCTP().setPPr(source.getCTP().getPPr());
+
+ 	    // 移除所有的run
+ 	    for (int pos = target.getRuns().size() - 1; pos >= 0; pos--) {
+ 	        target.removeRun(pos);
+ 	    }
+
+ 	    // copy 新的run
+ 	    for (XWPFRun s : source.getRuns()) {
+ 	        XWPFRun targetrun = target.createRun();
+ 	        copyRun(targetrun, s);
+ 	    }
+
+ 	}
+ 	/**
+ 	 * 
+ 	 * 复制RUN，从source到target
+ 	 * @param target
+ 	 * @param source
+ 	 * 
+ 	 */
+ 	public static void copyRun(XWPFRun target, XWPFRun source) {
+ 	    // 设置run属性
+ 	    target.getCTR().setRPr(source.getCTR().getRPr());
+ 	    // 设置文本
+ 	    target.setText(source.text());
+ 	    // 处理图片
+ 	    List<XWPFPicture> pictures = source.getEmbeddedPictures();
+
+ 	    for (XWPFPicture picture : pictures) {
+ 	        try {
+ 	            copyPicture(target, picture);
+ 	        } catch (InvalidFormatException e) {
+ 	            log.error("copyRun", e);
+ 	        } catch (IOException e) {
+ 	            log.error("copyRun", e);
+ 	        }
+ 	    }
+ 	}
+
+ 	/**
+ 	 * 
+ 	 * 复制图片到target
+ 	 * @param target
+ 	 * @param picture
+ 	 * @throws IOException
+ 	 * @throws InvalidFormatException
+ 	 * 
+ 	 */
+ 	public static void copyPicture(XWPFRun target, XWPFPicture picture)throws IOException, InvalidFormatException {
+
+ 	    String filename = picture.getPictureData().getFileName();
+ 	    InputStream pictureData = new ByteArrayInputStream(picture
+ 	            .getPictureData().getData());
+ 	    int pictureType = picture.getPictureData().getPictureType();
+ 	    int width = (int) picture.getCTPicture().getSpPr().getXfrm().getExt()
+ 	            .getCx();
+
+ 	    int height = (int) picture.getCTPicture().getSpPr().getXfrm().getExt()
+ 	            .getCy();
+
+ 	    // target.addBreak();
+ 	    target.addPicture(pictureData, pictureType, filename, width, height);
+ 	    // target.addBreak(BreakType.PAGE);
+ 	}
  	/**
  	 * 填充段落
  	 * @param p
@@ -533,7 +755,26 @@ public class WordExportUtil {
 
 		return null;
  	}
+ 	private static XWPFTable findTable(XWPFDocument doc,String key){
+ 		//遍历文档中所有表格
+		Iterator<XWPFTable> iteratorTable = doc.getTablesIterator();  
+		XWPFTable table;  
+		while (iteratorTable.hasNext()) {  
+			table = iteratorTable.next();  
+			for (XWPFTableRow row : table.getRows()) {  
+				for (XWPFTableCell cell : row.getTableCells()) {  
+					for (XWPFParagraph para1 : cell.getParagraphs()) { 
+						String content=para1.getParagraphText();
+						if(content.indexOf(key)>=0){ 
+							return table;
+						}
+					}  
+				}  
+			}  
+		}  
 
+		return null;
+ 	}
  	
  	/**
 	 * 解析html文件内容成文字、段落、image等数据
@@ -615,7 +856,7 @@ public class WordExportUtil {
 			}
 			m=p.matcher(content);
 		}
-		if(StringUtil.isNotEmpty(content)){
+		if(StringUtils.isNotEmpty(content)){
 			para.addElement(new AssignedRun(content));
 			flag=true;
 		}

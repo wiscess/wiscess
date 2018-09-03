@@ -2,7 +2,7 @@ package com.wiscess.exporter.dto;
 
 import java.util.List;
 
-import com.wiscess.common.utils.StringUtil;
+import com.wiscess.utils.StringUtils;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -75,6 +75,11 @@ public class AssignedSheet {
 	 * 每列宽度
 	 */
 	private Integer[] columnWidths;
+	
+	/**
+	 * 每行高度
+	 */
+	private Integer[] rowHeights;
 //	/**
 //	 * 表头内容
 //	 */
@@ -90,7 +95,7 @@ public class AssignedSheet {
 	}
 	
 	public void setSheetName(String sheetName) {
-		if(StringUtil.isNotEmpty(sheetName)){
+		if(StringUtils.isNotEmpty(sheetName)){
 			sheetName=sheetName.replaceAll("/", "|");
 		}
 		this.sheetName = sheetName;

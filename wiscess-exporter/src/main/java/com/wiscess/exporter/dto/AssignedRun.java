@@ -97,4 +97,8 @@ public class AssignedRun extends AssignedElement{
 		this.color = color;
 		return this;
 	}
+	
+	public String toString(){
+		return text;
+	}
 }

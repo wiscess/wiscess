@@ -9,6 +9,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import com.wiscess.common.ZipPath;
+import com.wiscess.common.utils.FileUtils;
 
 /**
  * 导出zip文件
@@ -32,7 +33,7 @@ public class ZipExportUtil {
 				zp.zip(zipFile, files);
 				rep.setCharacterEncoding("utf-8");
 				rep.setContentType("multipart/form-data");
-				rep.setHeader("Content-Disposition", "attachment;fileName=" + new String(zipName.getBytes("gbk"), "iso8859-1"));
+				rep.setHeader("Content-Disposition", "attachment;fileName=" + FileUtils.encodingFileName(zipName));
 				InputStream is = new FileInputStream(new File(zipFile));
 				OutputStream os = rep.getOutputStream();
 				byte[] b = new byte[1024*1024];
@@ -67,7 +68,7 @@ public class ZipExportUtil {
 			zp.zip(zipFile, inputFiles,attachNames);
 			rep.setCharacterEncoding("utf-8");
 			rep.setContentType("multipart/form-data");
-			rep.setHeader("Content-Disposition", "attachment;fileName=" + new String(zipName.getBytes("gbk"), "iso8859-1"));
+			rep.setHeader("Content-Disposition", "attachment;fileName=" + FileUtils.encodingFileName(zipName));
 			InputStream is = new FileInputStream(new File(zipFile));
 			OutputStream os = rep.getOutputStream();
 			byte[] b = new byte[1024*1024];

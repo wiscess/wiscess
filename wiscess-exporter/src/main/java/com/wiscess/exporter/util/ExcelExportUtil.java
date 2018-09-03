@@ -5,9 +5,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -24,11 +21,11 @@ import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFClientAnchor;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.ClientAnchor;
 import org.apache.poi.ss.usermodel.ClientAnchor.AnchorType;
 import org.apache.poi.ss.usermodel.Drawing;
@@ -39,11 +36,12 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFClientAnchor;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import com.wiscess.common.utils.StringUtil;
+import com.wiscess.common.utils.FileUtils;
 import com.wiscess.exporter.dto.AssignedCell;
 import com.wiscess.exporter.dto.AssignedSheet;
 import com.wiscess.exporter.dto.ExportExcelParameter;
 import com.wiscess.exporter.exception.ManagerException;
+import com.wiscess.utils.StringUtils;
 
 public class ExcelExportUtil {
 	public static final SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
@@ -59,7 +57,7 @@ public class ExcelExportUtil {
 				filename=filename.substring(filename.lastIndexOf("\\")+1);
 				res.setContentType("APPLICATION/ms-excel");
 				res.setHeader("Content-Disposition", "attachment; filename="
-						+ new String(filename.getBytes("gbk"), "iso8859-1"));
+						+ FileUtils.encodingFileName(filename));
 				ServletOutputStream os = res.getOutputStream();
 				ExcelExportUtil.export(para,os, data);
 				os.flush();
@@ -87,7 +85,7 @@ public class ExcelExportUtil {
 				//输出到浏览器
 				res.setContentType("APPLICATION/ms-excel");
 				res.setHeader("Content-Disposition", "attachment; filename="
-						+ new String(filename.getBytes("gbk"), "iso8859-1"));
+						+ FileUtils.encodingFileName(filename));
 				ServletOutputStream os = res.getOutputStream();
 				ExcelExportUtil.export(para,os);
 				os.flush();
@@ -132,7 +130,7 @@ public class ExcelExportUtil {
 		}
 	}
 
-	@SuppressWarnings({ "unchecked", "unused", "rawtypes" })
+	/*@SuppressWarnings({ "unchecked", "unused", "rawtypes" })
 	private static void setValueFromObj(Cell cell,Object obj,String propertyName){
 		try {
 			Class clazz=obj.getClass();
@@ -173,7 +171,7 @@ public class ExcelExportUtil {
 		} catch (InvocationTargetException e) {
 			e.printStackTrace();
 		}
-	}
+	}*/
 	
 	/**
 	 * 导出数据，支持多个sheet的导出文件
@@ -268,7 +266,7 @@ public class ExcelExportUtil {
 						templateHlDataCol);
 				
 				//处理合并sheet的记录
-				if(StringUtil.isEmpty(aSheet.getAppendToSheet()) || 
+				if(StringUtils.isEmpty(aSheet.getAppendToSheet()) || 
 						!mergedSheets.containsKey(aSheet.getAppendToSheet())){
 					//如果该sheet没有指定追加目标，则该sheet作为一个被保留的sheet，建立一个空列表
 					List<String> list=new ArrayList<String>();
@@ -411,7 +409,7 @@ public class ExcelExportUtil {
 			List<AssignedCell> assignedCells, boolean isNeedCopyTemplateRow,
 			boolean autoHeight,
 			int dataRowSpan, int totalCol, int hldatacol) {
-		Drawing patriarch = sheet.createDrawingPatriarch();
+		Drawing<?> patriarch = sheet.createDrawingPatriarch();
 
 		int rowNumber = 0;
 		int rowNum = 0;
@@ -434,8 +432,7 @@ public class ExcelExportUtil {
 				totalCol=rowData.length;
 			// 如果是用复制行的模式，则调用copyRows复制出需要的内容行，否则，创建新行，并初始化每列数据
 			if (isNeedCopyTemplateRow) {
-				copyRows(sheet, rowNum, rowNum + dataRowSpan - 1, rowNumber,
-						totalCol);
+				copyRows(sheet, rowNum, rowNum + dataRowSpan - 1, sheet, rowNumber);
 			} else {
 				// 创建多行，把所有列都创建出来，并使用样式处理
 				for (int i = 0; i < dataRowSpan; i++) {
@@ -490,7 +487,7 @@ public class ExcelExportUtil {
 					}
 					anchor.setAnchorType(AnchorType.MOVE_DONT_RESIZE);
 					// 2008-09-19 
-					if (StringUtil.isNotEmpty((String) acell.getValue())) {
+					if (StringUtils.isNotEmpty((String) acell.getValue())) {
 						if (((String) acell.getValue()).startsWith("http")) {
 							try {
 								patriarch.createPicture(anchor, loadPicture(
@@ -519,7 +516,7 @@ public class ExcelExportUtil {
 				if (cell == null)
 					cell = row.createCell(acell.getCol());
 				// 根据类型设置
-				int cType = HSSFCell.CELL_TYPE_STRING;
+				CellType cType = CellType.STRING;
 				
 				Object value = acell.getValue();
 				if (acell.getUseStyle() == AssignedCell.CELL_STYLE_FORMULA) {
@@ -529,7 +526,7 @@ public class ExcelExportUtil {
 						String cformula=value.toString();
 						if(cformula.startsWith("="))
 							cformula=cformula.substring(1);
-						if(StringUtil.isNotEmpty(cformula))
+						if(StringUtils.isNotEmpty(cformula))
 							cell.setCellFormula(cformula);
 						else
 							cell.setCellFormula(cell.getCellFormula());
@@ -545,16 +542,16 @@ public class ExcelExportUtil {
 					cell.setCellValue("");
 				} else {
 					if (value instanceof Integer || value instanceof Double) {
-						cType = HSSFCell.CELL_TYPE_NUMERIC;
+						cType = CellType.NUMERIC;
 						try {
 							cell.setCellValue(new BigDecimal(value.toString())
 									.doubleValue());
 						} catch (Exception e) {
-							cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+							cell.setCellType(CellType.STRING);
 							cell.setCellValue(value.toString());
 						}
 					} else {
-						cType = HSSFCell.CELL_TYPE_STRING;
+						cType = CellType.STRING;
 						cell.setCellType(cType);
 						cell.setCellValue(value.toString());
 					}
@@ -701,81 +698,6 @@ public class ExcelExportUtil {
 		return result;
 	}
 
-	/**
-	 * 复制sheet中的行数据
-	 * 
-	 * @param sheet
-	 * @param pStartRow
-	 * @param pEndRow
-	 * @param pPosition
-	 */
-	protected static void copyRows(Sheet sheet, int pStartRow, int pEndRow,
-			int pPosition, int colTotal) {
-		Row sourceRow = null;
-		Row targetRow = null;
-		Cell sourceCell = null;
-		Cell targetCell = null;
-		CellRangeAddress region = null;
-
-		if ((pStartRow == -1) || (pEndRow == -1)) {
-			return;
-		}
-		if (pStartRow == pPosition)
-			return;
-		// 拷贝合并的单元格
-		int numregions = sheet.getNumMergedRegions();
-		for (int i = 0; i < numregions; i++) {
-			region = sheet.getMergedRegion(i);
-			CellRangeAddress region2 = null;
-			if ((region.getFirstRow() >= pStartRow)
-					&& (region.getLastRow() <= pEndRow)) {
-				int targetRowFrom = region.getFirstRow() - pStartRow
-						+ pPosition;
-				int targetRowTo = region.getLastRow() - pStartRow + pPosition;
-				region2 = new CellRangeAddress(targetRowFrom, targetRowTo,
-						region.getFirstColumn(), region.getLastColumn());
-				sheet.addMergedRegion(region2);
-			}
-		}
-		// 拷贝行并填充数据
-		for (int i = pStartRow; i <= pEndRow; i++) {
-			sourceRow = sheet.getRow(i);
-			if (sourceRow == null) {
-				continue;
-			}
-			targetRow = sheet.createRow(i - pStartRow + pPosition);
-			targetRow.setHeight(sourceRow.getHeight());
-			for (int j = sourceRow.getFirstCellNum(); j < colTotal; j++) {
-				sourceCell = sourceRow.getCell(j);
-				if (sourceCell == null) {
-					continue;
-				}
-				targetCell = targetRow.createCell(j);
-				targetCell.setCellStyle(sourceCell.getCellStyle());
-				int cType = sourceCell.getCellType();
-				switch (cType) {
-				case Cell.CELL_TYPE_BOOLEAN:
-					targetCell.setCellValue(sourceCell.getBooleanCellValue());
-					break;
-				case Cell.CELL_TYPE_ERROR:
-					targetCell
-							.setCellErrorValue(sourceCell.getErrorCellValue());
-					break;
-				case Cell.CELL_TYPE_FORMULA:
-					//调整公式
-					int dataRowSpan=pPosition-pStartRow;
-					targetCell.setCellFormula(adjustFormula(sourceCell.getCellFormula(),dataRowSpan));
-					break;
-				case Cell.CELL_TYPE_NUMERIC:
-					targetCell.setCellValue(sourceCell.getNumericCellValue());
-					break;
-				case Cell.CELL_TYPE_STRING:
-					targetCell.setCellValue(sourceCell.getStringCellValue());
-					break;
-				}
-			}
-		}
-	}
 
 	/**
 	 * 调整公式
@@ -800,6 +722,25 @@ public class ExcelExportUtil {
 	    } 
 		return str;
 	}
+
+	/**
+	 * 复制sheet中的行数据
+	 * 
+	 * @param sheet
+	 * @param pStartRow
+	 * @param pEndRow
+	 * @param pPosition
+	 */
+	protected static void copySheetRows(Sheet sheet, int pStartRow, int pEndRow,
+			int pPosition, int colTotal) {
+		if ((pStartRow == -1) || (pEndRow == -1)) {
+			return;
+		}
+		if (pStartRow == pPosition)
+			return;
+		copyRows(sheet, pStartRow, pEndRow, sheet, pPosition);
+	}
+
 	/**
 	 * 将sheet中的所有行复制到目标sheet中，并删除原sheet
 	 * 
@@ -807,12 +748,6 @@ public class ExcelExportUtil {
 	 * @param descSheet
 	 */
 	protected static void copySheet(Sheet sourceSheet, Sheet targetSheet) {
-		Row sourceRow = null;
-		Row targetRow = null;
-		Cell sourceCell = null;
-		Cell targetCell = null;
-		CellRangeAddress region = null;
-
 		// 首先获取sourceSheet的最后一行行数
 		int pStartRow = 0;
 		int pEndRow = sourceSheet.getLastRowNum();
@@ -820,22 +755,77 @@ public class ExcelExportUtil {
 		// 获取targetSheet的最后一行
 		int pPosition = targetSheet.getLastRowNum() + 3;
 
-		// 拷贝合并的单元格
+		// 拷贝行并填充数据
+		copyRows(sourceSheet,pStartRow,pEndRow,targetSheet,pPosition);
+	}
+
+
+	/**
+	 * 重新计算公式
+	 */
+	private static void adjustformula(Sheet sourceSheet) {
+		Row sourceRow = null;
+		Cell sourceCell = null;
+
+		// 首先获取sourceSheet的最后一行行数
+		int pEndRow = sourceSheet.getLastRowNum();
+
+		for (int i = 0; i <= pEndRow; i++) {
+			sourceRow = sourceSheet.getRow(i);
+			if (sourceRow == null) {
+				continue;
+			}
+			for (int j = sourceRow.getFirstCellNum(); j < sourceRow
+					.getPhysicalNumberOfCells(); j++) {
+				sourceCell = sourceRow.getCell(j);
+				if (sourceCell == null) {
+					continue;
+				}
+				if(sourceCell.getCellTypeEnum()==CellType.FORMULA){
+					sourceCell.setCellFormula(sourceCell.getCellFormula());
+				}
+			}
+		}
+		
+	}
+	/**
+	 * 拷贝合并的单元格
+	 */
+	private static void copyMergedRegions(Sheet sourceSheet,int pStartRow, int pEndRow,
+			Sheet targetSheet,int pPosition){
+		CellRangeAddress region = null;
 		for (int i = 0; i < sourceSheet.getNumMergedRegions(); i++) {
 			region = sourceSheet.getMergedRegion(i);
 			CellRangeAddress region2 = null;
 			if ((region.getFirstRow() >= pStartRow)
 					&& (region.getLastRow() <= pEndRow)) {
-				int targetRowFrom = region.getFirstRow() - pStartRow
-						+ pPosition;
-				int targetRowTo = region.getLastRow() - pStartRow + pPosition;
+				int targetRowFrom = region.getFirstRow() - pStartRow + pPosition;
+				int targetRowTo   = region.getLastRow()  - pStartRow + pPosition;
 				region2 = new CellRangeAddress(targetRowFrom, targetRowTo,
 						region.getFirstColumn(), region.getLastColumn());
 				targetSheet.addMergedRegion(region2);
 			}
 		}
+	}
+
+	/**
+	 * 复制行数据到targetSheet的指定位置
+	 * @param sourceSheet
+	 * @param pStartRow
+	 * @param pEndRow
+	 * @param targetSheet
+	 * @param pPosition
+	 */
+	private static void copyRows(Sheet sourceSheet, int pStartRow, int pEndRow, Sheet targetSheet, int pPosition) {
+		Row sourceRow = null;
+		Row targetRow = null;
+		Cell sourceCell = null;
+		Cell targetCell = null;
+		
+		// 拷贝合并的单元格
+		copyMergedRegions(sourceSheet,pStartRow,pEndRow,targetSheet,pPosition);
 		// 拷贝行并填充数据
-		for (int i = 0; i <= pEndRow; i++) {
+		for (int i = pStartRow; i <= pEndRow; i++) {
 			sourceRow = sourceSheet.getRow(i);
 			if (sourceRow == null) {
 				continue;
@@ -849,62 +839,31 @@ public class ExcelExportUtil {
 				}
 				targetCell = targetRow.createCell(j);
 				targetCell.setCellStyle(sourceCell.getCellStyle());
-				int cType = sourceCell.getCellType();
-				targetCell.setCellType(cType);
+				CellType cType = sourceCell.getCellTypeEnum();
 				switch (cType) {
-				case Cell.CELL_TYPE_BOOLEAN:
+				case BOOLEAN:
 					targetCell.setCellValue(sourceCell.getBooleanCellValue());
 					break;
-				case Cell.CELL_TYPE_ERROR:
+				case ERROR:
 					targetCell
 							.setCellErrorValue(sourceCell.getErrorCellValue());
 					break;
-				case Cell.CELL_TYPE_FORMULA:
-					int offset=targetCell.getRowIndex()-sourceCell.getRowIndex();
-					targetCell.setCellFormula(adjustFormula(sourceCell.getCellFormula(),offset));
+				case FORMULA:
+					//调整公式
+					int dataRowSpan=pPosition-pStartRow;
+					targetCell.setCellFormula(adjustFormula(sourceCell.getCellFormula(),dataRowSpan));
 					break;
-				case Cell.CELL_TYPE_NUMERIC:
+				case NUMERIC:
 					targetCell.setCellValue(sourceCell.getNumericCellValue());
 					break;
-				case Cell.CELL_TYPE_STRING:
+				case STRING:
+					targetCell.setCellValue(sourceCell.getStringCellValue());
+					break;
+				default:
 					targetCell.setCellValue(sourceCell.getStringCellValue());
 					break;
 				}
 			}
-		}
+		}	
 	}
-
-	/**
-	 * 重新计算公式
-	 */
-	private static void adjustformula(Sheet sourceSheet) {
-		Row sourceRow = null;
-		Cell sourceCell = null;
-
-		// 首先获取sourceSheet的最后一行行数
-		int pEndRow = sourceSheet.getLastRowNum();
-
-		// 拷贝行并填充数据
-		for (int i = 0; i <= pEndRow; i++) {
-			sourceRow = sourceSheet.getRow(i);
-			if (sourceRow == null) {
-				continue;
-			}
-			for (int j = sourceRow.getFirstCellNum(); j < sourceRow
-					.getPhysicalNumberOfCells(); j++) {
-				sourceCell = sourceRow.getCell(j);
-				if (sourceCell == null) {
-					continue;
-				}
-				int cType = sourceCell.getCellType();
-				switch (cType) {
-				case Cell.CELL_TYPE_FORMULA:
-					sourceCell.setCellFormula(sourceCell.getCellFormula());
-					break;
-				}
-			}
-		}
-		
-	}
-
 }

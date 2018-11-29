@@ -1,5 +1,9 @@
 package com.wiscess.filter.xss;
 
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
@@ -45,6 +49,18 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
 		return arr;
 	}
 
+	@Override
+	public Map<String, String[]> getParameterMap(){
+		Map<String, String[]> parameterMap=new HashMap<>();
+        Enumeration<String> enumeration = getParameterNames();
+        while (enumeration.hasMoreElements()) {
+            String name = enumeration.nextElement();
+            name = JsoupUtil.clean(name);
+            String[] values = getParameterValues(name);
+            parameterMap.put(name, values);
+        }
+        return parameterMap;
+	}
 	/**
 	 * * 覆盖getHeader方法，将参数名和参数值都做xss过滤。<br/>
 	 * * 如果需要获得原始的值，则通过super.getHeaders(name)来获取<br/>

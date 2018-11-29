@@ -1,4 +1,4 @@
-package com.wiscess.filter.autoconfig;
+package com.wiscess.filter.autoconfig.properties;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @ConfigurationProperties(prefix = "filter.filetype")
 public class FileTypeFilterProperties {
-	private static final String DEFAULT_ERROR_PAGE = "/403.html";
+	private static final String DEFAULT_ERROR_PAGE = "/error";
 	
 	private String errorPage=DEFAULT_ERROR_PAGE;
 	

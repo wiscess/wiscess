@@ -72,9 +72,9 @@ public class ExpressionUtil {
 	 */
 	public static Integer executeForInt(final ITemplateContext context,final IProcessableElementTag element, final String attributeName,Integer defaultValue){
         final Object result = execute(context, element, attributeName,defaultValue);
-        return (result==null)
-        		? defaultValue
-        		: EvaluationUtils.evaluateAsNumber(result).intValue();
+        if(result==null)
+        	return defaultValue;
+        return EvaluationUtils.evaluateAsNumber(result).intValue();
 	}
 	public static Integer executeForInt(final ITemplateContext context,final IProcessableElementTag element, final String attributeName){
 		return executeForInt(context, element, attributeName,null);

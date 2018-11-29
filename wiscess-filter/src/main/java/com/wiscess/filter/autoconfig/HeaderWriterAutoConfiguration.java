@@ -14,9 +14,11 @@ import org.springframework.security.web.header.writers.ContentSecurityPolicyHead
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.security.web.header.writers.XContentTypeOptionsHeaderWriter;
 import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
+import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
+import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter.XFrameOptionsMode;
 
-import com.wiscess.common.utils.StringUtil;
 import com.wiscess.filter.header.P3pDisabledWriter;
+import com.wiscess.utils.StringUtils;
 
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
 
@@ -44,15 +46,20 @@ public class HeaderWriterAutoConfiguration {
 	private List<HeaderWriter> getHeaderWriters() {
 		List<HeaderWriter> writers = new ArrayList<HeaderWriter>();
 		addIfNotNull(writers, new P3pDisabledWriter());
+		addIfNotNull(writers, new CacheControlHeadersWriter());
+		if(StringUtils.isEmpty(policyDirectives)){
+			policyDirectives="default-src 'self' 'unsafe-inline' 'unsafe-eval';img-src 'self' data:;"; 
+		}
+		addIfNotNull(writers, new ContentSecurityPolicyHeaderWriter(policyDirectives));
+//		addIfNotNull(writers, new DelegatingRequestMatcherHeaderWriter());
+		//addIfNotNull(writers, new HpkpHeaderWriter());
+		//强制使用https传输
+		//addIfNotNull(writers, new HstsHeaderWriter());
+		addIfNotNull(writers, new ReferrerPolicyHeaderWriter(ReferrerPolicy.SAME_ORIGIN));
+//		addIfNotNull(writers, new StaticHeadersWriter());
 		addIfNotNull(writers, new XContentTypeOptionsHeaderWriter());
 		addIfNotNull(writers, new XXssProtectionHeaderWriter());
-		addIfNotNull(writers, new CacheControlHeadersWriter());
-		if(StringUtil.isEmpty(policyDirectives)){
-			addIfNotNull(writers, new ContentSecurityPolicyHeaderWriter("default-src 'self' 'unsafe-inline' 'unsafe-eval'"));
-		}else{
-			addIfNotNull(writers, new ContentSecurityPolicyHeaderWriter(policyDirectives));
-		}
-		addIfNotNull(writers, new ReferrerPolicyHeaderWriter(ReferrerPolicy.SAME_ORIGIN));
+		addIfNotNull(writers, new XFrameOptionsHeaderWriter(XFrameOptionsMode.SAMEORIGIN));
 		return writers;
 	}
 	private <T> void addIfNotNull(List<T> values, T value) {

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,6 +20,7 @@ import com.wiscess.security.encoder.MD5EncryptEncoder;
 import com.wiscess.security.encoder.RSAEncryptEncoder;
 import com.wiscess.security.encoder.RSAMD5EncryptEncoder;
 import com.wiscess.security.encoder.UpperCaseEncryptEncoder;
+import com.wiscess.security.jdbc.UserDetailsServiceImpl;
 import com.wiscess.security.sso.SSOAuthenticationEntryPoint;
 import com.wiscess.security.sso.SSOAuthenticationProvider;
 import com.wiscess.security.sso.SSOLoginConfigurer;
@@ -36,7 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @EnableConfigurationProperties(WiscessSecurityProperties.class)
 @ConditionalOnWebApplication
-public abstract class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
+public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
 	/**
 	 * 默认静态资源文件
 	 */
@@ -46,7 +48,9 @@ public abstract class WiscessWebSecurityConfig extends WebSecurityConfigurerAdap
 	protected WiscessSecurityProperties wiscessSecurityProperties;
 	@Autowired
 	protected AuthenticationSuccessHandler loginSuccessHandler;
-
+	@Autowired
+	protected UserDetailsServiceImpl userDetailsService;
+	
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
 		DaoAuthenticationProvider authProvider;
 		if(wiscessSecurityProperties.isSsoMode()){
@@ -62,6 +66,7 @@ public abstract class WiscessWebSecurityConfig extends WebSecurityConfigurerAdap
 					:new DaoAuthenticationProvider();
 		}
 		authProvider.setPasswordEncoder(passwordEncoder());
+		authProvider.setUserDetailsService(userDetailsService);
 		configure(authProvider);
         auth.authenticationProvider(authProvider);
     }
@@ -70,7 +75,6 @@ public abstract class WiscessWebSecurityConfig extends WebSecurityConfigurerAdap
 	 * @param authProvider
 	 */
 	protected void configure(DaoAuthenticationProvider authProvider){
-		
 	}
 	/**
 	 * 配置不需要进行权限认证的资源
@@ -92,6 +96,8 @@ public abstract class WiscessWebSecurityConfig extends WebSecurityConfigurerAdap
     protected void configure(HttpSecurity http) throws Exception {
     	//处理Header的内容
 		http.headers()
+			.xssProtection()
+			.and()
 			.frameOptions()
 				.sameOrigin();
 		//排除Csrf路径
@@ -192,4 +198,9 @@ public abstract class WiscessWebSecurityConfig extends WebSecurityConfigurerAdap
 		}
 		return null;
 	}
+    @Bean
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
+
 }

@@ -75,11 +75,13 @@
     		<artifactId>spring-boot-starter-security</artifactId>
     		<version>${spring-boot.version}</version>
     	</dependency>
+    	<!-- 
     	<dependency>
     		<groupId>org.springframework.boot</groupId>
     		<artifactId>spring-boot-starter-tomcat</artifactId>
     		<version>${spring-boot.version}</version>
     	</dependency>
+    	 -->
     	<dependency>
     		<groupId>org.springframework.boot</groupId>
     		<artifactId>spring-boot-starter-jdbc</artifactId>
@@ -94,6 +96,26 @@
     		<groupId>com.wiscess</groupId>
     		<artifactId>wiscess-jpa</artifactId>
     		<version>${wiscess-jpa.version}</version>
+    	</dependency>
+    	<dependency>
+    		<groupId>org.springframework.security.oauth</groupId>
+    		<artifactId>spring-security-oauth2</artifactId>
+    		<version>RELEASE</version>
+    	</dependency>
+    	<dependency>
+    		<groupId>org.springframework.security</groupId>
+    		<artifactId>spring-security-core</artifactId>
+    		<version>5.0.7.RELEASE</version>
+    	</dependency>
+    	<dependency>
+    		<groupId>org.springframework</groupId>
+    		<artifactId>spring-core</artifactId>
+    		<version>5.0.8.RELEASE</version>
+    	</dependency>
+    	<dependency>
+    		<groupId>org.springframework</groupId>
+    		<artifactId>spring-webmvc</artifactId>
+    		<version>5.0.8.RELEASE</version>
     	</dependency>
     </dependencies>
 </project>

@@ -360,7 +360,7 @@ public class RSA_Encrypt {
 		String ming = "";
 		byte[][] arrays = splitArray(bytes, key_len);
 		for (byte[] arr : arrays) {
-			ming += new String(cipher.doFinal(arr),"utf-8");
+			ming += new String(cipher.doFinal(arr));
 		}
 		return ming;
 	}
@@ -515,10 +515,21 @@ public class RSA_Encrypt {
 		//System.out.println(target);
 
 		// 签名
-		 source="296502429874592438576248524admin";
-		 String s=sign(source);
-		 System.out.println(s);
-		 //验证
-		 System.out.println(verify(source, s));
+//		 source="296502429874592438576248524admin";
+//		 String s=sign(source);
+//		 System.out.println(s);
+//		 //验证
+//		 System.out.println(verify(source, s));
+		String encoding=System.getProperty("sun.jnu.encoding");
+		System.out.println(encoding);
+		source = "*U&Y6t5r";
+		System.out.println(source);
+		// 要加密的字符串
+		String cryptograph = encrypt(source, true);// 生成的密文
+		System.out.println(cryptograph);
+		//解密
+		String target = decrypt(cryptograph, true);// 解密密文
+//		target=new String(target.getBytes("utf-8"), encoding);
+		System.out.println(target);
 	}
 }

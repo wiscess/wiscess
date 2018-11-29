@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 
+import org.apache.tools.zip.ZipFile;
 import org.apache.tools.zip.ZipOutputStream;
 
 import com.wiscess.utils.StringUtils;
@@ -26,7 +27,8 @@ public class ZipPath {
 	@SuppressWarnings("rawtypes")
 	public static void unzip(String zipFileName, String outputDirectory)
 	 throws Exception { 
-		org.apache.tools.zip.ZipFile zipFile = new  org.apache.tools.zip.ZipFile(new File(zipFileName));
+		String encoding=System.getProperty("sun.jnu.encoding");
+		ZipFile zipFile = new ZipFile(new File(zipFileName),encoding);
 		Enumeration e = zipFile.getEntries();
 		org.apache.tools.zip.ZipEntry z = null;
 		InputStream in = null;

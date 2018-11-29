@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.wiscess.filter.FileTypeFilter;
+import com.wiscess.filter.autoconfig.properties.FileTypeFilterProperties;
 import com.wiscess.filter.matcher.FileTypeRequestMatcher;
 
 @Configuration

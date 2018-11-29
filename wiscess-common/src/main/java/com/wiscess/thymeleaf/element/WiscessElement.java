@@ -9,13 +9,13 @@ import org.thymeleaf.model.AttributeValueQuotes;
 import org.thymeleaf.model.IModelFactory;
 import org.thymeleaf.model.ITemplateEvent;
 
-import com.wiscess.utils.StringUtils;
 @SuppressWarnings("unchecked")
 public abstract class WiscessElement<T>{
 	
 	protected String elementName;
 	protected IModelFactory modelFactory;
 	protected String text="";
+	protected List<ITemplateEvent> content=new ArrayList<>();
 	
     final Map<String,String> attributes = new LinkedHashMap<String,String>();
 
@@ -45,23 +45,30 @@ public abstract class WiscessElement<T>{
 	}
 	public T text(String _text){
 		text=_text;
+		content.add(modelFactory.createText(text));
 		return (T)this;
 	}
 	
-	protected void setAttribute(String name, String value){
+	public void setAttribute(String name, String value){
 		if(value!=null){
 			attributes.put(name, value);
 		}
 	}
+	
+	public T addContent(List<ITemplateEvent> nodes) {
+		content.addAll(nodes);
+		return (T)this;
+	}
 	public List<ITemplateEvent> build(){
 		List<ITemplateEvent> nodes=new ArrayList<>();
-		if(StringUtils.isEmpty(text)){
+		
+		if(content.size()==0){
 	        //没有内容
 			nodes.add(modelFactory.createStandaloneElementTag(elementName, attributes, AttributeValueQuotes.DOUBLE, false, true));
 		}else{
 			//有内容
 			nodes.add(modelFactory.createOpenElementTag(elementName, attributes, AttributeValueQuotes.DOUBLE, false));
-			nodes.add(modelFactory.createText(text));
+			nodes.addAll(content);
 			nodes.add(modelFactory.createCloseElementTag(elementName));
 		}
         return nodes;

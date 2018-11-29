@@ -19,13 +19,15 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 
 import com.wiscess.jpa.jdbc.JdbcJpaSupport;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class UserJdbcJpaSupport extends JdbcJpaSupport implements UserDetailsService{
+@Service
+public class UserDetailsServiceImpl extends JdbcJpaSupport implements UserDetailsService{
 
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 

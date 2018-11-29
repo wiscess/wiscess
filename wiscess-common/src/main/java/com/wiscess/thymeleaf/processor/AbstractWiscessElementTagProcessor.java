@@ -43,11 +43,19 @@ public abstract class AbstractWiscessElementTagProcessor extends AbstractElement
 		/*
 		 * 指示引擎用指定的模型替换整个元素。
 		 */
-		structureHandler.insertImmediatelyAfter(model, false);
+		structureHandler.replaceWith(model, false);
 	}
 
 	protected abstract List<ITemplateEvent> doIntenalProcess(ITemplateContext context, IProcessableElementTag tag, IModelFactory modelFactory);
 
+	/**
+	 * 只添加选项内容
+	 * @param list
+	 * @param modelFactory
+	 * @param dictId
+	 * @param name
+	 * @param matched
+	 */
 	protected void addOption(List<ITemplateEvent> list, IModelFactory modelFactory, String dictId, String name, boolean matched) {
 		list.addAll(new Option(modelFactory).value(dictId).selected(matched).title(name).text(name).build());
 	}

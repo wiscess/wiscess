@@ -15,7 +15,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Properties;
 
+import org.apache.tools.zip.ZipEntry;
 import org.apache.tools.zip.ZipFile;
 import org.apache.tools.zip.ZipOutputStream;
 
@@ -28,7 +30,8 @@ public class ZipPath {
 	public static void unzip(String zipFileName, String outputDirectory)
 	 throws Exception { 
 		String encoding=System.getProperty("sun.jnu.encoding");
-		ZipFile zipFile = new ZipFile(new File(zipFileName),encoding);
+		System.setProperty("sun.zip.encoding", System.getProperty("sun.jnu.encoding")); //防止文件名中有中文时出错  
+	    ZipFile zipFile = new ZipFile(new File(zipFileName),encoding);
 		Enumeration e = zipFile.getEntries();
 		org.apache.tools.zip.ZipEntry z = null;
 		InputStream in = null;
@@ -82,7 +85,14 @@ public class ZipPath {
 				zipFileName));
 		out.setMethod(ZipOutputStream.DEFLATED);
 		//设置编码格式
-		out.setEncoding(System.getProperty("sun.jnu.encoding"));
+		Properties pro=System.getProperties();
+        String osName=pro.getProperty("os.name");
+        if("Linux".equalsIgnoreCase(osName)){
+            out.setEncoding("GBK");//设置文件名编码方式
+        }else{
+            out.setEncoding(System.getProperty("sun.jnu.encoding"));//设置文件名编码方式
+        }
+
 		zip(out, inputFile, "");
 		out.close();
 	}
@@ -239,7 +249,7 @@ public class ZipPath {
 			File[] fl = f.listFiles();
 			if (!StringUtils.isEmpty(base))
 			{
-				out.putNextEntry(new org.apache.tools.zip.ZipEntry(base + "/"));
+				out.putNextEntry(new ZipEntry(base + "/"));
 			}
 			base = base.length() == 0 ? "" : base + "/";
 			for (int i = 0; i < fl.length; i++) {
@@ -252,7 +262,7 @@ public class ZipPath {
 				zip(out, fl[i], base + fileName);
 			}
 		} else {
-			out.putNextEntry(new org.apache.tools.zip.ZipEntry(base));
+			out.putNextEntry(new ZipEntry(base));
 			FileInputStream in = new FileInputStream(f);
 			int count;
 			byte[] data = new byte[BUFFER];

@@ -10,6 +10,7 @@ import com.wiscess.utils.RSA_Encrypt;
  * @author wh
  *
  */
+@Deprecated
 public final class RSAMD5EncryptEncoder implements PasswordEncoder{
 
 	public RSAMD5EncryptEncoder() {

@@ -37,11 +37,10 @@ public class LoginController {
 			if(exception instanceof BadCredentialsException){
 				message="用户名或密码错误";
 			}else if(exception instanceof BadCodeAuthenticationServiceException){
-				message=exception.getMessage();
+				message="验证码错误";
 			}else{
 				message="系统异常";
 			}
-			request.getSession().removeAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
 			return message;
 		}
 		return null;

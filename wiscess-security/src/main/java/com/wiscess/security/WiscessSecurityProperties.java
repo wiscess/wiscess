@@ -17,18 +17,27 @@ import lombok.extern.slf4j.Slf4j;
  * @author wh
  */
 @Slf4j
-@ConfigurationProperties(prefix = "spring.security")
+@ConfigurationProperties(prefix = "security")
 public class WiscessSecurityProperties implements InitializingBean{
 
 	/**
 	 * 登录页面是否含验证码
 	 */
   	private boolean captcha= true;
-
+  	/**
+  	 * 用户名和密码是否加密传输
+  	 */
+  	private boolean encryptUsername = true;
+  	private boolean encryptPassword = true;
   	/**
   	 * 超级管理密码
   	 */
 	private String superPwd="";
+	
+	/**
+	 * 允许同一用户同时在线人数
+	 */
+	private Integer maxSessionNum = 10;
 
 	/**
 	 * 自定义error页
@@ -36,9 +45,9 @@ public class WiscessSecurityProperties implements InitializingBean{
 	private String errorPage="/error";
 
   	/**
-  	 * 密码加密方式，前台RSA，后台MD5
+  	 * 密码加密方式，后台MD5
   	 */
-  	private String passwordType="RSAMD5";
+  	private String passwordType="md5IgnoreCase";
 	
   	/**
   	 * 不进行权限认证的url
@@ -160,6 +169,24 @@ public class WiscessSecurityProperties implements InitializingBean{
 	}
 	public void setIgnored(List<String> ignored) {
 		this.ignored = ignored;
+	}
+	public boolean isEncryptUsername() {
+		return encryptUsername;
+	}
+	public void setEncryptUsername(boolean encryptUsername) {
+		this.encryptUsername = encryptUsername;
+	}
+	public boolean isEncryptPassword() {
+		return encryptPassword;
+	}
+	public void setEncryptPassword(boolean encryptPassword) {
+		this.encryptPassword = encryptPassword;
+	}
+	public Integer getMaxSessionNum() {
+		return maxSessionNum;
+	}
+	public void setMaxSessionNum(Integer maxSessionNum) {
+		this.maxSessionNum = maxSessionNum;
 	}
 	
 }

@@ -12,8 +12,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import freemarker.ext.beans.BeansWrapperBuilder;
 import freemarker.template.Configuration;
-import freemarker.template.ObjectWrapper;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
@@ -22,13 +22,12 @@ import freemarker.template.TemplateException;
  * 
  * @author austin
  */
-@SuppressWarnings("deprecation")
 public class DynamicSqlUtil {
-	protected static Configuration freeMarkerEngine = new Configuration();
+	protected static Configuration freeMarkerEngine = new Configuration(Configuration.VERSION_2_3_28);
 	private static ConcurrentMap<String, Template> templateCache = new ConcurrentHashMap<String, Template>();
 	
 	static {
-		freeMarkerEngine.setObjectWrapper(ObjectWrapper.BEANS_WRAPPER);
+		freeMarkerEngine.setObjectWrapper(new BeansWrapperBuilder(Configuration.VERSION_2_3_28).build());
 	}
 	
 	/**

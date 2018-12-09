@@ -1,5 +1,6 @@
 package com.wiscess.filter.autoconfig.properties;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -11,7 +12,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "filter.xss")
 public class XssFilterProperties {
 	
-	private List<String> excludes;
+	private List<String> excludes=new ArrayList<>();
 	
 	private Boolean isIncludeRichText=false;
 

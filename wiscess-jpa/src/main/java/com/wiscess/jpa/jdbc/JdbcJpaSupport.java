@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
@@ -135,7 +136,8 @@ public class JdbcJpaSupport {
 	
 	private <E> RowMapper<E> getRowMaperByClazz(Class<E> clazz){
 		try {
-			if(((Class<?>) clazz.getField("TYPE").get(null)).isPrimitive())
+			if(clazz==String.class 
+					|| ((Class<?>) clazz.getField("TYPE").get(null)).isPrimitive())
 				return new SingleColumnRowMapper<E>(clazz);
 		} catch (NoSuchFieldException | SecurityException e) {
 		} catch (IllegalArgumentException e) {
@@ -262,7 +264,7 @@ public class JdbcJpaSupport {
 			seCount = processSql(params, countSqlName);
 		}
 		//处理排序
-		if(pageable.getSort()!=null){
+		if(pageable.getSort()!=null && pageable.getSort()!=Sort.unsorted()){
 			Order order=pageable.getSort().iterator().next();
 			params.put("orderBy", order.getProperty()+" "+order.getDirection().toString().toLowerCase());
 		}

@@ -8,25 +8,39 @@ import com.wiscess.cache.CacheClearable;
 import com.wiscess.query.config.processor.QueryResourcesLoader;
 import com.wiscess.query.provider.IQueryProvider;
 
+/**
+ * sql语句缓存
+ * @author wh
+ */
 public final class Query implements CacheClearable{
 	
-	private static Query builder;
+	private static Query query;
 	
 	/**
 	 * 创建QueryBuilder
 	 * @return
 	 */
- 	public static Query getBuilder() {
-		if(builder!=null)
-			return builder;
-		builder=new Query();
-		return builder;
+ 	public static Query getInstance() {
+		if(query!=null)
+			return query;
+		query=new Query();
+		query.build();
+		return query;
 	}
-	
+ 	
+	private Query(){
+		/**
+		 * 添加所有sqls开头的yml文件和queryProviderMpping-开头的xml文件
+		 */
+		sqlResourceFiles.add("classpath*:queryProviderMapping-*.xml");
+		sqlResourceFiles.add("classpath*:sqls-*.yml");
+	}
 	/**
 	 * 缓存
 	 */
 	protected static List<IQueryProvider> queryProviderList=new ArrayList<IQueryProvider>();
+	protected static List<String> sqlResourceFiles=new ArrayList<String>();
+	
 	/**
 	 * 查询queryName
 	 * @param queryName
@@ -34,7 +48,7 @@ public final class Query implements CacheClearable{
 	 */
 	public static String getQuery(String queryName) {
 		if(queryProviderList==null || queryProviderList.size()==0){
-			getBuilder().build();
+			getInstance();
 		}
 		if(queryProviderList!=null){
 			for (IQueryProvider p : queryProviderList) {
@@ -46,24 +60,7 @@ public final class Query implements CacheClearable{
 		}
 		return null;
 	}
-	private static List<String> sqlResourceFiles=new ArrayList<String>();
-	/**
-	 * 添加资源文件
-	 */
-	public void addFilePatterns(List<String> patterns) {
-		if(patterns==null){
-			patterns=new ArrayList<>();
-			patterns.add("classpath:queryProviderMapping-*.xml");
-			patterns.add("classpath:sqls-*.yml");
-		}else{
-			for(String p:patterns){
-				if(!p.startsWith("classpath")){
-					patterns.set(patterns.indexOf(p), "classpath:"+p);
-				}
-			}
-		}
-		sqlResourceFiles.addAll(patterns);
-	}
+
 	public Query build(){
 		//加载文件
 		if(sqlResourceFiles!=null && sqlResourceFiles.size()>0){
@@ -83,6 +80,6 @@ public final class Query implements CacheClearable{
 
 	@Override
 	public void clearCache() {
-		getBuilder().build();
+		build();
 	}
 }

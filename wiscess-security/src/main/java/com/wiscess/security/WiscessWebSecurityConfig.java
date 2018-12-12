@@ -1,6 +1,8 @@
 package com.wiscess.security;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -85,14 +87,15 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
 	 * 配置不需要进行权限认证的资源
 	 */
     public void configure(WebSecurity web) throws Exception { 
-    	Arrays.asList(DEFAULT_IGNORES).forEach((item)->log.info("ignored resource:{}",item.trim()));
-    	web.ignoring().antMatchers(DEFAULT_IGNORES);
+    	List<String> ignores=new ArrayList<String>(Arrays.asList(DEFAULT_IGNORES));
 		if(wiscessSecurityProperties.getErrorPage()!=null){
-			web.ignoring().antMatchers(wiscessSecurityProperties.getErrorPage());
+			ignores.add(wiscessSecurityProperties.getErrorPage());
 		}
 		if(wiscessSecurityProperties.getIgnored()!=null && wiscessSecurityProperties.getIgnored().size()>0){
-			web.ignoring().antMatchers(wiscessSecurityProperties.getIgnored().toArray(new String[0]));
+			ignores.addAll(wiscessSecurityProperties.getIgnored());
 		}
+    	ignores.forEach((item)->log.info("ignored resource:{}",item.trim()));
+		web.ignoring().antMatchers(ignores.toArray(new String[0]));
     }  
 
     /**

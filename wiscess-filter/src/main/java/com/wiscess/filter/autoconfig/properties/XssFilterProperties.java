@@ -31,7 +31,4 @@ public class XssFilterProperties {
 	public void setExcludes(List<String> excludes) {
 		this.excludes = excludes;
 	}
-
-	
-
 }

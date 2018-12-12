@@ -22,7 +22,7 @@ application.yml中配置如下
 #过滤器设置
 filter:
   filetype:
-    errorPage: /deny.html
+    errorPage: /deny
     urlPatterns:
       /html/**=jpg|bmp|png
       /photo/**=jpg|png

@@ -10,10 +10,9 @@
 	<properties>
 		<!-- github server corresponds to entry in ~/.m2/settings.xml -->
 		<maven.dir>D:/GitHome/mvn-repo</maven.dir><!--  -->
-		<spring-boot.version>2.0.4.RELEASE</spring-boot.version>
-		<wiscess-utils.version>2.0</wiscess-utils.version>
+		<spring-boot.version>2.1.1.RELEASE</spring-boot.version>
 		<java.version>1.8</java.version>
-		<wiscess-common.version>2.0</wiscess-common.version>
+		<wiscess.version>2.0</wiscess.version>
 	</properties>
 	<build>
 	<plugins>
@@ -74,7 +73,7 @@
 		<dependency>
 			<groupId>com.wiscess</groupId>
 			<artifactId>wiscess-common</artifactId>
-			<version>${wiscess-common.version}</version>
+			<version>${wiscess.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>dom4j</groupId>

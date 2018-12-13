@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.wiscess.common.utils.StringUtil;
+import com.wiscess.utils.StringUtils;
 import com.wiscess.wechat.config.WechatProperties;
 import com.wiscess.wechat.service.WechatService;
 import com.wiscess.wechat.util.SignUtil;
@@ -48,7 +48,7 @@ public class WechatServlet extends HttpServlet {
 		//随机字符串
 		String echostr = request.getParameter("echostr");
 
-		if(StringUtil.isEmpty(timestamp) || StringUtil.isEmpty(nonce) || StringUtil.isEmpty(signature) || StringUtil.isEmpty(echostr)){
+		if(StringUtils.isEmpty(timestamp) || StringUtils.isEmpty(nonce) || StringUtils.isEmpty(signature) || StringUtils.isEmpty(echostr)){
 			System.out.println("微信公众号基本配置接入异常");
 			log.debug("WechatServlet.doGet.failure:parameters is empty");
 			return;

@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.wiscess.common.utils.StringUtil;
+import com.wiscess.utils.StringUtils;
 import com.wiscess.wechat.config.WechatProperties;
 import com.wiscess.wechat.dto.ApiResult;
 import com.wiscess.wechat.dto.WxMenu;
@@ -303,7 +303,7 @@ public class WeChatMenuControll {
 	} 
 		      
 	private String getFilePath(String savePath){
-		if(StringUtil.isEmpty(savePath))
+		if(StringUtils.isEmpty(savePath))
 			savePath="classpath:/";
 		log.debug(savePath);
 		String filepath=savePath;

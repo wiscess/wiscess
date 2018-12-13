@@ -12,7 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.wiscess.common.utils.StringUtil;
+import com.wiscess.utils.StringUtils;
 import com.wiscess.wechat.dto.WxItemDto;
 import com.wiscess.wechat.dto.WxItemNewDto;
 import com.wiscess.wechat.dto.WxItemParamsDto;
@@ -159,7 +159,7 @@ public class MaterialUtil extends BaseUtil {
 		
 		//图文消息内容集合
 		List<WxItemNewDto> news_arr = new ArrayList<WxItemNewDto>();
-		if(StringUtil.isNotEmpty(content)){
+		if(StringUtils.isNotEmpty(content)){
 			JSONObject jsonObject = JSONObject.fromObject(content);
 			JSONArray newsArray = jsonObject.getJSONArray("news_item");
 			
@@ -216,7 +216,7 @@ public class MaterialUtil extends BaseUtil {
 			}
 			// 根据内容类型获取扩展名
 			String fileExt = CommonUtil.getFileExt(conn.getHeaderField("Content-Type"));
-			fileExt = StringUtil.isEmpty(fileExt) ? ".jpg" : fileExt;
+			fileExt = StringUtils.isEmpty(fileExt) ? ".jpg" : fileExt;
 			// 将mediaId作为文件名
 			filePath = savePath + mediaId + fileExt;
 

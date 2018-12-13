@@ -25,8 +25,8 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.wiscess.common.utils.StringUtil;
 import com.wiscess.utils.MD5Util;
+import com.wiscess.utils.StringUtils;
 import com.wiscess.wechat.config.WechatProperties;
 import com.wiscess.wechat.service.WechatService;
 
@@ -68,7 +68,7 @@ public class WechatPayServlet extends HttpServlet{
 	        String code = map.get("result_code");
 	        //code="SUCCESS";
 	        System.out.println("----回单信息--code--"+code);
-			if(StringUtil.isNotEmpty(code) && code.equals("SUCCESS")){
+			if(StringUtils.isNotEmpty(code) && code.equals("SUCCESS")){
 				System.out.println("----回单信息----");
 				System.out.println("公众账号ID："+map.get("appid")+"\n"+ "商户号:"+map.get("mch_id")+"\n"+ "设备号:"+map.get("device_info")+"\n"+ "随机字符串:"+map.get("nonce_str")+"\n"+
 						"签名:"+map.get("sign")+"\n"+ "签名类型:"+map.get("sign_type")+"\n"+ "业务结果:"+map.get("result_code")+"\n"+ "错误代码:"+map.get("err_code")+"\n"+
@@ -176,7 +176,7 @@ public class WechatPayServlet extends HttpServlet{
         while (iter.hasNext()) {
             String key = iter.next();
             //map值为空不进行拼接
-            if(StringUtil.isNotEmpty(map.get(key))){
+            if(StringUtils.isNotEmpty(map.get(key))){
             	strSign += "&"+key+"="+map.get(key);
             }
         }

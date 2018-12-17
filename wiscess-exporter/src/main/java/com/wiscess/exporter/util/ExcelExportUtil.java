@@ -36,12 +36,12 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFClientAnchor;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import com.wiscess.utils.StringUtils;
 import com.wiscess.common.utils.FileUtils;
 import com.wiscess.exporter.dto.AssignedCell;
 import com.wiscess.exporter.dto.AssignedSheet;
 import com.wiscess.exporter.dto.ExportExcelParameter;
 import com.wiscess.exporter.exception.ManagerException;
-import com.wiscess.utils.StringUtils;
 
 public class ExcelExportUtil {
 	public static final SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
@@ -432,7 +432,8 @@ public class ExcelExportUtil {
 				totalCol=rowData.length;
 			// 如果是用复制行的模式，则调用copyRows复制出需要的内容行，否则，创建新行，并初始化每列数据
 			if (isNeedCopyTemplateRow) {
-				copyRows(sheet, rowNum, rowNum + dataRowSpan - 1, sheet, rowNumber);
+				copySheetRows(sheet, rowNum, rowNum + dataRowSpan - 1, rowNumber,
+						totalCol);
 			} else {
 				// 创建多行，把所有列都创建出来，并使用样式处理
 				for (int i = 0; i < dataRowSpan; i++) {

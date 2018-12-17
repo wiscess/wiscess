@@ -4,7 +4,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.core.io.DefaultResourceLoader;
 
 import com.itextpdf.html2pdf.ConverterProperties;
@@ -55,7 +54,7 @@ public class PdfConvertUtil {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeQuietly(pdfDoc);
+            //IOUtils.closeQuietly(pdfDoc);
         }
 
     }

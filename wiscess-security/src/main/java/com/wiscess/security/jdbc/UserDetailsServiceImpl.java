@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
+@ConditionalOnWebApplication
 public class UserDetailsServiceImpl extends JdbcJpaSupport implements UserDetailsService{
 
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();

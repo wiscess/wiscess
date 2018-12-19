@@ -149,7 +149,6 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
 			http.exceptionHandling().
 					accessDeniedPage(wiscessSecurityProperties.getErrorPage());
 			http.formLogin()
-			
 				//用于将页面中的验证码保存起来进行比较
 		        .authenticationDetailsSource(captchaAuthenticationDetailsSource())
 		        .loginPage("/login")

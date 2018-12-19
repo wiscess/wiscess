@@ -47,10 +47,9 @@ public class HeaderWriterAutoConfiguration {
 		List<HeaderWriter> writers = new ArrayList<HeaderWriter>();
 		addIfNotNull(writers, new P3pDisabledWriter());
 		addIfNotNull(writers, new CacheControlHeadersWriter());
-		if(StringUtils.isEmpty(policyDirectives)){
-			policyDirectives="default-src 'self' 'unsafe-inline' 'unsafe-eval';img-src 'self' data:;"; 
+		if(StringUtils.isNotEmpty(policyDirectives)) {
+			addIfNotNull(writers, new ContentSecurityPolicyHeaderWriter(policyDirectives));
 		}
-		addIfNotNull(writers, new ContentSecurityPolicyHeaderWriter(policyDirectives));
 //		addIfNotNull(writers, new DelegatingRequestMatcherHeaderWriter());
 		//addIfNotNull(writers, new HpkpHeaderWriter());
 		//强制使用https传输

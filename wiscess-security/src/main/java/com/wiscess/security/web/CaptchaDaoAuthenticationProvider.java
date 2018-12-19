@@ -26,6 +26,11 @@ public class CaptchaDaoAuthenticationProvider extends DaoAuthenticationProvider 
 	public CaptchaDaoAuthenticationProvider(WiscessSecurityProperties properties) {
 		this.wiscessSecurityProperties=properties;
 	}
+
+	public boolean supports(Class<?> authentication) {
+		//只接收UsernamePasswordAuthenticationToken
+		return (authentication == UsernamePasswordAuthenticationToken.class); 
+	}
 	@Override
 	protected void additionalAuthenticationChecks(UserDetails userDetails,
 			UsernamePasswordAuthenticationToken token)

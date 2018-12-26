@@ -4,13 +4,20 @@
 	<artifactId>wiscess-filter</artifactId>
 	<version>2.0</version>
 	<properties>
-		<!-- github server corresponds to entry in ~/.m2/settings.xml -->
-		<maven.dir>D:/GitHome/mvn-repo</maven.dir><!--  -->
+		<!-- <maven.dir>D:/GitHome/mvn-repo</maven.dir> -->
+		<distribution.url>http://42.96.168.102:8081/repository/wiscess/</distribution.url>
 		<spring-boot.version>2.1.1.RELEASE</spring-boot.version>
 		<java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<wiscess.version>2.0</wiscess.version>
 	</properties>
+    <!-- 远程发布 
+    <distributionManagement>
+        <repository>
+        	<id>wiscess</id>
+            <url>${distribution.url}</url>
+		</repository>    
+	</distributionManagement>-->
     <build>
         <plugins>
         	<!-- 编译插件 -->
@@ -53,8 +60,13 @@
 			<plugin>
 		        <artifactId>maven-deploy-plugin</artifactId>
 		        <version>2.8.2</version>
+		         <!-- 发布到本地
 		        <configuration>
 		            <altDeploymentRepository>internal.repo::default::file://${maven.dir}</altDeploymentRepository>
+		        </configuration>-->
+		        <!-- 发布到远程仓库-->
+		        <configuration>
+		            <altDeploymentRepository>wiscess::default::${distribution.url}</altDeploymentRepository>
 		        </configuration>
 		    </plugin>
         </plugins>
@@ -62,19 +74,15 @@
 	<!-- 仓库地址 -->
 	<repositories>
 		<repository>
-			<id>spring-milestone</id>
-			<url>https://repo.spring.io/libs-release</url>
+			<id>nexus</id>
+			<url>http://42.96.168.102:8081/repository/maven-public/</url>
 		</repository>
-        <repository>
-            <id>github</id>
-            <url>https://raw.github.com/wiscess/mvn-repo/release</url>
-        </repository>
 	</repositories>
 	<!-- 插件仓库地址 -->
 	<pluginRepositories>
 		<pluginRepository>
-			<id>spring-milestone</id>
-			<url>https://repo.spring.io/libs-release</url>
+			<id>nexus</id>
+			<url>http://42.96.168.102:8081/repository/maven-public/</url>
 		</pluginRepository>
 	</pluginRepositories>
 	<!-- 依赖包 -->

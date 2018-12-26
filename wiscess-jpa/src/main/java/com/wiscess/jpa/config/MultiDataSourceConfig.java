@@ -26,7 +26,6 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
 import org.springframework.jmx.export.MBeanExporter;
 import org.springframework.jmx.support.JmxUtils;
-import org.springframework.util.ClassUtils;
 
 import com.wiscess.utils.StringUtils;
 import com.wiscess.utils.DesUtils;
@@ -58,7 +57,6 @@ public class MultiDataSourceConfig {
     	return createDatasource(DEFAULT_PREFIX,"dataSource");
     }
 	
-	@SuppressWarnings("unchecked")
 	public DataSource createDatasource(String prefix,String dataSourceName){
 		String jndiName=env.getProperty(prefix+".jndiName");
     	if(StringUtils.isNotEmpty(jndiName)){
@@ -69,25 +67,27 @@ public class MultiDataSourceConfig {
     		excludeMBeanIfNecessary(dataSource, dataSourceName);
     		return dataSource;
     	}
+    	//普通模式的datasource
     	String url=readParameter(prefix,"url");
     	String username=readParameter(prefix,"username");
     	String password=readParameter(prefix,"password");
-    	String typeName=readParameter(prefix, "type");
-    	Class<? extends DataSource> type = null;
-    	if(StringUtils.isNotEmpty(typeName)) {
-    		try {
-    			type = (Class<? extends DataSource>) ClassUtils.forName(typeName,null);
-    		} catch (ClassNotFoundException e) {
-    			e.printStackTrace();
-    		} catch (LinkageError e) {
-    			e.printStackTrace();
-    		}
-    	}
+//    	String typeName=readParameter(prefix, "type");
+//    	Class<? extends DataSource> type = null;
+//    	if(StringUtils.isNotEmpty(typeName)) {
+//    		try {
+//    			type = (Class<? extends DataSource>) ClassUtils.forName(typeName,null);
+//    		} catch (ClassNotFoundException e) {
+//    			e.printStackTrace();
+//    		} catch (LinkageError e) {
+//    			e.printStackTrace();
+//    		}
+//    	}
+    	
     	return DataSourceBuilder.create()
 				.url(url)
 				.username(username)
 				.password(password)
-				.type(type)
+//				.type(type)
 				.build();
 	}
     @Bean

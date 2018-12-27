@@ -1,9 +1,17 @@
 package com.wiscess.filter.xss;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
+import javax.servlet.ReadListener;
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
@@ -12,11 +20,17 @@ import com.wiscess.utils.StringUtils;
 public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
 	HttpServletRequest orgRequest = null;
 	private boolean isIncludeRichText = false;
+	//判断是否是上传 上传忽略
+	boolean isUpData = false;
 
 	public XssHttpServletRequestWrapper(HttpServletRequest request, boolean isIncludeRichText) {
 		super(request);
 		orgRequest = request;
 		this.isIncludeRichText = isIncludeRichText;
+	    String contentType = request.getContentType();
+	    if (null != contentType) {
+	      isUpData = contentType.startsWith("multipart");
+	    }
 	}
 
 	/**
@@ -26,12 +40,13 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
 	 */
 	@Override
 	public String getParameter(String name) {
+		name = JsoupUtil.cleanName(name);
+		String value = super.getParameter(name);
 		Boolean flag = ("content".equals(name) || name.endsWith("WithHtml"));
 		if (flag && !isIncludeRichText) {
-			return super.getParameter(name);
+			//
+			return value;
 		}
-		name = JsoupUtil.clean(name);
-		String value = super.getParameter(name);
 		if (StringUtils.isNotEmpty(value)) {
 			value = JsoupUtil.clean(value);
 		}
@@ -40,13 +55,15 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
 
 	@Override
 	public String[] getParameterValues(String name) {
-		String[] arr = super.getParameterValues(name);
-		if (arr != null) {
-			for (int i = 0; i < arr.length; i++) {
-				arr[i] = JsoupUtil.clean(arr[i]);
-			}
+		String newName = JsoupUtil.cleanName(name);
+		String[] values = super.getParameterValues(newName);
+		if (values != null) {
+			values = Stream.of(values).map(s -> JsoupUtil.clean(s)).toArray(String[]::new);
+//			for (int i = 0; i < arr.length; i++) {
+//				arr[i] = JsoupUtil.clean(arr[i]);
+//			}
 		}
-		return arr;
+		return values;
 	}
 
 	@Override
@@ -55,7 +72,7 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
         Enumeration<String> enumeration = getParameterNames();
         while (enumeration.hasMoreElements()) {
             String name = enumeration.nextElement();
-            name = JsoupUtil.clean(name);
+            name = JsoupUtil.cleanName(name);
             String[] values = getParameterValues(name);
             parameterMap.put(name, values);
         }
@@ -68,7 +85,7 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
 	 */
 	@Override
 	public String getHeader(String name) {
-		name = JsoupUtil.clean(name);
+		name = JsoupUtil.cleanName(name);
 		String value = super.getHeader(name);
 		if (StringUtils.isNotEmpty(value)) {
 			value = JsoupUtil.clean(value);
@@ -76,6 +93,69 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
 		return value;
 	}
 
+	@Override
+	public ServletInputStream getInputStream() throws IOException {
+		if (isUpData) {
+			return super.getInputStream();
+		} else {
+			// 处理原request的流中的数据
+			byte[] bytes = inputHandlers(super.getInputStream()).getBytes();
+			final ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+			return new ServletInputStream() {
+				@Override
+				public int read() throws IOException {
+					return bais.read();
+				}
+
+				@Override
+				public boolean isFinished() {
+					return false;
+				}
+
+				@Override
+				public boolean isReady() {
+					return false;
+				}
+
+				@Override
+				public void setReadListener(ReadListener readListener) {
+				}
+			};
+		}
+
+	}
+
+	public String inputHandlers(ServletInputStream servletInputStream) {
+		StringBuilder sb = new StringBuilder();
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new InputStreamReader(servletInputStream, Charset.forName("UTF-8")));
+			String line = "";
+			while ((line = reader.readLine()) != null) {
+				sb.append(line);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (servletInputStream != null) {
+				try {
+					servletInputStream.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		String finl = JsoupUtil.cleanJson(sb.toString());
+		return finl;
+	}
+	
 	/** * 获取最原始的request * * @return */
 	public HttpServletRequest getOrgRequest() {
 		return orgRequest;

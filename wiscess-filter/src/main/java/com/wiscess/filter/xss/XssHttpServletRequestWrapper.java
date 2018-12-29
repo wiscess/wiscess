@@ -34,6 +34,16 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
 	}
 
 	/**
+	 * 判断是否需要使用原始值
+	 * @param name
+	 * @return
+	 */
+	private boolean isRichText(String name) {
+		Boolean flag = ("content".equals(name) || name.endsWith("WithHtml"));
+		//参数名是指定的content或以WithHtml结尾的，直接使用原始值；
+		return (flag && !isIncludeRichText);
+	}
+	/**
 	 * * 覆盖getParameter方法，将参数名和参数值都做xss过滤。<br/>
 	 * * 如果需要获得原始的值，则通过super.getParameterValues(name)来获取<br/>
 	 * * getParameterNames,getParameterValues和getParameterMap也可能需要覆盖
@@ -42,12 +52,11 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
 	public String getParameter(String name) {
 		name = JsoupUtil.cleanName(name);
 		String value = super.getParameter(name);
-		Boolean flag = ("content".equals(name) || name.endsWith("WithHtml"));
-		if (flag && !isIncludeRichText) {
-			//
-			return value;
-		}
-		if (StringUtils.isNotEmpty(value)) {
+		if(isRichText(name) && StringUtils.isNotEmpty(value)) {
+			//富文本
+			value=JsoupUtil.cleanContent(value);
+		}else if (!isRichText(name) && StringUtils.isNotEmpty(value)) {
+			//普通参数
 			value = JsoupUtil.clean(value);
 		}
 		return value;
@@ -55,13 +64,13 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
 
 	@Override
 	public String[] getParameterValues(String name) {
+		//
 		String newName = JsoupUtil.cleanName(name);
 		String[] values = super.getParameterValues(newName);
-		if (values != null) {
+		if (values != null && isRichText(name)) {
+			values = Stream.of(values).map(s -> JsoupUtil.cleanContent(s)).toArray(String[]::new);
+		}else if (values != null && !isRichText(name)) {
 			values = Stream.of(values).map(s -> JsoupUtil.clean(s)).toArray(String[]::new);
-//			for (int i = 0; i < arr.length; i++) {
-//				arr[i] = JsoupUtil.clean(arr[i]);
-//			}
 		}
 		return values;
 	}

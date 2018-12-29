@@ -12,12 +12,6 @@ import java.net.URLDecoder;
 
 public class JsoupUtil {
 	/**
-	 * * 使用自带的basicWithImages 白名单 *
-	 * 允许的便签有a,b,blockquote,br,cite,code,dd,dl,dt,em,i,li,ol,p,pre,q,small,span, *
-	 * strike,strong,sub,sup,u,ul,img *
-	 * 以及a标签的href,img标签的src,align,alt,height,width,title属性
-	 */
-	/**
 	   * 标签白名单
 	   * relaxed() 允许的标签:
 	   *  a, b, blockquote, br, caption, cite, code, col, colgroup, dd, dl, dt, em, h1, h2, h3, h4,
@@ -25,6 +19,13 @@ public class JsoupUtil {
 	   *  结果不包含标签rel=nofollow ，如果需要可以手动添加。
 	   */
 	private static final Whitelist whitelist = Whitelist.relaxed();
+	/**
+	 * * 使用自带的basicWithImages 白名单 *
+	 * 允许的便签有a,b,blockquote,br,cite,code,dd,dl,dt,em,i,li,ol,p,pre,q,small,span, *
+	 * strike,strong,sub,sup,u,ul,img *
+	 * 以及a标签的href,img标签的src,align,alt,height,width,title属性
+	 */
+	private static final Whitelist whitelistWithImages = Whitelist.basicWithImages();
 	/** 配置过滤化参数,不对代码进行格式化 */
 	private static final Document.OutputSettings outputSettings = new Document.OutputSettings().prettyPrint(false);
 	static {		
@@ -38,33 +39,11 @@ public class JsoupUtil {
 	     * preserveRelativeLinks()  是否保留元素的URL属性中的相对链接，或将它们转换为绝对链接,默认为false. 为false时将会把baseUri和元素的URL属性拼接起来
 	     */
 		whitelist.preserveRelativeLinks(true);
+		whitelistWithImages.addAttributes(":all", "style");
+		whitelistWithImages.preserveRelativeLinks(true);
 	} 	
 	
-	/**
-	 * 清楚参数名称，严格过滤所有标签和不允许的字符
-	 * @param name
-	 * @return
-	 */
-	public static String cleanName(String name) {	    
-		if(StringUtils.isNotEmpty(name)){
-			name = name.trim();       
-		}
-		//先对参数进行decode
-		try {
-			name=URLDecoder.decode(name, "utf8");
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-			//转换失败后
-			name="";
-		}
-		//不允许任何标签出现
-		name=Jsoup.clean(name, "", Whitelist.none(), outputSettings);	
-		//替换已知的不允许出现的所有字符
-		name=html(name);
-		return name;
-	}		
-
-	public static String clean(String content) {	    
+	private static String clean(String content,Whitelist whitelist,Boolean isHtml) {
 		if(StringUtils.isNotEmpty(content)){
 			content = content.trim();       
 		}
@@ -74,13 +53,47 @@ public class JsoupUtil {
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 			//转换失败后
-			content="";
+			return "";
 		}
-		//不允许任何标签出现
 		content=Jsoup.clean(content, "", whitelist, outputSettings);	
 		//替换已知的不允许出现的所有字符
-		content=html(content);
+		if(isHtml) {
+			content=html(content);
+		}
 		return content;
+	}
+	/**
+	 * 清楚参数名称，严格过滤所有标签和不允许的字符
+	 * @param name
+	 * @return
+	 */
+	public static String cleanName(String name) {	    
+		//不允许任何标签出现
+		//替换已知的不允许出现的所有字符
+		return clean(name,Whitelist.none(),true);
+	}		
+	/**
+	 * 对文本框内容也进行判断，只保留基本标签，允许有单引号和双引号
+	 * @param content
+	 * @return
+	 */
+	public static String cleanContent(String content) {	   
+		//只保留允许的标签，不替换特殊字符
+		return clean(content,whitelist,false);
+	}
+	public static String cleanWithImages(String content) {	 
+		 
+		//只保留允许的标签和image，不替换特殊字符
+		return clean(content,whitelistWithImages,false);
+	}		
+	/**
+	 * 对普通参数进行过滤，并替换不允许的字符
+	 * @param content
+	 * @return
+	 */
+	public static String clean(String content) {	  
+		//只保留允许的标签，不替换特殊字符
+		return clean(content,Whitelist.none(),true);    
 	}	
 	/**
 	 * 格式化HTML文本

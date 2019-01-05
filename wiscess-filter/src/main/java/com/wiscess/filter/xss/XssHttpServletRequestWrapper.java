@@ -5,8 +5,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -88,6 +90,15 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
         return parameterMap;
 	}
 	/**
+	 * 以下Header参数名不能进行clean
+	 */
+	private static List<String> headerList=new ArrayList<String>(){
+		private static final long serialVersionUID = 1L;
+		{
+			add("Accept");
+		}
+	};
+	/**
 	 * * 覆盖getHeader方法，将参数名和参数值都做xss过滤。<br/>
 	 * * 如果需要获得原始的值，则通过super.getHeaders(name)来获取<br/>
 	 * * getHeaderNames 也可能需要覆盖
@@ -96,7 +107,7 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
 	public String getHeader(String name) {
 		name = JsoupUtil.cleanName(name);
 		String value = super.getHeader(name);
-		if (StringUtils.isNotEmpty(value)) {
+		if (!headerList.contains(name) && StringUtils.isNotEmpty(value)) {
 			value = JsoupUtil.clean(value);
 		}
 		return value;

@@ -25,7 +25,7 @@ public class HeaderWriterAutoConfiguration {
 	    registration.setFilter(headersFilter);
 	    registration.addUrlPatterns("/*");
 	    registration.setName("headerWriteFilter");
-	    registration.setOrder(400);
+	    registration.setOrder(-9990);
 	    return registration;
 	} 
 	private List<HeaderWriter> getHeaderWriters() {

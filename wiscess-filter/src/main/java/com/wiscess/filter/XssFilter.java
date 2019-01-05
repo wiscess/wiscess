@@ -1,5 +1,6 @@
 package com.wiscess.filter;
 
+import org.springframework.boot.web.servlet.filter.OrderedFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -19,8 +20,11 @@ import java.util.List;
 /**
  * @author wh
  */
-public class XssFilter extends OncePerRequestFilter {
-
+public class XssFilter extends OncePerRequestFilter implements OrderedFilter{
+	/**
+	 * 过滤器顺序
+	 */
+	private int XSS_FILTER_ORDER = -9990;
 	/**
 	 * 是否过滤富文本内容
 	 */
@@ -76,4 +80,9 @@ public class XssFilter extends OncePerRequestFilter {
 		}
 		return false;
 	}
+	@Override
+	public int getOrder() {
+		return XSS_FILTER_ORDER;
+	}
+
 }

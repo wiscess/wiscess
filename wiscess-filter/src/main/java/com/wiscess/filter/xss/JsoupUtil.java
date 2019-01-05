@@ -6,10 +6,14 @@ import org.jsoup.safety.Whitelist;
 
 import com.wiscess.utils.StringUtils;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
+/**
+ * 字符串内容清理工具
+ * @author wh
+ *
+ */
 public class JsoupUtil {
 	/**
 	   * 标签白名单
@@ -63,7 +67,7 @@ public class JsoupUtil {
 		return content;
 	}
 	/**
-	 * 清楚参数名称，严格过滤所有标签和不允许的字符
+	 * 清除参数名称，严格过滤所有标签和不允许的字符
 	 * @param name
 	 * @return
 	 */
@@ -171,12 +175,12 @@ public class JsoupUtil {
 //		log.info("[处理JSON字符串] [将嵌套的双引号转成单引号] [处理后的JSON] :{}", r);
 		return r;
 	}
-	public static void main(String[] args) throws IOException {		
-		String text = "authAction.do?auth_url=><f>&lt;img src=''http%3A%2F%2Fcjlfxzxjypt.bjchyedu.cn%2Feduinfor%2Findex.jsp&auth_key=5B5AE13C3D05FBC6173133FE9FB6D6C2%27%22%3E%3Cscript%3Econfirm%28201308151610%29%3C%2Fscript%3E";	
-		System.out.println(text);
-		System.out.println(clean(text));	
-		text="&amp;amp;amp;amp;asdf";
-		System.out.println(html(text));
-	}
+//	public static void main(String[] args) throws IOException {		
+//		String text = "authAction.do?auth_url=><f>&lt;img src=''http%3A%2F%2Fcjlfxzxjypt.bjchyedu.cn%2Feduinfor%2Findex.jsp&auth_key=5B5AE13C3D05FBC6173133FE9FB6D6C2%27%22%3E%3Cscript%3Econfirm%28201308151610%29%3C%2Fscript%3E";	
+//		System.out.println(text);
+//		System.out.println(clean(text));	
+//		text="&amp;amp;amp;amp;asdf";
+//		System.out.println(html(text));
+//	}
 
 }

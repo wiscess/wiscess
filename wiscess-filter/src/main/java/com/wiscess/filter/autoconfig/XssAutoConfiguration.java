@@ -1,10 +1,10 @@
 package com.wiscess.filter.autoconfig;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -39,14 +39,13 @@ public class XssAutoConfiguration {
 	public XssAutoConfiguration(XssFilterProperties properties) {
 		this.properties = properties;
 	}
-	/** * xss过滤拦截器 */
+	/**
+	 * 定义Xss过滤器
+	 * @return
+	 */
 	@Bean
-	public FilterRegistrationBean<XssFilter> xssFilterRegistrationBean() {
-		FilterRegistrationBean<XssFilter> registration = new FilterRegistrationBean<XssFilter>();
-		registration.setFilter(new XssFilter(this.properties));
-		registration.setOrder(1);
-		registration.setEnabled(true);
-		registration.addUrlPatterns("/*");
-		return registration;
+	@ConditionalOnMissingBean(XssFilter.class)
+	public XssFilter xssFilter() {
+		return new XssFilter(this.properties);
 	}
 }

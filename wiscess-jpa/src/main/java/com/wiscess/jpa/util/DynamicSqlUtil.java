@@ -73,12 +73,18 @@ public class DynamicSqlUtil {
         Pattern p = Pattern.compile (strPattern);
         Matcher m = p.matcher (sql);
         while (m.find()) {
+        	String pstr=m.group(1);
         	String name = m.group(3);
         	String preValue = m.group(2);
         	String lastValue = m.group(4);
-        	paramsMap.put(name, preValue+params.get(name)+lastValue);
-        	//paramValuesList.add(params.get(name));
-        	paramNamesList.add(name);
+        	if(params.containsKey(name)) {
+        		//判断name是否是参数表中的key
+        		paramsMap.put(name, preValue+params.get(name)+lastValue);
+	        	//paramValuesList.add(params.get(name));
+	        	paramNamesList.add(name);
+	        	//找到一个替换一个，未找到name的不替换
+	        	sql=sql.replace(pstr, "?");
+        	}
         }
         Object[] paramValues = new Object[paramNamesList.size()];
        
@@ -88,7 +94,7 @@ public class DynamicSqlUtil {
         }
         
         // replace all named params with ?
-        sql = sql.replaceAll(strPattern, "?");
+//        sql = sql.replaceAll(strPattern, "?");
         
 		SqlElementImpl s = new SqlElementImpl();
 		s.setParams(paramValues);

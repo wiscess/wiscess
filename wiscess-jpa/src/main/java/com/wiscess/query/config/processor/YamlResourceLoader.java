@@ -37,6 +37,10 @@ public class YamlResourceLoader implements QueryResourceLoader{
 		    yaml.getObject().forEach((k,v)->{
 		    	if(k.equals("sqls") && v instanceof Map){
 		    		map.putAll((Map<String, String>)v);
+		    	}else if(v instanceof Map) {
+		    		for(String key:((Map<String, String>)v).keySet()) {
+		    			map.put(k+"."+key, ((Map<String, String>)v).get(key));
+		    		}
 		    	}else{
 			    	if(v!=null)
 			    		map.put(k, v.toString());	

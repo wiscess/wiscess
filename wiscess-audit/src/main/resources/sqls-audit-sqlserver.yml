@@ -1,0 +1,88 @@
+#SqlServer数据库的语句
+#查询数据库是否存在
+sqlserver.checkDatabaseIsExist:
+  select * from sys.databases where name = '${dbName}'
+#自动创建数据库
+sqlserver.autoCreateDatabase:
+  create database ${dbName}
+#查询表是否存在
+sqlserver.checkTableIsExist:
+  select count(1) from ${dbName}.dbo.sysobjects where id = object_id(N'[audit_log]')
+#自动创建表
+sqlserver.autoCreateTable:
+  create table ${dbName}.dbo.audit_log(
+    log_id INT NOT NULL identity,
+    application_name VARCHAR(255),
+    user_id VARCHAR(255),
+    user_name VARCHAR(255),
+    method VARCHAR(16),
+    url VARCHAR(5000),
+    remote_addr VARCHAR(32),
+    session_id VARCHAR(32),
+    parameters VARCHAR(8000),
+    create_time datetime,
+    status_code int,
+    return_time datetime,
+    time_cousuming numeric(11,0),
+    PRIMARY KEY (log_id)
+  );
+  CREATE NONCLUSTERED INDEX [idx_audit_username] ON ${dbName}.dbo.audit_log (user_name ASC)
+  
+#保存日志
+sqlserver.insertAuditLog:
+  insert into ${dbName}.dbo.audit_log
+  (application_name,user_id,user_name,method,url,remote_addr,session_id,parameters,create_time,status_code,return_time,time_cousuming)
+  values(?,?,?,?,?,?,?,?,?,?,?,?)
+  
+#查询审计记录
+sqlserver.findAuditLogPage:
+  select 
+  <#if count?has_content>
+  count(*)
+  <#else>
+  * 
+  </#if>
+  from ${dbName}.dbo.audit_log
+  where 1=1
+  <#if username?has_content>and user_name like %:username%</#if>
+  <#if sessionId?has_content>and session_id = :sessionId</#if>
+  <#if ip?has_content>and remote_addr = :ip</#if>
+  <#if statusCode?has_content>and status_code = :statusCode</#if>
+  <#if method?has_content>and method = :method</#if>
+  <#if accessStartDate?has_content>and create_time >=:accessStartDate</#if>
+  <#if accessEndDate?has_content>and create_time <=:accessEndDate</#if>
+  <#if url?has_content>and url like %:url%</#if>
+  <#if timeMin?has_content>and time_cousuming >=:timeMin</#if>
+  <#if timeMax?has_content>and time_cousuming <=:timeMax</#if>
+  <#if count?has_content==false>
+  <#if orderBy?has_content>
+  order by ${orderBy}
+  </#if>
+  </#if>
+#查询审计统计数据
+sqlserver.findAuditLogReportPage:
+  <#if count?has_content>
+  select count(*) from (
+  </#if>
+  select 
+  user_name,convert(nvarchar(10),create_time,120) as create_time,session_id,url,method,status_code,COUNT(*) cn
+  from ${dbName}.dbo.audit_log
+  where 1=1
+  <#if username?has_content>and user_name like %:username%</#if>
+  <#if sessionId?has_content>and session_id = :sessionId</#if>
+  <#if ip?has_content>and remote_addr = :ip</#if>
+  <#if statusCode?has_content>and status_code = :statusCode</#if>
+  <#if method?has_content>and method = :method</#if>
+  <#if accessStartDate?has_content>and convert(nvarchar(10),create_time,120) >=:accessStartDate</#if>
+  <#if accessEndDate?has_content>and convert(nvarchar(10),create_time,120) <=:accessEndDate</#if>
+  <#if url?has_content>and url like %:url%</#if>
+  <#if timeMin?has_content>and time_cousuming >=:timeMin</#if>
+  <#if timeMax?has_content>and time_cousuming <=:timeMax</#if>
+  group by convert(nvarchar(10),create_time,120),session_id,user_name,url,method,status_code
+  <#if count?has_content>
+  ) a
+  <#else>
+  <#if orderBy?has_content>
+  order by ${orderBy}
+  </#if>
+  </#if>

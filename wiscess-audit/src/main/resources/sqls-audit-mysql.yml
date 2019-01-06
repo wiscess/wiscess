@@ -1,0 +1,89 @@
+#MYSQL数据库的语句
+#查询数据库是否存在
+mysql.checkDatabaseIsExist:
+    SHOW DATABASES LIKE '${dbName}'
+#自动创建数据库
+mysql.autoCreateDatabase:
+  create database ${dbName}
+#查询表是否存在
+mysql.checkTableIsExist:
+  SELECT count(1) FROM information_schema.tables WHERE table_name = 'audit_log'
+  and table_schema='${dbName}'
+#自动创建表和索引
+mysql.autoCreateTable:
+  create table ${dbName}.audit_log(
+    log_id INT NOT NULL AUTO_INCREMENT,
+    application_name VARCHAR(255),
+    user_id VARCHAR(255),
+    user_name VARCHAR(255),
+    method VARCHAR(16),
+    url VARCHAR(255),
+    remote_addr VARCHAR(32),
+    session_id VARCHAR(32),
+    parameters VARCHAR(15000),
+    create_time timestamp,
+    status_code int,
+    return_time datetime,
+    time_cousuming int,
+    PRIMARY KEY (log_id)
+  )DEFAULT CHARSET=utf8;
+  CREATE INDEX idx_audit_username ON ${dbName}.audit_log (user_name ASC)
+#保存日志
+mysql.insertAuditLog:
+  insert into ${dbName}.audit_log
+  (application_name,user_id,user_name,method,url,remote_addr,session_id,parameters,create_time,status_code,return_time,time_cousuming)
+  values(?,?,?,?,?,?,?,?,?,?,?,?)
+
+#查询审计记录
+mysql.findAuditLogPage:
+  select 
+  <#if count?has_content>
+  count(*)
+  <#else>
+  * 
+  </#if>
+  from ${dbName}.audit_log
+  where 1=1
+  <#if username?has_content>and user_name like %:username%</#if>
+  <#if sessionId?has_content>and session_id = :sessionId</#if>
+  <#if ip?has_content>and remote_addr = :ip</#if>
+  <#if statusCode?has_content>and status_code = :statusCode</#if>
+  <#if method?has_content>and method = :method</#if>
+  <#if accessStartDate?has_content>and create_time >=:accessStartDate</#if>
+  <#if accessEndDate?has_content>and create_time <=:accessEndDate</#if>
+  <#if url?has_content>and url like %:url%</#if>
+  <#if timeMin?has_content>and time_cousuming >=:timeMin</#if>
+  <#if timeMax?has_content>and time_cousuming <=:timeMax</#if>
+  <#if count?has_content==false>
+  <#if orderBy?has_content>
+  order by ${orderBy}
+  </#if>
+  </#if>
+#查询审计统计数据
+mysql.findAuditLogReportPage:
+  <#if count?has_content>
+  select count(*) from (
+  </#if>
+  select 
+  user_name,DATE(create_time) as create_time,session_id,url,method,status_code,COUNT(*) cn
+  from ${dbName}.audit_log
+  where 1=1
+  <#if username?has_content>and user_name like %:username%</#if>
+  <#if sessionId?has_content>and session_id = :sessionId</#if>
+  <#if ip?has_content>and remote_addr = :ip</#if>
+  <#if statusCode?has_content>and status_code = :statusCode</#if>
+  <#if method?has_content>and method = :method</#if>
+  <#if accessStartDate?has_content>and date(create_time) >=:accessStartDate</#if>
+  <#if accessEndDate?has_content>and date(create_time) <=:accessEndDate</#if>
+  <#if url?has_content>and url like %:url%</#if>
+  <#if timeMin?has_content>and time_cousuming >=:timeMin</#if>
+  <#if timeMax?has_content>and time_cousuming <=:timeMax</#if>
+  group by date(create_time),session_id,user_name,url,method,status_code
+  <#if count?has_content>
+  ) a
+  <#else>
+  <#if orderBy?has_content>
+  order by ${orderBy}
+  </#if>
+  </#if>
+  

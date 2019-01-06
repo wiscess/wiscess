@@ -188,6 +188,37 @@ public class JdbcJpaSupport {
 		ISqlElement se=processSql(params, sqlName);
 		return template.update(se.getSql(), se.getParams());
 	}
+	/**
+	 * 批量更新语句
+	 * @param sqlName
+	 * @return
+	 * @throws Exception
+	 */
+	public Integer[] updateBatch(String sqlName){
+		return updateBatch(sqlName,new HashMap<String, Object>());
+	}
+	public Integer[] updateBatch(String sqlName,Map<String, Object> params){
+		return updateBatchByTemplate(this.jdbcTemplate, sqlName, params);
+	}
+	public Integer[] updateBatchByTemplate(JdbcTemplate template,String sqlName,Map<String, Object> params){
+		//先根据sqlName从配置中读取到所有的sql，再根据分号进行分隔，生成多个sql语句的template
+		String sqlTemplate=Query.getQuery(sqlName);
+		if(StringUtils.isNotEmpty(sqlTemplate)){
+			String[] templates = sqlTemplate.split(";");
+			//对每个template进行update
+			List<Integer> result=new ArrayList<>();
+			for(String temp:templates) {
+				if(StringUtils.isNotEmpty(temp)) {
+					temp="<#setting number_format=\"0\">"+temp;
+					ISqlElement rs = DynamicSqlUtil.processSql(params, temp);
+					Integer r=template.update(rs.getSql(), rs.getParams());
+					result.add(r);
+				}
+			}
+			return result.toArray(new Integer[]{});
+		}
+		return null;
+	}
 	
 	/**
 	 * 查询单数据类型结果

@@ -1,0 +1,5 @@
+# Auto Configure
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.wiscess.audit.autoconfig.AuditAutoConfiguration,\
+com.wiscess.audit.jdbc.AuditService,\
+com.wiscess.audit.jdbc.Schedule

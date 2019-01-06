@@ -1,0 +1,92 @@
+#ORACLE数据库的语句
+#查询数据库是否存在
+oracle.checkDatabaseIsExist:
+  select username from dba_users where username=UPPER('${dbName}')
+#自动创建数据库
+oracle.autoCreateDatabase:
+  CREATE TABLESPACE TBS_${dbName} DATAFILE 'tbs_${dbName}.dbf' SIZE 10M REUSE AUTOEXTEND ON NEXT 2M MAXSIZE UNLIMITED LOGGING PERMANENT EXTENT MANAGEMENT LOCAL AUTOALLOCATE BLOCKSIZE 8K SEGMENT SPACE MANAGEMENT AUTO FLASHBACK ON;
+  create user ${dbName} identified by ${dbName} default tablespace tbs_${dbName};
+  grant dba, connect to ${dbName}
+#查询表是否存在
+oracle.checkTableIsExist:
+  SELECT COUNT(1) FROM ALL_TABLES WHERE OWNER = UPPER('${dbName}') 
+  AND TABLE_NAME = UPPER('audit_log')
+#自动创建表和索引和序列
+oracle.autoCreateTable:
+  create table ${dbName}.audit_log(
+    log_id INTEGER NOT NULL,
+    application_name VARCHAR2(255),
+    user_id VARCHAR2(255),
+    user_name VARCHAR2(255),
+    method VARCHAR2(16),
+    url VARCHAR2(4000),
+    remote_addr VARCHAR2(32),
+    session_id VARCHAR2(32),
+    parameters clob,
+    create_time TIMESTAMP(6),
+    status_code INTEGER,
+    return_time TIMESTAMP(6),
+    time_cousuming NUMBER(6),
+    PRIMARY KEY (log_id)
+  )TABLESPACE TBS_${dbName};
+  CREATE INDEX idx_audit_username ON ${dbName}.audit_log (user_name ASC);
+  create	sequence	${dbName}.seq_audit_log	start	with	1
+  
+#保存日志
+oracle.insertAuditLog:
+  insert into ${dbName}.audit_log
+  (log_id,application_name,user_id,user_name,method,url,remote_addr,session_id,parameters,create_time,status_code,return_time,time_cousuming)
+  values(${dbName}.seq_audit_log.nextval,?,?,?,?,?,?,?,?,?,?,?,?)
+  
+#查询审计记录
+oracle.findAuditLogPage:
+  select 
+  <#if count?has_content>
+  count(*)
+  <#else>
+  * 
+  </#if>
+  from ${dbName}.audit_log
+  where 1=1
+  <#if username?has_content>and user_name like %:username%</#if>
+  <#if sessionId?has_content>and session_id = :sessionId</#if>
+  <#if ip?has_content>and remote_addr = :ip</#if>
+  <#if statusCode?has_content>and status_code = :statusCode</#if>
+  <#if method?has_content>and method = :method</#if>
+  <#if accessStartDate?has_content>and to_char(create_time,'yyyy-mm-dd hh24:mi:ss') >=:accessStartDate</#if>
+  <#if accessEndDate?has_content>and to_char(create_time,'yyyy-mm-dd hh24:mi:ss') <=:accessEndDate</#if>
+  <#if url?has_content>and url like %:url%</#if>
+  <#if timeMin?has_content>and time_cousuming >=:timeMin</#if>
+  <#if timeMax?has_content>and time_cousuming <=:timeMax</#if>
+  <#if count?has_content==false>
+  <#if orderBy?has_content>
+  order by ${orderBy}
+  </#if>
+  </#if>
+#查询审计统计数据
+oracle.findAuditLogReportPage:
+  <#if count?has_content>
+  select count(*) from (
+  </#if>
+  select 
+  user_name,to_char(create_time,'yyyy-mm-dd') as create_time,session_id,url,method,status_code,COUNT(*) cn
+  from ${dbName}.audit_log
+  where 1=1
+  <#if username?has_content>and user_name like %:username%</#if>
+  <#if sessionId?has_content>and session_id = :sessionId</#if>
+  <#if ip?has_content>and remote_addr = :ip</#if>
+  <#if statusCode?has_content>and status_code = :statusCode</#if>
+  <#if method?has_content>and method = :method</#if>
+  <#if accessStartDate?has_content>and to_char(create_time,'yyyy-mm-dd') >=:accessStartDate</#if>
+  <#if accessEndDate?has_content>and to_char(create_time,'yyyy-mm-dd') <=:accessEndDate</#if>
+  <#if url?has_content>and url like %:url%</#if>
+  <#if timeMin?has_content>and time_cousuming >=:timeMin</#if>
+  <#if timeMax?has_content>and time_cousuming <=:timeMax</#if>
+  group by to_char(create_time,'yyyy-mm-dd'),session_id,user_name,url,method,status_code
+  <#if count?has_content>
+  ) a
+  <#else>
+  <#if orderBy?has_content>
+  order by ${orderBy}
+  </#if>
+  </#if>

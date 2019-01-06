@@ -1,0 +1,16 @@
+.x-grid3-sort-icon {
+	background-repeat: no-repeat;
+	height: 4px;
+	margin-left: 1px;
+	vertical-align: middle;
+}
+.sort-asc {
+	width: 10px;
+	background-image: url(../images/sort_asc.gif);
+	display: inline;
+}
+.sort-desc {
+	width: 10px;
+	background-image: url(../images/sort_desc.gif);
+	display: inline;
+}

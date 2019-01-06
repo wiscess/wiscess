@@ -360,7 +360,7 @@ public class RSA_Encrypt {
 		String ming = "";
 		byte[][] arrays = splitArray(bytes, key_len);
 		for (byte[] arr : arrays) {
-			ming += new String(cipher.doFinal(arr));
+			ming += new String(cipher.doFinal(arr),"utf-8");
 		}
 		return ming;
 	}
@@ -528,6 +528,7 @@ public class RSA_Encrypt {
 		String cryptograph = encrypt(source, true);// 生成的密文
 		System.out.println(cryptograph);
 		//解密
+		cryptograph="lYLhPPMkQCphNKCfMsJJ8rq5U2ZTF0Bi9nWrECLYUTdyO42R2vPPH7sCtYJL9db/tGOZ0ddZFquzUtSGAtaPmz49x7aAdkzkj3kmeU5GNcBJurv/ReBgi2e/uB3QBYYNbDkboY04J6VZLywywgBwlIKeExSpbCrJNSN4HUsHrqE=";
 		String target = decrypt(cryptograph, true);// 解密密文
 //		target=new String(target.getBytes("utf-8"), encoding);
 		System.out.println(target);

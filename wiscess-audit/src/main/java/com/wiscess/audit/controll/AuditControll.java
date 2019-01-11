@@ -77,7 +77,7 @@ public class AuditControll {
 		Page<Map<String, Object>> page=auditService.findAuditLogPage(map, getPageAble(request));
 		model.addAttribute("page",page);
 		model.addAllAttributes(map);
-		return "/audit/list";
+		return "audit/list";
 	}
 	@RequestMapping(value="/report")
 	public String report(HttpServletRequest request,Model model) {
@@ -93,7 +93,7 @@ public class AuditControll {
 		Page<Map<String, Object>> page=auditService.findAuditLogReportPage(map, getPageAble(request));
 		model.addAttribute("page",page);
 		model.addAllAttributes(map);
-		return "/audit/report";
+		return "audit/report";
 	}
 	private Integer getIntParameter(HttpServletRequest request,String paraName){
 		String paraValue=request.getParameter(paraName);

@@ -58,10 +58,6 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
 			<!-- 发布插件-->
 			<plugin>
 		        <artifactId>maven-deploy-plugin</artifactId>

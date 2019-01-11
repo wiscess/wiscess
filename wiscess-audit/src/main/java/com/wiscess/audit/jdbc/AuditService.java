@@ -222,7 +222,7 @@ public class AuditService extends JdbcJpaSupport{
 					String headerValue = part.getHeader(HttpHeaders.CONTENT_DISPOSITION);
 					ContentDisposition disposition = ContentDisposition.parse(headerValue);
 					String filename = disposition.getFilename();
-					if (filename != null) {
+					if (StringUtils.isNotEmpty(filename)) {
 						result.append(name);
 						result.append("=");
 						result.append(filename);

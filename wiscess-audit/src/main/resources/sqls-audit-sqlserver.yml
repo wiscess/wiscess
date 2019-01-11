@@ -7,7 +7,7 @@ sqlserver.autoCreateDatabase:
   create database ${dbName}
 #查询表是否存在
 sqlserver.checkTableIsExist:
-  select count(1) from ${dbName}.dbo.sysobjects where id = object_id(N'[audit_log]')
+  select count(1) from ${dbName}.dbo.sysobjects where name = 'audit_log'
 #自动创建表
 sqlserver.autoCreateTable:
   create table ${dbName}.dbo.audit_log(

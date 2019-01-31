@@ -18,7 +18,6 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -60,7 +59,8 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	protected UserDetailsServiceImpl userDetailsService;
 	
-    public void configure(AuthenticationManagerBuilder auth) throws Exception {
+    @Override
+	public void configure(AuthenticationManagerBuilder auth) throws Exception {
 		DaoAuthenticationProvider authProvider;
 		if(wiscessSecurityProperties.isSsoMode()){
 			log.info("WebSecurityConfig configured SSOAuthenticationProvider with {}",wiscessSecurityProperties.getSso().getAuthUrl());
@@ -86,7 +86,8 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
 	/**
 	 * 配置不需要进行权限认证的资源
 	 */
-    public void configure(WebSecurity web) throws Exception { 
+    @Override
+	public void configure(WebSecurity web) throws Exception { 
     	List<String> ignores=new ArrayList<String>(Arrays.asList(DEFAULT_IGNORES));
 		if(wiscessSecurityProperties.getErrorPage()!=null){
 			ignores.add(wiscessSecurityProperties.getErrorPage());
@@ -101,7 +102,8 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
     /**
      * 配置权限认证
      */
-    protected void configure(HttpSecurity http) throws Exception {
+    @Override
+	protected void configure(HttpSecurity http) throws Exception {
     	//处理Header的内容
 		http.headers()
 			.xssProtection()
@@ -156,7 +158,7 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
 		        .permitAll();
 			//增加过滤器，处理用户名的加密
 			if(wiscessSecurityProperties.isEncryptUsername() || wiscessSecurityProperties.isEncryptPassword()) {
-				http.addFilter(encryptUsernamePasswordAuthenticationFilter(wiscessSecurityProperties.isEncryptUsername() , wiscessSecurityProperties.isEncryptPassword()));
+				http.addFilterBefore(encryptUsernamePasswordAuthenticationFilter(wiscessSecurityProperties.isEncryptUsername() , wiscessSecurityProperties.isEncryptPassword()),UsernamePasswordAuthenticationFilter.class);
 			}
 			
 			http.logout()
@@ -171,7 +173,9 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.sessionManagement()
 		        	.sessionFixation()
 		        	.changeSessionId()
+		        	//允许同一用户同时在线数
 		            .maximumSessions(wiscessSecurityProperties.getMaxSessionNum())
+		            //true：超过的用户无法登录；false：踢掉前面登录的用户，默认为false
 		            .maxSessionsPreventsLogin(true)
 		    		.expiredUrl("/login?expired")
 		        ;  
@@ -213,7 +217,8 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
 		}
 		return null;
 	}
-    @Bean
+    @Override
+	@Bean
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
@@ -223,12 +228,7 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
      */
     public UsernamePasswordAuthenticationFilter encryptUsernamePasswordAuthenticationFilter(boolean encryptUsername,boolean encryptPassword) throws Exception {
     	UsernamePasswordAuthenticationFilter filter = new EncryptUsernamePasswordAuthenticationFilter(encryptUsername,encryptPassword);
-    	filter.setAuthenticationManager(authenticationManager());
-        //只有post请求才拦截
-    	filter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher("/login", "POST"));
-    	filter.setAuthenticationSuccessHandler(loginSuccessHandler);
-    	filter.setAuthenticationFailureHandler(new SimpleUrlAuthenticationFailureHandler("/login?error"));
-    	filter.setAuthenticationDetailsSource(captchaAuthenticationDetailsSource());
         return filter;
     }
+   
 }

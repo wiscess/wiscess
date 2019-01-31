@@ -11,8 +11,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -30,19 +28,18 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.jdbc.support.KeyHolder;
 
-import com.wiscess.utils.StringUtils;
 import com.wiscess.jpa.util.DynamicSqlUtil;
 import com.wiscess.jpa.util.ISqlElement;
 import com.wiscess.query.config.Query;
+import com.wiscess.utils.StringUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class JdbcJpaSupport {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	
-	@SuppressWarnings("unused")
-	@Autowired
-	private Query query;
 	/**
 	 * 处理动态sql.
 	 * @param params
@@ -415,6 +412,11 @@ public class JdbcJpaSupport {
 				//开始处理数据
 				for(String[] row: rowList) {
 					rownum++;
+					//新方法校验
+					if(rownum==1 || row==null || ( StringUtils.isNotEmpty(titleRow[0]) && StringUtils.isEmpty(row[fieldMap.get(titleRow[0])]))) {
+						continue;
+					}
+
 					for(IFillStataData<String[]> fill:fillDatas){
 						//处理数据
 						fill.fillData(row,rownum);

@@ -29,7 +29,7 @@ public class DynamicSqlUtil {
 	static {
 		freeMarkerEngine.setObjectWrapper(new BeansWrapperBuilder(Configuration.VERSION_2_3_28).build());
 	}
-	
+
 	/**
 	 * process dynamic Sql.
 	 * 
@@ -67,13 +67,17 @@ public class DynamicSqlUtil {
         String sql = out.toString();
         
         // holder for avaliable parameters.
+        //先替换时间转换字符串
+        sql=sql.replaceAll(":mi:ss", "_MI_SS");
+        sql=sql.replaceAll(":mm:ss", "_MM_SS");
+        
         Map<String, Object> paramsMap = new HashMap<String, Object>();
         List<Object> paramNamesList = new ArrayList<Object>();
         String strPattern="((%?):([a-zA-Z0-9_]+)(%?))";
         Pattern p = Pattern.compile (strPattern);
         Matcher m = p.matcher (sql);
         while (m.find()) {
-        	String pstr=m.group(1);
+        	m.group(1);
         	String name = m.group(3);
         	String preValue = m.group(2);
         	String lastValue = m.group(4);
@@ -83,7 +87,6 @@ public class DynamicSqlUtil {
 	        	//paramValuesList.add(params.get(name));
 	        	paramNamesList.add(name);
 	        	//找到一个替换一个，未找到name的不替换
-	        	sql=sql.replace(pstr, "?");
         	}
         }
         Object[] paramValues = new Object[paramNamesList.size()];
@@ -94,7 +97,10 @@ public class DynamicSqlUtil {
         }
         
         // replace all named params with ?
-//        sql = sql.replaceAll(strPattern, "?");
+        sql = sql.replaceAll(strPattern, "?");
+        //替换回原来的时间格式
+        sql=sql.replaceAll("_MI_SS",":mi:ss");
+        sql=sql.replaceAll("_MM_SS",":mm:ss");
         
 		SqlElementImpl s = new SqlElementImpl();
 		s.setParams(paramValues);

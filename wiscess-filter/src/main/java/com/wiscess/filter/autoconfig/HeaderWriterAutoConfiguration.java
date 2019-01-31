@@ -15,6 +15,7 @@ import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWrite
 import org.springframework.security.web.header.writers.XContentTypeOptionsHeaderWriter;
 import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
 
+import com.wiscess.filter.StaticResourceHeaderFilter;
 import com.wiscess.filter.header.P3pDisabledWriter;
 import com.wiscess.utils.StringUtils;
 
@@ -30,7 +31,7 @@ public class HeaderWriterAutoConfiguration {
 			throw new IllegalStateException(
 					"Headers security is enabled, but no headers will be added. Either add headers or disable headers security");
 		}
-		HeaderWriterFilter headersFilter = new HeaderWriterFilter(writers);
+		HeaderWriterFilter headersFilter = new StaticResourceHeaderFilter(writers);
 	    FilterRegistrationBean<HeaderWriterFilter> registration = new FilterRegistrationBean<HeaderWriterFilter>();
 	    registration.setFilter(headersFilter);
 	    registration.addUrlPatterns("/*");

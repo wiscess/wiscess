@@ -25,12 +25,8 @@ public class FileTypeFilter extends OncePerRequestFilter{
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		String errorPage=getErrorPage();
-		if(this.requireMatcher==null){
+		if (this.requireMatcher==null || this.requireMatcher.matches(request)) {
 			//如果没有配置，则允许访问
-			filterChain.doFilter(request, response);
-			return;
-		}
-		if (this.requireMatcher.matches(request)) {
 			//如果匹配上，则允许访问
 			filterChain.doFilter(request, response);
 			return;

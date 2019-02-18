@@ -29,6 +29,7 @@ public abstract class AbstractWiscessElementTagProcessor extends AbstractElement
 				PRECEDENCE); // 优先(内部方言自己的优先)
 	}
 
+	@Override
 	protected void doProcess(ITemplateContext context, IProcessableElementTag tag,
 			IElementTagStructureHandler structureHandler) {
 		/*

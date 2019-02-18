@@ -97,7 +97,12 @@ public class RequestUtils {
 		Map<String, Object> map=new HashMap<String, Object>();
 		for(String p:parameters){
 			//为p增加两个:，用于字符串拆分时确保至少有3个
-			String[] ps=(p+"::").split(":",3);
+			if(p.indexOf(":")==-1) {
+				p=p+"::";
+			}else if(p.indexOf(":")==p.lastIndexOf(":")) {
+				p=p+":";
+			}
+			String[] ps=p.split(":",3);
 			//添加默认值
 			if(StringUtils.isEmpty(ps[1]))
 				ps[1]="String";

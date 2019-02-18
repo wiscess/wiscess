@@ -70,7 +70,7 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
 			//从2.0开始，不再使用jdbc的方式来完成权限验证
 			authProvider = new CaptchaDaoAuthenticationProvider(wiscessSecurityProperties);
 		}
-		//设置密码加密方式
+		//设置密码加密方式,RSA为避免私钥泄露，验证方式用sign/verify
 		authProvider.setPasswordEncoder(passwordEncoder());
 		//设置查询用户的service
 		authProvider.setUserDetailsService(userDetailsService);
@@ -172,7 +172,7 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
 		// session管理  
         http.sessionManagement()
 		        	.sessionFixation()
-		        	.changeSessionId()
+		        	//.changeSessionId()
 		        	//允许同一用户同时在线数
 		            .maximumSessions(wiscessSecurityProperties.getMaxSessionNum())
 		            //true：超过的用户无法登录；false：踢掉前面登录的用户，默认为false
@@ -214,6 +214,8 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
 			return new MD5EncryptEncoder(new UpperCaseEncryptEncoder(new MD5EncryptEncoder(new UpperCaseEncryptEncoder())));
 		}else if(passwordType.equalsIgnoreCase("RSA")){
 			return new RSAEncryptEncoder();
+//		}else if(passwordType.equalsIgnoreCase("HEXRSA")){
+//			return new RSAEncryptEncoder(false);
 		}
 		return null;
 	}
@@ -230,5 +232,17 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
     	UsernamePasswordAuthenticationFilter filter = new EncryptUsernamePasswordAuthenticationFilter(encryptUsername,encryptPassword);
         return filter;
     }
-   
+    /**
+     * 配置记住密码
+     * @param http
+     * @param key
+     * @throws Exception
+     */
+    public void remenberMe(HttpSecurity http,String key) throws Exception {
+		http.rememberMe()
+			.userDetailsService(userDetailsService)
+			.key(key)
+			.tokenValiditySeconds(1209600)
+			.authenticationSuccessHandler(loginSuccessHandler);
+	}
 }

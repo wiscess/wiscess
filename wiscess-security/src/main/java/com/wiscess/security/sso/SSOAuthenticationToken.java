@@ -45,6 +45,7 @@ public class SSOAuthenticationToken extends AbstractAuthenticationToken{
 	 * 
 	 * @see org.acegisecurity.Authentication#getCredentials()
 	 */
+	@Override
 	public Object getCredentials() {
 		return loginName;
 	}
@@ -54,8 +55,9 @@ public class SSOAuthenticationToken extends AbstractAuthenticationToken{
 	 * 
 	 * @see org.acegisecurity.Authentication#getPrincipal()
 	 */
+	@Override
 	public Object getPrincipal() {
-		return remoteKey;
+		return loginName;
 	}
 
 	public String getLoginName() {

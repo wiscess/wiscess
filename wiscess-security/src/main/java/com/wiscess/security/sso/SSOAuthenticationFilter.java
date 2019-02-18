@@ -59,6 +59,7 @@ public class SSOAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		return authentication;
 	}
 	
+	@Override
 	protected String obtainUsername(HttpServletRequest request) {
 		return request.getParameter(usernameParameter);
 	}
@@ -75,6 +76,7 @@ public class SSOAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
 	}
 
+	@Override
 	public void setUsernameParameter(String usernameParameter) {
 		Assert.hasText(usernameParameter, "Username parameter must not be empty or null");
 		this.usernameParameter = usernameParameter;
@@ -92,6 +94,7 @@ public class SSOAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	@Override
 	protected boolean requiresAuthentication(HttpServletRequest request,
 			HttpServletResponse response) {
+		response.setHeader("P3P", "CP=CAO PSA OUR");
 		return null != request.getParameter(authkeyParameter);
 	}
 }

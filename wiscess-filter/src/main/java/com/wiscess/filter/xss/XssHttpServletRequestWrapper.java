@@ -46,6 +46,14 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
 		return (flag && !isIncludeRichText);
 	}
 	/**
+	 * 判断是否是Base64编码
+	 * @param name
+	 * @return
+	 */
+	private boolean isBase64(String name) {
+		return name.endsWith("WithBase64");
+	}
+	/**
 	 * * 覆盖getParameter方法，将参数名和参数值都做xss过滤。<br/>
 	 * * 如果需要获得原始的值，则通过super.getParameterValues(name)来获取<br/>
 	 * * getParameterNames,getParameterValues和getParameterMap也可能需要覆盖
@@ -54,6 +62,13 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
 	public String getParameter(String name) {
 		name = JsoupUtil.cleanName(name);
 		String value = super.getParameter(name);
+		if(isBase64(name)) {
+			//如果是base64的参数，尝试读取不带WithBase64的参数值
+			if(value==null || StringUtils.isEmpty(value)) {
+				value=super.getParameter(name.replaceAll("WithBase64", ""));
+			}
+			return value;
+		}
 		if(isRichText(name) && StringUtils.isNotEmpty(value)) {
 			//富文本
 			value=JsoupUtil.cleanContent(value);
@@ -69,6 +84,13 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
 		//
 		String newName = JsoupUtil.cleanName(name);
 		String[] values = super.getParameterValues(newName);
+		if(isBase64(newName)) {
+			//如果是base64的参数，尝试读取不带WithBase64的参数值
+			if(values==null) {
+				values=super.getParameterValues(newName.replaceAll("WithBase64", ""));
+			}
+			return values;
+		}
 		if (values != null && isRichText(name)) {
 			values = Stream.of(values).map(s -> JsoupUtil.cleanContent(s)).toArray(String[]::new);
 		}else if (values != null && !isRichText(name)) {

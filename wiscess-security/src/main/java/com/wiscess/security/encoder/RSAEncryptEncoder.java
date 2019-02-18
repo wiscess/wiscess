@@ -2,6 +2,7 @@ package com.wiscess.security.encoder;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.wiscess.utils.HexConver;
 import com.wiscess.utils.RSA_Encrypt;
 
 /**
@@ -17,13 +18,18 @@ public class RSAEncryptEncoder implements PasswordEncoder{
 	public RSAEncryptEncoder(PasswordEncoder encoder){
 		this.encoder=encoder;
 	}
+	private Boolean useBase64=true;
 	public RSAEncryptEncoder() {
 		this(new NoneEncryptEncoder());
 	}
+//	public RSAEncryptEncoder(Boolean isBase64) {
+//		this();
+//		this.useBase64=isBase64;
+//	}
 	@Override
 	public String encode(CharSequence rawPassword) {
 		try {
-			return RSA_Encrypt.encrypt(encoder.encode(rawPassword),true);
+			return RSA_Encrypt.encrypt(encoder.encode(rawPassword),useBase64);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -35,12 +41,19 @@ public class RSAEncryptEncoder implements PasswordEncoder{
 		//对加密数据进行解密
 		String pass2="";
 		try {
-			pass2=RSA_Encrypt.decrypt(encodedPassword.toString(),true);
-		} catch (Exception e) {
-			e.printStackTrace();
+			//先用加密的方式
+			pass2=RSA_Encrypt.decrypt(encodedPassword.toString(),!HexConver.checkHexStr(encodedPassword.toString()));
+			//比较
+			return encoder.matches(rawPassword, pass2);
+		} catch (Exception exception) {
+			try {
+				//解密失败后，用verify的方式
+				return RSA_Encrypt.verify(rawPassword.toString(),encodedPassword);
+			}catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
-		//比较
-		return encoder.matches(rawPassword, pass2);
+		return false;
 	}
 
 }

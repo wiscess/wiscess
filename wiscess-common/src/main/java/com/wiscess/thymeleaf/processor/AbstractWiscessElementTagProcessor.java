@@ -13,6 +13,11 @@ import org.thymeleaf.templatemode.TemplateMode;
 
 import com.wiscess.thymeleaf.element.Option;
 
+/**
+ * 自定义标签，无body的处理方式
+ * @author wh
+ *
+ */
 public abstract class AbstractWiscessElementTagProcessor extends AbstractElementTagProcessor {
 
 	private static final int PRECEDENCE = 300;

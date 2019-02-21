@@ -9,9 +9,9 @@ import org.thymeleaf.standard.StandardDialect;
 
 public class WiscessDialect extends AbstractProcessorDialect  {
 
-    private static final String DIALECT_NAME = "App Dialect";//定义方言名称
+    public static final String DIALECT_NAME = "App Dialect";//定义方言名称
 	
-    private static final String DIALECT_PREFIX = "app";//定义方言前缀
+    public static final String DIALECT_PREFIX = "app";//定义方言前缀
 
 	protected WiscessDialect() {
 		// 我们将设置此方言与“方言处理器”优先级相同
@@ -24,6 +24,7 @@ public class WiscessDialect extends AbstractProcessorDialect  {
 	/**
 	 * 返回自定义标签
 	 */
+	@Override
 	public Set<IProcessor> getProcessors(String dialectPrefix) {
 		return processors;
 	}

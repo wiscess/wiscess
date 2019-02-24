@@ -1,5 +1,15 @@
 package com.wiscess.filter;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.boot.web.servlet.filter.OrderedFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
@@ -8,14 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.wiscess.filter.autoconfig.properties.XssFilterProperties;
 import com.wiscess.filter.xss.XssHttpServletRequestWrapper;
-
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import com.wiscess.utils.StringUtils;
 
 /**
  * @author wh
@@ -35,6 +38,7 @@ public class XssFilter extends OncePerRequestFilter implements OrderedFilter{
 	private static String[] DEFAULT_IGNORES="/css/**,/js/**,/images/**,/webjars/**,/**/favicon.ico,/captcha.jpg".split(",");
 	
 	private List<String> excludes = new ArrayList<>();
+	private List<String> allowHosts = new ArrayList<>();
 	private RequestMatcher requireMatcher = null;
 	
 	public XssFilter(XssFilterProperties properties){
@@ -49,19 +53,37 @@ public class XssFilter extends OncePerRequestFilter implements OrderedFilter{
 			matchers.add(new AntPathRequestMatcher(url));
 		});
 		requireMatcher=new OrRequestMatcher(matchers);
+		//判断header中的host是否合法
+		allowHosts.addAll(properties.getAllowHosts());
 	}
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		HttpServletRequest req = (HttpServletRequest) request;
-		HttpServletResponse resp = (HttpServletResponse) response;
+		HttpServletRequest req = request;
+		HttpServletResponse resp = response;
+		
+//		Enumeration<String> hs=request.getHeaderNames();
+//		System.out.println(request.getContextPath());
+//		System.out.println(request.getRemoteHost());
+//		while(hs.hasMoreElements()) {
+//			String hearder=hs.nextElement();
+//			System.out.println(hearder+":"+request.getHeader(hearder));
+//		}
+		if(allowHosts.size()>0) {
+			//判断header中的host是否合法
+			String host=request.getHeader("host");
+			if(StringUtils.isNotEmpty(host) && !allowHosts.contains(host)) {
+				return;
+			}
+		}
+		
 		if (handleExcludeURL(req, resp)) {
 			filterChain.doFilter(request, response);
 			return;
 		}
 
-		XssHttpServletRequestWrapper xssRequest = new XssHttpServletRequestWrapper((HttpServletRequest) request, IS_INCLUDE_RICH_TEXT);
+		XssHttpServletRequestWrapper xssRequest = new XssHttpServletRequestWrapper(request, IS_INCLUDE_RICH_TEXT);
 		filterChain.doFilter(xssRequest, response);
 	}
 	

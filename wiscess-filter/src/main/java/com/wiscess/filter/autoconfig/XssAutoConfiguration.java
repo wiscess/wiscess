@@ -24,7 +24,8 @@ filter:
       /html/**
       /photo/**
       /attach/**
-
+    allows: 
+      cwpt.bjchyedu.cn
  * @author wh
  */
 @Configuration

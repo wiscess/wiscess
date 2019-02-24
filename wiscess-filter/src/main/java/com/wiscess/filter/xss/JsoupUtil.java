@@ -1,13 +1,12 @@
 package com.wiscess.filter.xss;
 
+import java.net.URLDecoder;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.safety.Whitelist;
 
 import com.wiscess.utils.StringUtils;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 
 /**
  * 字符串内容清理工具
@@ -54,10 +53,9 @@ public class JsoupUtil {
 		//先对参数进行decode
 		try {
 			content=URLDecoder.decode(content, "utf8");
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
 			//转换失败后
-			return "";
+//			return "";
 		}
 		content=Jsoup.clean(content, "", whitelist, outputSettings);	
 		//替换已知的不允许出现的所有字符

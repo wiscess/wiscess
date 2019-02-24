@@ -8,8 +8,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.boot.web.servlet.filter.OrderedFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -21,18 +22,28 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @ConditionalOnWebApplication
 public class HttpMethodAutoConfiguration {
 	
+//	@Bean
+//	public FilterRegistrationBean<HttpMethodFilter> httpMethodFilterRegistration() {
+//	    FilterRegistrationBean<HttpMethodFilter> registration = new FilterRegistrationBean<HttpMethodFilter>();
+//	    registration.setFilter(new HttpMethodFilter());
+//	    registration.addUrlPatterns("/*");
+//	    registration.setName("httpMethodFilter");
+//	    registration.setOrder(-9980);
+//	    return registration;
+//	} 
 	@Bean
-	public FilterRegistrationBean<HttpMethodFilter> httpMethodFilterRegistration() {
-	    FilterRegistrationBean<HttpMethodFilter> registration = new FilterRegistrationBean<HttpMethodFilter>();
-	    registration.setFilter(new HttpMethodFilter());
-	    registration.addUrlPatterns("/*");
-	    registration.setName("httpMethodFilter");
-	    registration.setOrder(3);
-	    return registration;
-	} 
+	@ConditionalOnMissingBean(HttpMethodFilter.class)
+	public HttpMethodFilter httpMethodFilter() {
+		return new HttpMethodFilter();
+	}
 
-	private final class HttpMethodFilter extends OncePerRequestFilter{
-		private String errorPage="/error";
+	private final class HttpMethodFilter extends OncePerRequestFilter implements OrderedFilter{
+		
+		/**
+		 * 过滤器顺序
+		 */
+		private int XSS_FILTER_ORDER = -9980;
+		
 		private Pattern allowedMethods=Pattern.compile("^(HEAD|TRACE|OPTIONS|PUT|DELETE|PATCH)$");
 		
 		@Override
@@ -43,8 +54,15 @@ public class HttpMethodAutoConfiguration {
 				filterChain.doFilter(request, response);
 				return;
 			}
+            response.setHeader("Allow", "GET,POST");  
+            response.setStatus(405);  
 			//不允许访问
-			response.sendRedirect(request.getContextPath() + errorPage);	
+			//response.sendRedirect(request.getContextPath() + errorPage);	
+		}
+
+		@Override
+		public int getOrder() {
+			return XSS_FILTER_ORDER;
 		}
 	}
 }

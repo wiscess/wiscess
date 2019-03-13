@@ -71,10 +71,14 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
 		}
 		if(isRichText(name) && StringUtils.isNotEmpty(value)) {
 			//富文本
+			if(value==null || StringUtils.isEmpty(value)) {
+				value=super.getParameter(name.replaceAll("WithHtml", ""));
+			}
+			//读取到原始值后，进行格式化
 			value=JsoupUtil.cleanContent(value);
 		}else if (!isRichText(name) && StringUtils.isNotEmpty(value)) {
 			//普通参数
-			value = JsoupUtil.clean(value);
+			value = JsoupUtil.cleanValue(value);
 		}
 		return value;
 	}
@@ -91,10 +95,14 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
 			}
 			return values;
 		}
-		if (values != null && isRichText(name)) {
+		if(isRichText(newName) && values==null) {
+			//富文本
+			values=super.getParameterValues(newName.replaceAll("WithHtml", ""));
+		}
+		if (values != null && isRichText(newName)) {
 			values = Stream.of(values).map(s -> JsoupUtil.cleanContent(s)).toArray(String[]::new);
-		}else if (values != null && !isRichText(name)) {
-			values = Stream.of(values).map(s -> JsoupUtil.clean(s)).toArray(String[]::new);
+		}else if (values != null && !isRichText(newName)) {
+			values = Stream.of(values).map(s -> JsoupUtil.cleanValue(s)).toArray(String[]::new);
 		}
 		return values;
 	}
@@ -118,6 +126,11 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
 		private static final long serialVersionUID = 1L;
 		{
 			add("Accept");
+			add("Accept-Encoding");
+			add("Accept-Language");
+			add("Cache-Control");
+			add("Upgrade-Insecure-Requests");
+			add("User-Agent");
 		}
 	};
 	/**
@@ -130,7 +143,7 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
 		name = JsoupUtil.cleanName(name);
 		String value = super.getHeader(name);
 		if (!headerList.contains(name) && StringUtils.isNotEmpty(value)) {
-			value = JsoupUtil.clean(value);
+			value = JsoupUtil.cleanValue(value);
 		}
 		return value;
 	}

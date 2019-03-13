@@ -6,6 +6,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.safety.Whitelist;
 
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
 import com.wiscess.utils.StringUtils;
 
 /**
@@ -50,17 +52,22 @@ public class JsoupUtil {
 		if(StringUtils.isNotEmpty(content)){
 			content = content.trim();       
 		}
-		//先对参数进行decode
-		try {
-			content=URLDecoder.decode(content, "utf8");
-		} catch (Exception e) {
-			//转换失败后
-//			return "";
-		}
-		content=Jsoup.clean(content, "", whitelist, outputSettings);	
-		//替换已知的不允许出现的所有字符
-		if(isHtml) {
-			content=html(content);
+		if(isJSONValid(content)) {
+			//判断content是否为json格式的
+			content=cleanJson(content);
+		}else {
+		
+			//先对参数进行decode
+			try {
+				content=URLDecoder.decode(content, "utf8");
+			} catch (Exception e) {
+				//转换失败后
+			}
+			content=Jsoup.clean(content, "", whitelist, outputSettings);	
+			//替换已知的不允许出现的所有字符
+			if(isHtml) {
+				content=html(content);
+			}
 		}
 		return content;
 	}
@@ -93,7 +100,7 @@ public class JsoupUtil {
 	 * @param content
 	 * @return
 	 */
-	public static String clean(String content) {	  
+	public static String cleanValue(String content) {	  
 		//只保留允许的标签，不替换特殊字符
 		return clean(content,Whitelist.none(),true);    
 	}	
@@ -127,10 +134,44 @@ public class JsoupUtil {
 	    html = StringUtils.replace(html, "&ensp;","         ");
 	    html = StringUtils.replace(html, "&emsp;","         ");
 	    html = StringUtils.replace(html, "&","＆");
+	    html = StringUtils.replace(html, ";","；");
 	    html = StringUtils.replace(html, "\\","＼");
 	    html = StringUtils.replace(html, "#","＃");
+	    //再替换信通院规定的字符
+	    html = cleanXSS(html);
 	    return html;
 	}
+	public static String cleanXSS(String value) {
+        value = value.replaceAll("[\\\"\\\'][\\s]*javascript:(.*)[\\\"\\\']", "\"\"");
+        value = value.replaceAll("(?i)<script.*?>.*?<script.*?>", "");
+        value = value.replaceAll("(?i)<script.*?>.*?</script.*?>", "");
+        value = value.replaceAll("(?i)<.*?javascript:.*?>.*?</.*?>", "");
+        value = value.replaceAll("(?i)<.*?\\s+on.*?>.*?</.*?>", "");
+        value = value.replaceAll("(?i)alert", "");
+        value = value.replaceAll("(?i)script", "");
+        value = value.replaceAll("(?i)svg", "");
+        value = value.replaceAll("(?i)confirm", "");
+        value = value.replaceAll("(?i)prompt", "");
+        value = value.replaceAll("(?i)onload", "");
+        value = value.replaceAll("(?i)onmouseover", "");
+        value = value.replaceAll("(?i)onmouse", "");
+        value = value.replaceAll("(?i)onfocus", "");
+        value = value.replaceAll("(?i)onerror", "");
+        value = value.replaceAll("(?i)xss", "");
+        value = value.replaceAll("(?i)iframe", "");
+        value = value.replaceAll("(?i)<iframe.*?>.*?</iframe.*?>", "");
+        value = value.replaceAll(";", "");
+        value = value.replaceAll("\'", "");
+        value = value.replaceAll("\"", "");
+        value = value.replaceAll("<>", "");
+        value = value.replaceAll("<", "");
+        value = value.replaceAll(">", "");
+        value = value.replaceAll("\\(\\)", "");
+        value = value.replaceAll("\\(", "");
+        value = value.replaceAll("\\)", "");
+        value = value.replaceAll("\\\\", "");
+        return value;
+    }
 	
 	/**
 	 * 处理Json类型的Html标签,进行xss过滤
@@ -180,5 +221,18 @@ public class JsoupUtil {
 //		text="&amp;amp;amp;amp;asdf";
 //		System.out.println(html(text));
 //	}
+
+	public final static boolean isJSONValid(String test) {
+        try {
+            JSONObject.parseObject(test);
+        } catch (JSONException ex) {
+            try {
+                JSONObject.parseArray(test);
+            } catch (JSONException ex1) {
+                return false;
+            }
+        }
+        return true;
+    }
 
 }

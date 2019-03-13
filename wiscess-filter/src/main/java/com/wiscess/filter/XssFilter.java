@@ -63,13 +63,6 @@ public class XssFilter extends OncePerRequestFilter implements OrderedFilter{
 		HttpServletRequest req = request;
 		HttpServletResponse resp = response;
 		
-//		Enumeration<String> hs=request.getHeaderNames();
-//		System.out.println(request.getContextPath());
-//		System.out.println(request.getRemoteHost());
-//		while(hs.hasMoreElements()) {
-//			String hearder=hs.nextElement();
-//			System.out.println(hearder+":"+request.getHeader(hearder));
-//		}
 		if(allowHosts.size()>0) {
 			//判断header中的host是否合法
 			String host=request.getHeader("host");
@@ -79,6 +72,7 @@ public class XssFilter extends OncePerRequestFilter implements OrderedFilter{
 		}
 		
 		if (handleExcludeURL(req, resp)) {
+			//不需要过滤的地址
 			filterChain.doFilter(request, response);
 			return;
 		}

@@ -63,8 +63,9 @@ public class RequestUtils {
 	        	}
         	}
         }
-        
-        
+        if(df.equalsIgnoreCase("Html")) {
+        	name+="WithHtml";
+        }
         String[] values=request.getParameterValues(name);
         
 		if (values != null && ifDecode) {
@@ -89,6 +90,7 @@ public class RequestUtils {
 		/**
 		 * parameters中包含以下几种形式
 		 * name							：只有一个名称，默认为字符串
+		 * name::HTML                    : 读取原始值
 		 * dictId:Integer				：包含字段名称和字段类型
 		 * createTime:Date:yyyy-MM-dd	：数据类型为Date，包含日期格式，默认为yyyy-MM-dd
 		 * 

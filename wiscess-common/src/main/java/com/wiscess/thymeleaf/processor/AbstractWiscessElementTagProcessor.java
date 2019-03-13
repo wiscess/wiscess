@@ -11,6 +11,7 @@ import org.thymeleaf.processor.element.AbstractElementTagProcessor;
 import org.thymeleaf.processor.element.IElementTagStructureHandler;
 import org.thymeleaf.templatemode.TemplateMode;
 
+import com.wiscess.thymeleaf.WiscessDialect;
 import com.wiscess.thymeleaf.element.Option;
 
 /**
@@ -22,6 +23,9 @@ public abstract class AbstractWiscessElementTagProcessor extends AbstractElement
 
 	private static final int PRECEDENCE = 300;
 
+	public AbstractWiscessElementTagProcessor(String tagName) {
+		this(WiscessDialect.DIALECT_PREFIX,tagName);
+	}
 	public AbstractWiscessElementTagProcessor(String dialectPrefix, String tagName) {
 		super(TemplateMode.HTML, // 此处理器将仅应用于HTML模式
 				dialectPrefix, // 要应用于名称的匹配前缀

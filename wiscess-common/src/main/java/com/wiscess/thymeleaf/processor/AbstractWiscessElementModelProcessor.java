@@ -13,6 +13,8 @@ import org.thymeleaf.processor.element.AbstractElementModelProcessor;
 import org.thymeleaf.processor.element.IElementModelStructureHandler;
 import org.thymeleaf.templatemode.TemplateMode;
 
+import com.wiscess.thymeleaf.WiscessDialect;
+
 /**
  * 自定义标签，可以包含body的内容，body中的内容作为数据加入到结果中
  * @author wh
@@ -22,6 +24,10 @@ public abstract class AbstractWiscessElementModelProcessor extends AbstractEleme
 
 	private static final int PRECEDENCE = 300;
 	
+	public AbstractWiscessElementModelProcessor(String tagName) {
+		this(WiscessDialect.DIALECT_PREFIX,tagName);
+	}
+
 	public AbstractWiscessElementModelProcessor(String dialectPrefix, String tagName) {
 		super(TemplateMode.HTML, // 此处理器将仅应用于HTML模式
 				dialectPrefix, // 要应用于名称的匹配前缀

@@ -10,6 +10,7 @@ import org.thymeleaf.model.IProcessableElementTag;
 import org.thymeleaf.model.ITemplateEvent;
 
 import com.wiscess.thymeleaf.ExpressionUtil;
+import com.wiscess.thymeleaf.WiscessDialect;
 import com.wiscess.thymeleaf.element.Hidden;
 import com.wiscess.thymeleaf.element.Input;
 import com.wiscess.utils.StringUtils;
@@ -23,6 +24,10 @@ public class TreeInputProcessor extends AbstractWiscessElementTagProcessor {
 
 	private static final String TAG_NAME = "treeinput";
 
+	public TreeInputProcessor() {
+		super(WiscessDialect.DIALECT_PREFIX, TAG_NAME);
+	}
+
 	public TreeInputProcessor(String dialectPrefix) {
 		super(dialectPrefix, TAG_NAME);
 	}
@@ -30,7 +35,7 @@ public class TreeInputProcessor extends AbstractWiscessElementTagProcessor {
 	@Override
 	public List<ITemplateEvent> doIntenalProcess(ITemplateContext context, IProcessableElementTag tag,IModelFactory modelFactory) {
 		final String id = tag.getAttributeValue("id");
-		final Integer width = ExpressionUtil.executeForInt(context, tag, "width", 140);
+		final Integer width = ExpressionUtil.executeForInt(context, tag, "width", 0);
 		final String value = ExpressionUtil.executeForString(context, tag, "value");
 		final String showValue = ExpressionUtil.executeForString(context, tag, "showValue");
 		final String submitName = ExpressionUtil.executeForString(context, tag, "submitName", id + "Names");
@@ -50,8 +55,9 @@ public class TreeInputProcessor extends AbstractWiscessElementTagProcessor {
 			input.name(submitName);
 		if(StringUtils.isNotEmpty(showValue))
 			input.value(showValue);
+		if(width>0)
+			input.style("width:" + width + "px");
 		input.readonly("readonly")
-			.style("width:" + width + "px")
 			.onclick("showTreeMenu(\'" + id + "\');")
 			.onfocus("this.blur();");
 		for(IAttribute attr:attributes) {

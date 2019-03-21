@@ -17,6 +17,7 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
+import com.wiscess.utils.RSA_Encrypt;
 import com.wiscess.utils.StringUtils;
 
 public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
@@ -46,12 +47,10 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
 		return (flag && !isIncludeRichText);
 	}
 	/**
-	 * 判断是否是Base64编码
-	 * @param name
-	 * @return
+	 * 判断是否为RSA加密后的base64编码
 	 */
-	private boolean isBase64(String name) {
-		return name.endsWith("WithBase64");
+	private boolean isRSA(String name) {
+		return name.endsWith("WithRSA");
 	}
 	/**
 	 * * 覆盖getParameter方法，将参数名和参数值都做xss过滤。<br/>
@@ -62,11 +61,33 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
 	public String getParameter(String name) {
 		name = JsoupUtil.cleanName(name);
 		String value = super.getParameter(name);
-		if(isBase64(name)) {
-			//如果是base64的参数，尝试读取不带WithBase64的参数值
+//		if(isBase64(name)) {
+//			//如果是base64的参数，尝试读取不带WithBase64的参数值
+//			if(value==null || StringUtils.isEmpty(value)) {
+//				value=super.getParameter(name.replaceAll("WithBase64", ""));
+//			}
+//			return value;
+//		}
+		if(isRSA(name)) {
+			//如果是RSA加密的内容
+			/*
+			index    java               html                    result
+			1        username           username                ok
+			2        usernameWithRSA    usernameWithRSA         ok
+			                            username                ok          
+			*/
 			if(value==null || StringUtils.isEmpty(value)) {
-				value=super.getParameter(name.replaceAll("WithBase64", ""));
+				value=super.getParameter(name.replaceAll("WithRSA", ""));
 			}
+			//取得加密字符串后先解密
+			try {
+				value=RSA_Encrypt.decrypt(value,true);
+			} catch (Exception e) {
+				//解密失败
+				value="";
+			}
+			//解密后进行xss过滤
+			value = JsoupUtil.cleanValue(value);
 			return value;
 		}
 		if(isRichText(name) && StringUtils.isNotEmpty(value)) {
@@ -88,20 +109,40 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
 		//
 		String newName = JsoupUtil.cleanName(name);
 		String[] values = super.getParameterValues(newName);
-		if(isBase64(newName)) {
-			//如果是base64的参数，尝试读取不带WithBase64的参数值
-			if(values==null) {
-				values=super.getParameterValues(newName.replaceAll("WithBase64", ""));
+//		if(isBase64(newName)) {
+//			//如果是base64的参数，尝试读取不带WithBase64的参数值
+//			if(values==null) {
+//				values=super.getParameterValues(newName.replaceAll("WithBase64", ""));
+//			}
+//			return values;
+//		}
+		if(isRSA(newName) && values==null) {
+			//如果是RSA加密的内容
+			values=super.getParameterValues(name.replaceAll("WithRSA", ""));
+			if(values!=null) {
+				//取得加密字符串后先解密
+				values = Stream.of(values).map(s->{
+					try {
+						s=RSA_Encrypt.decrypt(s,true);
+						//解密后进行xss过滤
+						return JsoupUtil.cleanValue(s);
+					} catch (Exception e) {
+						s="";
+					}
+					return s;
+				}).toArray(String[]::new);
 			}
 			return values;
 		}
 		if(isRichText(newName) && values==null) {
 			//富文本
 			values=super.getParameterValues(newName.replaceAll("WithHtml", ""));
+			if(values!=null) {
+				values = Stream.of(values).map(s -> JsoupUtil.cleanContent(s)).toArray(String[]::new);
+			}
+			return values;
 		}
-		if (values != null && isRichText(newName)) {
-			values = Stream.of(values).map(s -> JsoupUtil.cleanContent(s)).toArray(String[]::new);
-		}else if (values != null && !isRichText(newName)) {
+		if (values != null) {
 			values = Stream.of(values).map(s -> JsoupUtil.cleanValue(s)).toArray(String[]::new);
 		}
 		return values;

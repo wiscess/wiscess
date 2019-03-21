@@ -54,10 +54,8 @@ public class HttpMethodAutoConfiguration {
 				filterChain.doFilter(request, response);
 				return;
 			}
-            response.setHeader("Allow", "GET,POST");  
-            response.setStatus(405);  
-			//不允许访问
-			//response.sendRedirect(request.getContextPath() + errorPage);	
+            //response.setHeader("Allow", "GET,POST");  
+            response.setStatus(405); 
 		}
 
 		@Override

@@ -1,11 +1,12 @@
 package com.wiscess.filter.xss;
 
-import java.net.URLDecoder;
+import java.io.IOException;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.safety.Whitelist;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.wiscess.utils.StringUtils;
@@ -56,17 +57,18 @@ public class JsoupUtil {
 			//判断content是否为json格式的
 			content=cleanJson(content);
 		}else {
-		
-			//先对参数进行decode
-			try {
-				content=URLDecoder.decode(content, "utf8");
-			} catch (Exception e) {
-				//转换失败后
-			}
-			content=Jsoup.clean(content, "", whitelist, outputSettings);	
-			//替换已知的不允许出现的所有字符
 			if(isHtml) {
+				//先对参数进行decode
+//				try {
+//					content=URLDecoder.decode(content, "utf8");
+//				} catch (Exception e) {
+//					//转换失败后
+//				}
+				content=Jsoup.clean(content, "", whitelist, outputSettings);	
+				//替换已知的不允许出现的所有字符
 				content=html(content);
+			}else {
+				content=Jsoup.clean(content, "", whitelist, outputSettings);	
 			}
 		}
 		return content;
@@ -116,25 +118,27 @@ public class JsoupUtil {
 		    html = StringUtils.replace(html, "&amp;","&");
 	    }
 	    html = StringUtils.replace(html, "&apos;","'");
-	    while(html.indexOf("'")!=-1){
-	    	html = StringUtils.replaceOnce(html, "'","‘");
-	    	html = StringUtils.replaceOnce(html, "'","’");
-		}
+//	    while(html.indexOf("'")!=-1){
+//	    	html = StringUtils.replaceOnce(html, "'","‘");
+//	    	html = StringUtils.replaceOnce(html, "'","’");
+//		}
 	    html = StringUtils.replace(html, "&quot;","\"");
-	    while(html.indexOf("\"")!=-1){
-	    	html = StringUtils.replaceOnce(html, "\"","“");
-	    	html = StringUtils.replaceOnce(html, "\"","”");
-	    }
+//	    while(html.indexOf("\"")!=-1){
+//	    	html = StringUtils.replaceOnce(html, "\"","“");
+//	    	html = StringUtils.replaceOnce(html, "\"","”");
+//	    }
 	    html = StringUtils.replace(html, "&nbsp;&nbsp;","\t");// 替换跳格
 	    html = StringUtils.replace(html, "&nbsp;"," ");// 替换空格
-	    html = StringUtils.replace(html, "&lt;","＜");
-	    html = StringUtils.replace(html, "&gt;","＞");
+//	    html = StringUtils.replace(html, "&lt;","＜");
+//	    html = StringUtils.replace(html, "&gt;","＞");
+	    html = StringUtils.replace(html, "&lt;","<");
+	    html = StringUtils.replace(html, "&gt;",">");
 	    html = StringUtils.replace(html, "&times;","×");
 	    html = StringUtils.replace(html, "&divide;","÷");
 	    html = StringUtils.replace(html, "&ensp;","         ");
 	    html = StringUtils.replace(html, "&emsp;","         ");
 	    html = StringUtils.replace(html, "&","＆");
-	    html = StringUtils.replace(html, ";","；");
+//	    html = StringUtils.replace(html, ";","；");
 	    html = StringUtils.replace(html, "\\","＼");
 	    html = StringUtils.replace(html, "#","＃");
 	    //再替换信通院规定的字符
@@ -181,7 +185,7 @@ public class JsoupUtil {
 	 */
 	public static String cleanJson(String s) {
 		// 先处理双引号的问题
-		s = jsonStringConvert(s);
+		//s = jsonStringConvert(s);
 		return Jsoup.clean(s, "", whitelist, outputSettings);	
 	}
 
@@ -214,13 +218,26 @@ public class JsoupUtil {
 //		log.info("[处理JSON字符串] [将嵌套的双引号转成单引号] [处理后的JSON] :{}", r);
 		return r;
 	}
-//	public static void main(String[] args) throws IOException {		
-//		String text = "authAction.do?auth_url=><f>&lt;img src=''http%3A%2F%2Fcjlfxzxjypt.bjchyedu.cn%2Feduinfor%2Findex.jsp&auth_key=5B5AE13C3D05FBC6173133FE9FB6D6C2%27%22%3E%3Cscript%3Econfirm%28201308151610%29%3C%2Fscript%3E";	
-//		System.out.println(text);
-//		System.out.println(clean(text));	
-//		text="&amp;amp;amp;amp;asdf";
+	public static void main(String[] args) throws IOException {		
+		String text = "authAction.do?auth_url=><f>&lt;img src=''http%3A%2F%2Fcjlfxzxjypt.bjchyedu.cn%2Feduinfor%2Findex.jsp&auth_key=5B5AE13C3D05FBC6173133FE9FB6D6C2%27%22%3E%3Cscript%3Econfirm%28201308151610%29%3C%2Fscript%3E";	
+		text="{\"name\":\"w\\\"h\",\"address\":\"ffjfjf\" }";
+		text="{\"classOrCourseId\":[\"{\\\"classId\\\":207,\\\"subjectId\\\":1,\\\"courseId\\\":0,\\\"groupId\\\":0,\\\"studentId\\\":null}\"],"
+				+ "\"createPersonId\":12762,\"endTime\":\"2019-03-30\",\"practiceHomeworkFiles\":[],"
+				+ "\"practiceHomeworkForms\":[{\"formType\":9605001},{\"formType\":9605003},{\"formType\":9605002},{\"formType\":9605004}],"
+				+ "\"practiceTasks\":[{\"endTime\":\"2019-03-30\",\"practiceGroups\":[{\"groupIdStr\":\"{\\\"classId\\\":207,\\\"subjectId\\\":1,\\\"courseId\\\":0,\\\"groupId\\\":53,\\\"studentId\\\":null}\"},"
+				+ "		{\"groupIdStr\": \"{\\\"classId\\\":207,\\\"subjectId\\\":1,\\\"courseId\\\":0,\\\"groupId\\\":76,\\\"studentId\\\":null}\"}],"
+				+ "		\"practiceTaskFiles\":[],\"practiceTaskForms\":[{\"formType\":9605002},{\"formType\":9605004}],\"taskDescrip\":\"djdjdj\",\"taskName\":\"xjdjdj\"}],"
+				+ "\"workDescrip\":\"djdjdnd\",\"workName\":\"ceshi\",\"workSubject\":9603002}";
+		System.out.println(text);
+		text=cleanValue(text);
+		System.out.println(cleanValue(text));
+		
+		JSONObject object=JSONObject.parseObject(text);
+		JSONArray array=((JSONArray)object.get("practiceTasks"));
+		array=(JSONArray)((JSONObject)array.get(0)).get("practiceGroups");
+		System.out.println(((JSONObject)array.get(0)).get("groupIdStr"));
 //		System.out.println(html(text));
-//	}
+	}
 
 	public final static boolean isJSONValid(String test) {
         try {

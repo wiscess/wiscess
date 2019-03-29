@@ -31,7 +31,8 @@ import com.wiscess.web.controller.CaptchaController;
 @EnableScheduling
 @EnableConfigurationProperties
 public class WebConfig implements WebMvcConfigurer {
-    public void configurePathMatch(PathMatchConfigurer configurer) {
+    @Override
+	public void configurePathMatch(PathMatchConfigurer configurer) {
     	//setUseSuffixPatternMatch(boolean useSuffixPatternMatch)：
     	//设置是否是后缀模式匹配，如“/user”是否匹配/user.*，默认真即匹配；
 		//当此参数设置为true的时候，那么/user.html，/user.aa，/user.*都能是正常访问的。

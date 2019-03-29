@@ -171,8 +171,8 @@ public class JsoupUtil {
         value = value.replaceAll("<", "");
         value = value.replaceAll(">", "");
         value = value.replaceAll("\\(\\)", "");
-        value = value.replaceAll("\\(", "");
-        value = value.replaceAll("\\)", "");
+//        value = value.replaceAll("\\(", "");
+//        value = value.replaceAll("\\)", "");
         value = value.replaceAll("\\\\", "");
         return value;
     }

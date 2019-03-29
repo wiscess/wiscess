@@ -116,9 +116,11 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
 //			}
 //			return values;
 //		}
-		if(isRSA(newName) && values==null) {
+		if(isRSA(newName)) {
 			//如果是RSA加密的内容
-			values=super.getParameterValues(name.replaceAll("WithRSA", ""));
+			if(values==null) {
+				values=super.getParameterValues(name.replaceAll("WithRSA", ""));
+			}
 			if(values!=null) {
 				//取得加密字符串后先解密
 				values = Stream.of(values).map(s->{
@@ -134,9 +136,11 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
 			}
 			return values;
 		}
-		if(isRichText(newName) && values==null) {
+		if(isRichText(newName)) {
 			//富文本
-			values=super.getParameterValues(newName.replaceAll("WithHtml", ""));
+			if(values==null) {
+				values=super.getParameterValues(newName.replaceAll("WithHtml", ""));
+			}
 			if(values!=null) {
 				values = Stream.of(values).map(s -> JsoupUtil.cleanContent(s)).toArray(String[]::new);
 			}

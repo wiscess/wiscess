@@ -6,8 +6,19 @@ import java.util.List;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import com.wiscess.wechat.message.model.Article;
-import com.wiscess.wechat.message.model.Music;
+import com.wiscess.wechat.message.custom.ImageCustomMessage;
+import com.wiscess.wechat.message.custom.MusicCustomMessage;
+import com.wiscess.wechat.message.custom.NewsCustomMessage;
+import com.wiscess.wechat.message.custom.TextCustomMessage;
+import com.wiscess.wechat.message.custom.VideoCustomMessage;
+import com.wiscess.wechat.message.custom.VoiceCustomMessage;
+import com.wiscess.wechat.message.custom.model.Image;
+import com.wiscess.wechat.message.custom.model.Text;
+import com.wiscess.wechat.message.custom.model.Video;
+import com.wiscess.wechat.message.custom.model.Voice;
+import com.wiscess.wechat.message.custom.model.Article;
+import com.wiscess.wechat.message.custom.model.Music;
+import com.wiscess.wechat.message.custom.model.News;
 import com.wiscess.wechat.template.TemplateMessage;
 import com.wiscess.wechat.template.TemplateMessageDataItem;
 
@@ -28,15 +39,13 @@ public class SendMessageUtil {
 	 */
 	public static String makeTextCustomMessage(String openId, String content) {
 		// 对消息内容中的双引号进行转义
-		content = content.replace("\"", "\\\"");
-		String jsonMsg = "{\"touser\":\"%s\",\"msgtype\":\"text\",\"text\":{\"content\":\"%s\"}}";
-//		Map<String, Object> map=new HashMap<String,Object>();
-//		map.put("touser", openId);
-//		map.put("msgtype", "text");
-//		map.put("content", content);
-//		JSONObject jsonObject=JSONObject.fromObject(map);
-//		return jsonObject.toString();
-		return String.format(jsonMsg, openId, content);
+		return TextCustomMessage.builder()
+				.touser(openId)
+				.text(Text.builder()
+						.content(content)
+						.build())
+				.build()
+				.toJson();
 	}
 
 	/**
@@ -47,8 +56,13 @@ public class SendMessageUtil {
 	 * @return
 	 */
 	public static String makeImageCustomMessage(String openId, String mediaId) {
-		String jsonMsg = "{\"touser\":\"%s\",\"msgtype\":\"image\",\"image\":{\"media_id\":\"%s\"}}";
-		return String.format(jsonMsg, openId, mediaId);
+		return ImageCustomMessage.builder()
+				.touser(openId)
+				.image(Image.builder()
+						.media_id(mediaId)
+						.build())
+				.build()
+				.toJson();
 	}
 
 	/**
@@ -59,51 +73,98 @@ public class SendMessageUtil {
 	 * @return
 	 */
 	public static String makeVoiceCustomMessage(String openId, String mediaId) {
-		String jsonMsg = "{\"touser\":\"%s\",\"msgtype\":\"voice\",\"voice\":{\"media_id\":\"%s\"}}";
-		return String.format(jsonMsg, openId, mediaId);
+		return VoiceCustomMessage.builder()
+				.touser(openId)
+				.voice(Voice.builder()
+						.media_id(mediaId)
+						.build())
+				.build()
+				.toJson();
 	}
 
 	/**
 	 * 组装视频客服消息
-	 * 
+{
+    "touser":"OPENID",
+    "msgtype":"video",
+    "video":
+    {
+      "media_id":"MEDIA_ID",
+      "thumb_media_id":"MEDIA_ID",
+      "title":"TITLE",
+      "description":"DESCRIPTION"
+    }
+}
 	 * @param openId 消息发送对象
 	 * @param mediaId 媒体文件id
 	 * @param thumbMediaId 视频消息缩略图的媒体id
 	 * @return
 	 */
 	public static String makeVideoCustomMessage(String openId, String mediaId, String thumbMediaId) {
-		String jsonMsg = "{\"touser\":\"%s\",\"msgtype\":\"video\",\"video\":{\"media_id\":\"%s\",\"thumb_media_id\":\"%s\"}}";
-		return String.format(jsonMsg, openId, mediaId, thumbMediaId);
+		return VideoCustomMessage.builder()
+				.touser(openId)
+				.video(Video.builder()
+						.media_id(mediaId)
+						.thumb_media_id(thumbMediaId)
+						.build())
+				.build()
+				.toJson();
 	}
 
 	/**
 	 * 组装音乐客服消息
 	 * 
+{
+    "touser":"OPENID",
+    "msgtype":"music",
+    "music":
+    {
+      "title":"MUSIC_TITLE",
+      "description":"MUSIC_DESCRIPTION",
+      "musicurl":"MUSIC_URL",
+      "hqmusicurl":"HQ_MUSIC_URL",
+      "thumb_media_id":"THUMB_MEDIA_ID" 
+    }
+}
 	 * @param openId 消息发送对象
 	 * @param music 音乐对象
 	 * @return
 	 */
 	public static String makeMusicCustomMessage(String openId, Music music) {
-		String jsonMsg = "{\"touser\":\"%s\",\"msgtype\":\"music\",\"music\":%s}";
-		jsonMsg = String.format(jsonMsg, openId, JSONObject.fromObject(music).toString());
-		// 将jsonMsg中的thumbmediaid替换为thumb_media_id
-		jsonMsg = jsonMsg.replace("thumbmediaid", "thumb_media_id");
-		return jsonMsg;
+		return MusicCustomMessage.builder()
+				.touser(openId)
+				.music(music)
+				.build()
+				.toJson();
 	}
 
 	/**
 	 * 组装图文客服消息
+{
+    "touser":"OPENID",
+    "msgtype":"news",
+    "news":{
+        "articles": [
+         {
+             "title":"Happy Day",
+             "description":"Is Really A Happy Day",
+             "url":"URL",
+             "picurl":"PIC_URL"
+         }
+         ]
+    }
+}
 	 * 
 	 * @param openId 消息发送对象
 	 * @param articleList 图文消息列表
 	 * @return
 	 */
 	public static String makeNewsCustomMessage(String openId, List<Article> articleList) {
-		String jsonMsg = "{\"touser\":\"%s\",\"msgtype\":\"news\",\"news\":{\"articles\":%s}}";
-		jsonMsg = String.format(jsonMsg, openId, JSONArray.fromObject(articleList).toString().replaceAll("\"", "\\\""));
-		// 将jsonMsg中的picUrl替换为picurl
-		jsonMsg = jsonMsg.replace("picUrl", "picurl");
-		return jsonMsg;
+		return NewsCustomMessage.builder()
+				.touser(openId)
+				.build()
+				.addArticle(articleList.get(0))
+				.toJson();
 	}
 
 	/**

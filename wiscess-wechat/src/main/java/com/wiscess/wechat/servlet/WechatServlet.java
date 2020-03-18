@@ -49,7 +49,7 @@ public class WechatServlet extends HttpServlet {
 		String echostr = request.getParameter("echostr");
 
 		if(StringUtils.isEmpty(timestamp) || StringUtils.isEmpty(nonce) || StringUtils.isEmpty(signature) || StringUtils.isEmpty(echostr)){
-			System.out.println("微信公众号基本配置接入异常");
+			log.error("微信公众号基本配置接入异常");
 			log.debug("WechatServlet.doGet.failure:parameters is empty");
 			return;
 		}
@@ -58,7 +58,7 @@ public class WechatServlet extends HttpServlet {
 		
 		//请求校验，若检验成功则原样返回echostr，表示接入成功，否则接入失败
 		if(SignUtil.checkSignature(signature,wechat.getToken(), timestamp,nonce)){
-			System.out.println("微信公众号基本配置接入成功");
+			log.info("微信公众号基本配置接入成功");
 			log.debug("WechatServlet.doGet.checkSignature success.");
 			out.print(echostr);
 		}
@@ -81,7 +81,7 @@ public class WechatServlet extends HttpServlet {
 		PrintWriter out = response.getWriter();
 		// 请求校验
 		if (SignUtil.checkSignature(signature, wechat.getToken(),timestamp, nonce)) {
-			System.out.println("接收到消息，验证通过");
+			//log.info("接收到消息，验证通过");
 			log.debug("WechatServlet.doPost.checkSignature success.");
 			// 调用核心服务类接收处理请求
 			String respXml = processRequest(request);

@@ -177,36 +177,51 @@ public class CommonUtil {
 	 * @return
 	 */
 	public static Token getToken(String appid, String appsecret) {
-		Token token = null;
-		String requestUrl = token_url.replace("APPID", appid).replace("APPSECRET", appsecret);
 		//首先检查是否已经超时
 		Long currentTimeStamp=Calendar.getInstance().getTimeInMillis();
 		if(tokenCache==null || currentTimeStamp-lastTokenTime>3600000){
 			//没有缓存的token或已超过1小时，重新获取token
-
-			// 发起GET请求获取凭证
-			JSONObject jsonObject = httpsRequest(requestUrl, "GET", null);
-
-			if (null != jsonObject) {
-				try {
-					token = new Token();
-					token.setAccessToken(jsonObject.getString("access_token"));
-					token.setExpiresIn(jsonObject.getInt("expires_in"));
-				} catch (Exception e) {//JSONException
-					token = null;
-					// 获取token失败
-					log.error("获取token失败 errcode:{} errmsg:{}", jsonObject.getInt("errcode"), jsonObject.getString("errmsg"));
-				}
-			}
-			tokenCache=token;
-			lastTokenTime=currentTimeStamp;
-			
-			SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			log.info("最近一次token时间（"+sf.format(new Date())+"）:"+token.getAccessToken());
+			tokenCache=getTokenWithOutCache(appid,appsecret);
 		}
 		
 		return tokenCache;
 	}
+
+    /**
+     * 立即获取token，不计缓存
+     * @param appid
+     * @param appsecret
+     * @return
+     */
+    public static Token getTokenWithOutCache(String appid, String appsecret) {
+        Token token = null;
+        String requestUrl = token_url.replace("APPID", appid).replace("APPSECRET", appsecret);
+		// 发起GET请求获取凭证
+		JSONObject jsonObject = httpsRequest(requestUrl, "GET", null);
+		if (null != jsonObject) {
+			try{
+				token = new Token();
+				token.setAccessToken(jsonObject.getString("access_token"));
+				token.setExpiresIn(jsonObject.getInt("expires_in"));
+			} catch (Exception e) {//JSONException
+				token = null;
+				// 获取token失败
+				log.error("获取token失败 errcode:{} errmsg:{}", jsonObject.getInt("errcode"), jsonObject.getString("errmsg"));
+				return null;
+			}
+		}else{
+			//获取异常
+			log.error("获取token失败。");
+			return null;
+		}
+        //存入缓存
+        tokenCache=token;
+        lastTokenTime=Calendar.getInstance().getTimeInMillis();
+
+        SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        log.info("最近一次token时间（"+sf.format(new Date())+"）:"+token.getAccessToken());
+        return token;
+    }
 	
 	/**
 	 * 根据内容类型判断文件扩展名

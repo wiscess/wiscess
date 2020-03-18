@@ -17,7 +17,7 @@ public class WeChatMenuAutoConfiguration {
 	@Bean(name="weChatMenuController")
 	@ConditionalOnMissingBean(WeChatMenuControll.class)
 	public WeChatMenuControll weChatMenuController() {
-		log.debug("WeChatMenuController init.");
+		log.info("WeChatMenuController init.");
 		return new WeChatMenuControll();
 	}
 }

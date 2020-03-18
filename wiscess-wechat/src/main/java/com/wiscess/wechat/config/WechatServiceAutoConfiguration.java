@@ -20,7 +20,7 @@ public class WechatServiceAutoConfiguration {
 	@Bean(name="wechatService")
 	@ConditionalOnMissingBean(WechatService.class)
 	public WechatService wechatService(){
-		log.debug("wechatBaseServiceConfiguration init.");
+		log.info("wechatBaseServiceConfiguration init.");
 		WechatService wechatService=new WechatBaseService();
 		return wechatService;
 	}

@@ -1,44 +1,50 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-	xmlns:app="http://www.thymeleaf.org" 
-	xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
-	layout:decorator="layout" th:object="${session.loginUser}">
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title th:utext="#{system.title}"></title>
-<!-- 框架UI样式表 -->
-<!-- <link rel='stylesheet' href='../../public/js/bootstrap/3.3.6/css/bootstrap.css' th:href="@{/js/bootstrap/3.3.6/css/bootstrap.css}" /> -->
-<link href="../../public/css/becom_global.css" th:href="@{/css/becom_global.css}" rel="stylesheet" type="text/css" />
-<link href="../../public/css/becom_library.css" th:href="@{/css/becom_library.css}" rel="stylesheet" type="text/css" />
-<link href="../../public/css/becom_master.css" th:href="@{/css/becom_master.css}" rel="stylesheet" type="text/css" />
-<link href="../../public/css/szhxy.css" th:href="@{/css/szhxy.css}" rel="stylesheet" type="text/css" />
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<meta name="_csrf" th:if="${_csrf}" th:content="${_csrf.token}"/>
+<meta name="_csrf_header" th:if="${_csrf}" th:content="${_csrf.headerName}"/>
+<link rel="Bookmark" href="/favicon.ico" >
+<link rel="Shortcut Icon" href="/favicon.ico" />
+<!--[if lt IE 9]>
+<script type="text/javascript" th:src="@{/lib/html5shiv.js}"></script>
+<script type="text/javascript" th:src="@{/lib/respond.min.js}"></script>
+<![endif]-->
+ <title th:utext="#{system.title}"></title>
+<!-- Jquery -->
+<script type="text/javascript" th:src="@{/webjars/jquery/jquery.js}"></script>
+<!-- Bootstrap -->
+<link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" rel="stylesheet"/>
 
-<!-- zTree样式表 -->
-<link href="../../public/plugin/ztree/zTreeStyle/zTreeStyle.css" th:href="@{/plugin/ztree/zTreeStyle/zTreeStyle.css}" rel="stylesheet" type="text/css" />
-
-<!-- 内置：js方法 -->
-<!-- 内置：div层隐藏/显示支持 -->
-<script type="text/javascript" src="../../public/js/cover.js" th:src="@{/js/cover.js}"></script>
-
-<!-- jQuery插件 -->
-<script type="text/javascript" src="../../public/js/jquery/jquery.js" th:src="@{/js/jquery/jquery.js}"></script>
-<!-- <script type="text/javascript" src="../../public/js/bootstrap/3.3.6/js/bootstrap.js" th:src="@{/js/bootstrap/3.3.6/js/bootstrap.js}"></script> -->
-<script type="text/javascript" src="../../public/js/jquery/jquery.button.js" th:src="@{/js/jquery/jquery.button.js}"></script>
-<script type="text/javascript" src="../../public/js/jquery/jquery.center.js" th:src="@{/js/jquery/jquery.center.js}"></script>
-
-
-<!--js规则校验-->
-<script type="text/javascript" charset="utf-8" src="../../public/js/func.js" th:src="@{/js/func.js}"></script>
-<script type="text/javascript" charset="utf-8" src="../../public/js/validata.js" th:src="@{/js/validata.js}"></script>
-<script type="text/javascript" charset="utf-8" src="../../public/js/tablebg.js" th:src="@{/js/tablebg.js}"></script>	
+<script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/csrf.js}"></script>
+<script type="text/javascript" th:src="@{/js/func.js}"></script>
+<script type="text/javascript" th:src="@{/js/validata.js}"></script>
 <script type="text/javascript" th:inline="javascript">
 //各个js库之间的主要冲突在于$的冲突，这个方法是用来处理这个问题的  
 var menuUrl=[[@{${menuUrl}}]];
 $(document).ready(function($){
-	//增加
+	//添加
 	$("#toAdd").click(function(){
-		showcover(1);
-		return false;
+		setData({
+			menuId:"",
+			menuName:"",
+			menuUrl:"",
+			menuOrder:"",
+			parentMenuId:"",
+			menuType:"",
+			isAuth:true,
+			isUsed:false
+		});
+		//显示
+		$('#editModal').modal({
+			keyboard: false,
+			backdrop: 'static'
+		});
 	});
 	//保存
 	$("#doAdd").click(function(){
@@ -69,11 +75,6 @@ $(document).ready(function($){
 			});
 		return false;
 	});
-	//取消
-	$("#doCancel").click(function(){
-		hidecover(1);
-	});
-	
 	//生成菜单
 	$("#doGenerate").click(function(){
 		var url=menuUrl+'/build';
@@ -100,6 +101,79 @@ $(document).ready(function($){
 			isUsed:$("input[name='isUsed']:checked").val()
 		};
 	}
+
+	/* 修改 */
+	$("[data-edit-id]").each(function(){
+		var id = $(this).attr('data-edit-id');
+		$(this).click(function(){
+			var url=menuUrl+'/'+id;
+			$.post(url,function(data){
+				if(data==null){
+					alert("参数错误，不能修改");
+					return;
+				}
+				setData(data);
+				//显示
+				$('#editModal').modal({
+					keyboard: false,
+					backdrop: 'static'
+				});
+			});
+		});
+	});
+	/* 启用 */
+	$("[data-enable-id]").each(function(){
+		var id = $(this).attr('data-enable-id');
+		$(this).click(function(){
+			var url=menuUrl+'/enable/'+id;
+			$.post(url,function(data){
+				if(data.code==0){
+					alert(data.msg);
+					$("#frm").attr("action", menuUrl+"/list");
+					$("#frm").submit();
+				}else{
+					alert("参数错误");
+				}
+			});
+			return false;
+		});
+	});
+	/* 禁用  */
+	$("[data-disable-id]").each(function(){
+		var id = $(this).attr('data-disable-id');
+		$(this).click(function(){
+			var url=menuUrl+'/disable/'+id;
+			$.post(url,function(data){
+				if(data.code==0){
+					alert(data.msg);
+					$("#frm").attr("action", menuUrl+"/list");
+					$("#frm").submit();
+				}else{
+					alert("参数错误");
+				}
+			});
+			return false;
+		});
+	});
+	/* 删除  */
+	$("[data-del-id]").each(function(){
+		var id = $(this).attr('data-del-id');
+		$(this).click(function(){
+			if(confirm("确认要删除该菜单吗？")){
+				var url=menuUrl+'/del/'+id;
+				$.post(url,function(data){
+					if(data.code==0){
+						alert(data.msg);
+						$("#frm").attr("action", menuUrl+"/list");
+						$("#frm").submit();
+					}else{
+						alert(data.error);
+					}
+				});
+				return false;
+			}
+		});
+	});
 });
 function setData(data){
 	$("#menuId").val(data.menuId),
@@ -111,155 +185,29 @@ function setData(data){
 	$("input[name='isAuth'][value="+data.isAuth+"]").attr("checked",true); 
 	$("input[name='isUsed'][value="+data.isUsed+"]").attr("checked",true); 
 }
-/* 修改 */
-function toEdit(id){
-	var url=menuUrl+'/'+id;
-	$.post(url,function(data){
-		if(data==null){
-			alert("参数错误，不能修改");
-			return;
-		}
-		setData(data);
-		showcover(1);
-	});
-	return false;
-}
-/* 启用 */
-function enable(id){
-	var url=menuUrl+'/enable/'+id;
-	$.post(url,function(data){
-		if(data.code==0){
-			alert(data.msg);
-			$("#frm").attr("action", menuUrl+"/list");
-			$("#frm").submit();
-		}else{
-			alert("参数错误");
-		}
-	});
-	return false;
-}
-/* 禁用  */
-function disable(id){
-	var url=menuUrl+'/disable/'+id;
-	$.post(url,function(data){
-		if(data.code==0){
-			alert(data.msg);
-			$("#frm").attr("action", menuUrl+"/list");
-			$("#frm").submit();
-		}else{
-			alert("参数错误");
-		}
-	});
-	return false;
-}
-
-/* 删除  */
-function doDel(id){
-	if(confirm("确认要删除该菜单吗？")){
-		var url=menuUrl+'/del/'+id;
-		$.post(url,function(data){
-			if(data.code==0){
-				alert(data.msg);
-				$("#frm").attr("action", menuUrl+"/list");
-				$("#frm").submit();
-			}else{
-				alert(data.error);
-			}
-		});
-		return false;
-	}
-}
 </script>
 </head>
 <body>
-<form action="/wx_menu_list.html" th:action="@{/sys/wxmenu/list}" id="frm" name="frm" method="post">
+<form id="frm" name="frm" th:action="@{|${menuUrl}/list|}" method="post" class="form-horizontal">
 <input type="hidden" id="menuId" name="menuId" />
-
-<div id="cover" style="display:none;"><iframe src="" frameborder="0" style="position:absolute; visibility:inherit; top:0px; left:0px; height:expression(eval(document.body.clientHeight)); width:100%; z-index:-1; FILTER: alpha(opacity=0); "> </iframe></div>
-<div id="covercontainer" style="display:none;">
-	<div id="covercontent1" >
-		<div id="resulttitlearea"><span>微信菜单编辑</span></div>
-	  	<div id="formarea"> 
-	      	<table style="width:495px;" border="0" cellspacing="1" cellpadding="0">
-		      <tr>
-		        <td width="150px"  align="right">一级菜单：</td>
-		        <td align="left">
-					<select name="parentMenuId" id="parentMenuId">
-						<option value="0">--无--</option>
-						<th:block th:remove="all-but-first" th:each="obj,i:${menuList}">
-						<option th:if="${obj.parentMenuId==0}" th:value="${obj.menuId}" th:text="${obj.menuName}"/>
-						</th:block>
-					</select>
-				</td>
-			  </tr>
-			  <tr>
-				<td align="right">功能名称：</td>
-		        <td align="left">
-					<input type="text" name="menuName" id="menuName" size="50"/>
-				</td>
-			</tr>
-			<tr>
-			<td align="right">事件类型：</td>
-	        <td align="left">
-				<select name="menuType" id="menuType">
-					<app:dictselect dictType="1090" />
-				</select>
-			</td>
-		  </tr>
-			  <tr>
-				<td align="right">功能Url：</td>
-		        <td align="left">
-					<input type="text" name="menuUrl" id="menuUrl" size="50" />
-				</td>
-			</tr>
-			  <tr>
-				<td align="right">功能序号：</td>
-		        <td align="left">
-					<input type="text" name="menuOrder" id="menuOrder" size="8" maxlength="8" />
-				</td>
-			</tr>
-			  <tr>
-				<td align="right">网页授权：</td>
-		        <td align="left">
-					<input type="radio" name="isAuth" value="1" checked="checked" />是&nbsp;
-					<input type="radio" name="isAuth" value="0" />否
-				</td>
-			</tr>
-			  <tr>
-				<td align="right">是否启用：</td>
-		        <td align="left">
-					<input type="radio" name="isUsed" value="1" checked="checked" />是&nbsp;
-					<input type="radio" name="isUsed" value="0" />否
-				</td>
-		      </tr>
-	    	</table>
-	  	</div>
-	   	<div id="operationarea"> 
-		  <div id="operationcontent">
-		  	<input type="button" value=" 确定 " id="doAdd" class="btnop_mouseout"/>
-			<input type="button" value=" 取消 " id="doCancel"/>
-		  </div>
-	  	</div>
+<!-- 导航 
+	<nav aria-label="breadcrumb">
+	  <ol class="breadcrumb">
+	    <li class="breadcrumb-item"><a th:href="@{/}">首页</a></li>
+	    <li class="breadcrumb-item"><a th:href="@{|${menuUrl}/list|}">微信菜单管理</a></li>
+	  </ol>
+	</nav>-->
+<div class="container-fluid">
+	<!-- content -->
+	<p class="f-20 text-success">欢迎使用[[#{system.title}]]-微信菜单管理</p>
+	<div class="form-inline">	
+		<div class="mb-3">
+		<input type="button" value=" 增 加 " id="toAdd" class="btn btn-primary" />
+		<input type="button" value="生成微信菜单" id="doGenerate" class="btn btn-primary"/>
+		</div>
 	</div>
-</div>
-
-<div id="main">
-	<div id="titlearea">
-		<h1>当前操作：</h1>
-		<h2>微信菜单管理</h2>
-		<div id="errormsg" th:if="${!#strings.isEmpty(error)}"
-			th:text="${error}">错误提示</div>
-		<div id="successmsg" th:if="${!#strings.isEmpty(success)}"
-			th:text="${success}">成功提示</div>
-	</div>
-</div>
-<div id="resulttitlearea">
-	<span style="">微信菜单管理</span>
-</div>
-<div id="resultlistarea">
-	<div id="xoverflow">
-		<table  width="100%" border="0" cellpadding="0" cellspacing="1"
-			id="myTable">
+	<!-- 列表显示 -->
+	<table class="table table-bordered table-hover">
 			<colgroup>
 				<col width="8%" />
 				<col width="8%" />
@@ -271,7 +219,8 @@ function doDel(id){
 				<col width="8%" />
 				<col width="12%" />
 			</colgroup>
-			<tr align="center">
+			<thead>
+			<tr class="text-c">
 				<th>菜单ID</th>
 				<th>上级菜单ID</th>
 				<th>功能名称</th>
@@ -282,6 +231,7 @@ function doDel(id){
 		        <th>是否启用</th>
 		        <th>操作</th>
 			</tr>
+		</thead>
 			<th:block th:remove="all-but-first">
 				<tr class="odd" th:each="obj,i:${menuList}">
 					<td th:text="${obj.menuId}"></td>
@@ -292,35 +242,95 @@ function doDel(id){
 					<td><app:dictname dictid="${obj.menuType}"/></td>
 					<td th:text="${obj.isAuth?'需要':'不需要'}"></td>
 					<td th:text="${obj.isUsed?'启用':'禁用'}"></td>
-					<td>
-						<a class="line_btn"
-							th:onclick="${'toEdit('+obj.menuId+')'}">修改</a>
-						<a class="line_btn" style="border-color:red;color:red;"
-							th:onclick="${'doDel('+obj.menuId+')'}">删除</a>
-						<a class="line_btn" style="border-color:green;color:green;"
-							th:onclick="${'enable('+obj.menuId+')'}" th:if="${!obj.isUsed}">启用</a>
-						<a class="line_btn" style="border-color:orange;color:orange;"
-							th:onclick="${'disable('+obj.menuId+')'}" th:if="${obj.isUsed}">禁用</a>
+					<td><div class="btn-group btn-group-sm" role="group" aria-label="...">
+							<button type="button" class="btn btn-info" th:attr="data-edit-id=${obj.menuId}" >编辑</button>
+							<button type="button" class="btn btn-danger" th:attr="data-del-id=${obj.menuId}" >删除</button>
+							<button type="button" class="btn btn-success" th:attr="data-enable-id=${obj.menuId}"  th:if="${!obj.isUsed}">启用</button>
+							<button type="button" class="btn btn-warning" th:attr="data-disable-id=${obj.menuId}"  th:if="${obj.isUsed}">禁用</button>
+					</div>
 					</td>
 				</tr>
 			</th:block>
 		</table>
+</div>
+    <!-- 模态框:编辑菜单 -->
+	<div class="modal fade" id="editModal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog" style="max-width: 900px;">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="myModalLabel">微信菜单编辑</h5>
+				</div>
+				<div class="modal-body" style="padding:10px;">
+					<div class="form-inline">
+						<div class="input-group input-group-sm col-sm-10 pl-0 mb-3 pr-1">
+							<div class="input-group-prepend">
+								<div class="input-group-text">一级菜单</div>
+							</div>
+							<select name="parentMenuId" id="parentMenuId" class="form-control">
+								<option value="0">--无--</option>
+								<th:block th:remove="all-but-first" th:each="obj,i:${menuList}">
+								<option th:if="${obj.parentMenuId==0}" th:value="${obj.menuId}" th:text="${obj.menuName}"/>
+								</th:block>
+							</select>
+						</div>
+						<div class="input-group input-group-sm col-sm-10 pl-0 mb-3 pr-1">
+							<div class="input-group-prepend">
+								<div class="input-group-text">功能名称</div>
+							</div>
+							<input type="text" class="form-control" name="menuName" id="menuName"/>
+						</div>
+						<div class="input-group input-group-sm col-sm-10 pl-0 mb-3 pr-1">
+							<div class="input-group-prepend">
+								<div class="input-group-text">事件类型</div>
+							</div>
+							<select name="menuType" id="menuType" class="form-control" >
+								<app:dictselect dictType="1090" />
+							</select>
+						</div>
+						<div class="input-group input-group-sm col-sm-10 pl-0 mb-3 pr-1">
+							<div class="input-group-prepend">
+								<div class="input-group-text">功能Url</div>
+							</div>
+							<input type="text" class="form-control" name="menuUrl" id="menuUrl"/>
+						</div>
+						<div class="input-group input-group-sm col-sm-10 pl-0 mb-3 pr-1">
+							<div class="input-group-prepend">
+								<div class="input-group-text">功能序号</div>
+							</div>
+							<input type="text" class="form-control" name="menuOrder" id="menuOrder"/>
+						</div>
+						<div class="input-group input-group-sm col-sm-10 pl-0 mb-3 pr-1">
+							<div class="input-group-prepend">
+								<div class="input-group-text">网页授权</div>
+							</div>
+							<div class="form-control">
+								<input type="radio" name="isAuth" value="1" checked="checked" />是&nbsp;
+								<input type="radio" name="isAuth" value="0" />否
+							</div>
+						</div>
+						<div class="input-group input-group-sm col-sm-10 pl-0 mb-3 pr-1">
+							<div class="input-group-prepend">
+								<div class="input-group-text">是否启用</div>
+							</div>
+							<div class="form-control">
+								<input type="radio" name="isUsed" value="1" checked="checked" />是&nbsp;
+								<input type="radio" name="isUsed" value="0" />否
+						    </div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+					<button type="button" id="doAdd" class="btn btn-primary" >确定</button>
+				</div>
+			</div>
+		</div>
 	</div>
-</div>
-		
-<div id="operationarea">
-	<div id="operationcontent">
-		<input type="button" value=" 增 加 " id="toAdd" class="btnop_mouseout"/>
-		<input type="button" value="生成微信菜单" id="doGenerate" class="btnop_mouseout"/>
+<footer class="footer mt-20">
+	<div class="container">
 	</div>
-</div>
-<div id="bottomarea">
-	<div id="bottomarea_l"></div>
-	<div id="bottomarea_r"></div>
-</div>
-
-	
+</footer>
 </form>
-	
+
 </body>
 </html>

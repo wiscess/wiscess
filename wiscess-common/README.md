@@ -2,6 +2,15 @@
 
 ## 版本：v2.0
 
+pom.xml
+```xml
+    <dependency>
+        <groupId>com.wiscess</groupId>
+        <artifactId>wiscess-filter</artifactId>
+        <version>2.0</version>
+    </dependency>
+
+```
 #####更新时间：2018-12-29
 
 #####更新内容：

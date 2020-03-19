@@ -1,4 +1,4 @@
-package com.wiscess.redis;
+package com.wiscess.redis.configuration;
 /**
  * Copyright (C), 2014-2020, 北京智成卓越科技有限公司
  * FileName: RedisConfig
@@ -70,7 +70,7 @@ public class RedisConfig extends CachingConfigurerSupport {
     /**
      * 解决持久化乱码问题，在redistemlate中指定了持久化的策略
      *
-     * @param redisTemplate
+     * @param factory
      * @return
      */
     @Bean

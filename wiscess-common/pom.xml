@@ -10,7 +10,7 @@
 	<properties>
 		<!-- <maven.dir>D:/GitHome/mvn-repo</maven.dir> -->
 		<distribution.url>http://42.96.168.102:8081/repository/wiscess/</distribution.url>
-		<spring-boot.version>2.1.1.RELEASE</spring-boot.version>
+		<spring-boot.version>2.2.1.RELEASE</spring-boot.version>
 		<wiscess-utils.version>2.0</wiscess-utils.version>
 		<thymeleaf.version>3.1.1.RELEASE</thymeleaf.version>
 		<java.version>1.8</java.version>
@@ -31,17 +31,13 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.7.0</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-					<encoding>utf8</encoding>
+                    <source>${java.version}</source><!-- 源代码使用的JDK版本 -->
+                    <target>${java.version}</target><!-- 需要生成的目标class文件的编译版本 -->
+					<encoding>utf8</encoding><!-- 字符集编码 -->
                     <showDeprecation>true</showDeprecation>
                     <showWarnings>true</showWarnings> 
-                    <fork>true</fork>
-                    <compilerargs>
-                        <arg>-Werror</arg>
-                        <arg>-Xlint:all</arg>
-                    </compilerargs>
-                </configuration>
+                    <fork>true</fork><!-- 要使compilerVersion标签生效，还需要将fork设为true，用于明确表示编译版本配置的可用 -->
+				</configuration>
             </plugin>
             <!-- 源码打包插件 -->
 			<plugin>
@@ -123,7 +119,7 @@
 			<artifactId>kaptcha</artifactId>
 			<version>0.0.9</version>
 		</dependency>
-		<!-- 
+		<!-- -->
 		<dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -138,11 +134,11 @@
 	      <groupId>org.thymeleaf</groupId>
 	      <artifactId>thymeleaf</artifactId>
 	      <version>3.0.11.RELEASE</version>
-	    </dependency>-->
+	    </dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
-			<version>5.1.3.RELEASE</version>
+			<version>5.1.4.RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>ognl</groupId>

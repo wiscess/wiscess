@@ -195,9 +195,9 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
 
 	@Override
 	public ServletInputStream getInputStream() throws IOException {
-		if (isUpData) {
+		//if (isUpData) {
 			return super.getInputStream();
-		} else {
+		/*} else {
 			// 处理原request的流中的数据
 			byte[] bytes = inputHandlers(super.getInputStream()).getBytes();
 			final ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
@@ -221,7 +221,7 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
 				public void setReadListener(ReadListener readListener) {
 				}
 			};
-		}
+		}*/
 
 	}
 

@@ -1,6 +1,19 @@
-# wiscess-filter:
+#wiscess-filter:
+##版本：v2.0
+pom.xml
+```pom
+    <dependency>
+        <groupId>com.wiscess</groupId>
+        <artifactId>wiscess-filter</artifactId>
+        <version>2.0</version>
+    </dependency>
+```
+application.yml
+```
 
-## 版本：v2.0
+```
+
+####更新时间：2020-03-19
 
 #####更新时间：2019-01-04
 

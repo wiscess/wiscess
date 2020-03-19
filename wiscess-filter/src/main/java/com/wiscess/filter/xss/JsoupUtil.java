@@ -164,7 +164,7 @@ public class JsoupUtil {
         value = value.replaceAll("(?i)xss", "");
         value = value.replaceAll("(?i)iframe", "");
         value = value.replaceAll("(?i)<iframe.*?>.*?</iframe.*?>", "");
-        value = value.replaceAll(";", "");
+        //value = value.replaceAll(";", "");
         value = value.replaceAll("\'", "");
         value = value.replaceAll("\"", "");
         value = value.replaceAll("<>", "");

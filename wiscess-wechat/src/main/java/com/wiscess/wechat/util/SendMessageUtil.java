@@ -3,7 +3,6 @@ package com.wiscess.wechat.util;
 import java.util.HashMap;
 import java.util.List;
 
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import com.wiscess.wechat.message.custom.ImageCustomMessage;
@@ -18,7 +17,6 @@ import com.wiscess.wechat.message.custom.model.Video;
 import com.wiscess.wechat.message.custom.model.Voice;
 import com.wiscess.wechat.message.custom.model.Article;
 import com.wiscess.wechat.message.custom.model.Music;
-import com.wiscess.wechat.message.custom.model.News;
 import com.wiscess.wechat.template.TemplateMessage;
 import com.wiscess.wechat.template.TemplateMessageDataItem;
 

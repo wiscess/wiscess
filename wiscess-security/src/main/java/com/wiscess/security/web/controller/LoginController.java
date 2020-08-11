@@ -40,6 +40,7 @@ public class LoginController {
 			}else if(exception instanceof BadCodeAuthenticationServiceException){
 				message="验证码错误";
 			}else if(exception instanceof SessionAuthenticationException) {
+				log.error(exception.getMessage());
 				message="该用户名登录人数已经达到最大限制数，无法登录";
 			}else{
 				message="系统异常";

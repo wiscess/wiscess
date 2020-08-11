@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
  * captcha: 默认为true，是否使用验证码
  * superPwd: 超级管理密码
  * 
+ * 20190424增加前端使用Vue的方式发送的登录请求，参数中增加isVueMode的方式
+ * 增加vue跨域属性allowedOrigins
  * @author wh
  */
 @Slf4j
@@ -38,7 +40,10 @@ public class WiscessSecurityProperties implements InitializingBean{
 	 * 允许同一用户同时在线人数
 	 */
 	private Integer maxSessionNum = 10;
-
+	/**
+	 * 超过最大人数时是否踢掉之前的用户，true不能登录，false踢掉用户
+	 */
+	private Boolean maxSessionsPreventsLogin = true;
 	/**
 	 * 自定义error页
 	 */
@@ -63,8 +68,21 @@ public class WiscessSecurityProperties implements InitializingBean{
   	public Boolean isSsoMode(){
   		return sso.getAuthUrl()!=null;
   	}
-  	
+  	/**
+  	 * 是否Vue认证
+  	 */
+  	public Boolean isVueMode() {
+		return vue.getEnabled()!=null && vue.getEnabled();
+	}
+
+	public Boolean isJwtMode() { 
+		return jwt.getEnabled()!=null && jwt.getEnabled(); 
+	}
   	private Sso sso = new Sso();
+  	
+  	private Vue vue = new Vue();
+
+  	private Jwt jwt = new Jwt();
   	
   	public class Sso{
   		private String authUrl;
@@ -123,6 +141,52 @@ public class WiscessSecurityProperties implements InitializingBean{
 		}
   	}
   	
+  	public class Vue{
+  		private Boolean enabled=false;
+  		private List<String> allowedOrigins;
+
+		public Boolean getEnabled() {
+			return enabled;
+		}
+
+		public void setEnabled(Boolean enabled) {
+			this.enabled = enabled;
+		}
+
+		public List<String> getAllowedOrigins() {
+			return allowedOrigins;
+		}
+
+		public void setAllowedOrigins(List<String> allowedOrigins) {
+			this.allowedOrigins = allowedOrigins;
+		}
+  	}
+
+  	public class Jwt{
+		private Boolean enabled=false;
+
+		private String secret="1w2i3s4c5e6s7s";
+
+		private Integer expiration=1800;
+
+		public Boolean getEnabled() {
+			return enabled;
+		}
+
+		public void setEnabled(Boolean enabled) {
+			this.enabled = enabled;
+		}
+
+		public String getSecret(){ return secret;}
+
+		public void setSecret(String secret){ this.secret=secret;}
+
+		public Integer getExpiration(){ return expiration;}
+
+		public void setExpiration(Integer expiration) {this.expiration=expiration;}
+
+	}
+
 	public boolean isCaptcha() {
 		return captcha;
 	}
@@ -188,5 +252,18 @@ public class WiscessSecurityProperties implements InitializingBean{
 	public void setMaxSessionNum(Integer maxSessionNum) {
 		this.maxSessionNum = maxSessionNum;
 	}
-	
+	public Vue getVue() {
+		return vue;
+	}
+	public void setVue(Vue vue) {
+		this.vue = vue;
+	}
+	public Boolean getMaxSessionsPreventsLogin() {
+		return maxSessionsPreventsLogin;
+	}
+	public void setMaxSessionsPreventsLogin(Boolean maxSessionsPreventsLogin) {
+		this.maxSessionsPreventsLogin = maxSessionsPreventsLogin;
+	}
+	public Jwt getJwt() { return jwt; }
+	public void setJwt(Jwt jwt) {this.jwt=jwt;}
 }

@@ -2,4 +2,5 @@
 #自动配置类定义
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.wiscess.security.autoconfig.SecurityWebMvcConfig,\
-com.wiscess.security.jdbc.UserDetailsServiceImpl
+com.wiscess.security.jdbc.UserDetailsServiceImpl,\
+com.wiscess.security.jwt.JwtTokenUtils

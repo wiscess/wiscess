@@ -1,0 +1,11 @@
+#自动配置类定义
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.wiscess.oauth.config.AuthorizationServerJdbcAutoConfiguration\
+,com.wiscess.oauth.config.AuthorizationServerMemoryAutoConfiguration\
+,com.wiscess.oauth.config.AuthorizationServerRedisAutoConfiguration\
+,com.wiscess.oauth.config.ResourceServerConfig\
+,com.wiscess.oauth.config.handler.OauthAccessDeniedHandler\
+,com.wiscess.oauth.exception.AuthExceptionEntryPoint\
+,com.wiscess.oauth.controll.AuthController\
+,com.wiscess.oauth.exception.Oauth2ExceptionHandler\
+,com.wiscess.oauth.utils.TokenUtil

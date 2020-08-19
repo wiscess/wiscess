@@ -2,7 +2,9 @@ package com.wiscess.security;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.wiscess.security.jwt.DefaultUserMapRepository;
 import com.wiscess.security.jwt.DefaultJwtLoginSuccessHandler;
@@ -18,7 +20,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -132,8 +133,10 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
 		if(wiscessSecurityProperties.getIgnored()!=null && wiscessSecurityProperties.getIgnored().size()>0){
 			ignores.addAll(wiscessSecurityProperties.getIgnored());
 		}
-    	ignores.forEach((item)->log.info("ignored resource:{}",item.trim()));
-		web.ignoring().antMatchers(ignores.toArray(new String[0]));
+		Set<String> set = new  HashSet<>(); 
+        set.addAll(ignores);
+        set.forEach((item)->log.info("ignored resource:{}",item.trim()));
+		web.ignoring().antMatchers(set.toArray(new String[0]));
     }  
 
     /**

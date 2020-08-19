@@ -2,6 +2,11 @@ package com.wiscess.security.web.controller;
 
 import javax.servlet.http.HttpServletRequest;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
@@ -12,12 +17,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.wiscess.security.exception.BadCodeAuthenticationServiceException;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
 @Slf4j
+@Api(value = "LoginController",description =  "Security登录接口")
 public class LoginController {
 
-	@RequestMapping(value="/login")
+    @ApiOperation(value = "登录接口，username和password需用Rsa加密")
+	@ApiImplicitParams({
+        @ApiImplicitParam(name = "username",value = "用户名",paramType = "query"),
+        @ApiImplicitParam(name = "password",value = "密码",paramType = "query"),
+        @ApiImplicitParam(name = "code",value = "验证码",paramType = "query")
+    })
+	@RequestMapping(value="/login",method = {RequestMethod.GET,RequestMethod.POST})
 	public String login(Model model,HttpServletRequest request){
 		log.debug("LoginAction(model) - login");
 		//读取最后一次的用户名

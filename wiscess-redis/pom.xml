@@ -6,11 +6,11 @@
 
     <groupId>com.wiscess</groupId>
     <artifactId>wiscess-redis</artifactId>
-    <version>2.0</version>
+    <version>2.1</version>
     <properties>
         <!-- <maven.dir>D:/GitHome/mvn-repo</maven.dir> -->
         <distribution.url>http://42.96.168.102:8081/repository/wiscess/</distribution.url>
-        <spring-boot.version>2.2.1.RELEASE</spring-boot.version>
+        <spring-boot.version>2.2.5.RELEASE</spring-boot.version>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <wiscess.version>2.0</wiscess.version>
@@ -82,19 +82,9 @@
     <dependencies>
         <!--  -->
         <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>1.2.55</version>
-        </dependency>
-        <dependency>
             <groupId>com.wiscess</groupId>
             <artifactId>wiscess-common</artifactId>
             <version>${wiscess.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>1.2.62</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -109,7 +99,7 @@
         <dependency>
             <groupId>org.springframework.session</groupId>
             <artifactId>spring-session-data-redis</artifactId>
-            <version>${spring-boot.version}</version>
+            <version>2.2.1.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

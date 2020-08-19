@@ -14,7 +14,13 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 import lombok.extern.slf4j.Slf4j;
+
+import java.io.Serializable;
+
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.cache.annotation.EnableCaching;
@@ -27,9 +33,6 @@ import org.springframework.data.redis.cache.RedisCacheWriter;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.listener.PatternTopic;
-import org.springframework.data.redis.listener.RedisMessageListenerContainer;
-import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
@@ -44,27 +47,39 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @EnableCaching
 @Slf4j
 public class RedisConfig extends CachingConfigurerSupport {
-
     @Bean(name = "stringRedisTemplate")
     public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory factory) {
         StringRedisTemplate stringRedisTemplate = new StringRedisTemplate(factory);
         stringRedisTemplate.setDefaultSerializer(new Jackson2JsonRedisSerializer<String>(String.class));
         return new StringRedisTemplate(factory);
     }
+    @Primary
+    @SuppressWarnings("deprecation")
+	@Bean(name = "redisTemplate")
+    public RedisTemplate<String, Serializable> redisTemplate(RedisConnectionFactory factory) {
+    	log.info("Redis配置完成。");
+    	
+    	RedisTemplate<String, Serializable> redisTemplate = new RedisTemplate<>();
+    	redisTemplate.setKeySerializer(new StringRedisSerializer());
+         //redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+         redisTemplate.setConnectionFactory(factory);
+         //redisTemplate.setConnectionFactory(new JedisConnectionFactory());
+ 
+         //下面代码解决LocalDateTime序列化与反序列化不一致问题
+         Jackson2JsonRedisSerializer<Object> j2jrs = new Jackson2JsonRedisSerializer<>(Object.class);
+         ObjectMapper om = new ObjectMapper();
+         om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+         // 解决jackson2无法反序列化LocalDateTime的问题
+         om.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+         om.registerModule(new JavaTimeModule());
+         om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+         j2jrs.setObjectMapper(om);
+         // 序列化 value 时使用此序列化方法
+         redisTemplate.setValueSerializer(j2jrs);
+         redisTemplate.setHashValueSerializer(j2jrs);
 
-    @Bean(name = "redisTemplate")
-    public RedisTemplate<Object, Object> redisTemplate(RedisConnectionFactory factory) {
-        RedisTemplate<Object, Object> template = new RedisTemplate<Object, Object>();
-        template.setConnectionFactory(factory);
-        Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<Object>(Object.class);
-        ObjectMapper om = new ObjectMapper();
-        om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-        om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
-        jackson2JsonRedisSerializer.setObjectMapper(om);
-        template.setKeySerializer(jackson2JsonRedisSerializer);
-        template.setValueSerializer(jackson2JsonRedisSerializer);
-        template.afterPropertiesSet();
-        return template;
+         redisTemplate.afterPropertiesSet();
+        return redisTemplate;
     }
 
     /**
@@ -73,13 +88,14 @@ public class RedisConfig extends CachingConfigurerSupport {
      * @param factory
      * @return
      */
-    @Bean
+    @SuppressWarnings("deprecation")
+	@Bean
     @Primary
     public CacheManager cacheManager(RedisConnectionFactory factory) {
         RedisSerializer<String> redisSerializer = new StringRedisSerializer();
         Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<Object>(Object.class);
         ObjectMapper objectMapper = new ObjectMapper();
-        // 此项必须配置，否则会报java.lang.ClassCastException: java.util.LinkedHashMap cannot be cast to XXX
+        // 此项必须配置，否则会报java.lang.ClassCastException: java.util.LinkedHashMap cannot be cast to XXXX
         objectMapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
         jackson2JsonRedisSerializer.setObjectMapper(objectMapper);
         // 配置序列化
@@ -110,23 +126,6 @@ public class RedisConfig extends CachingConfigurerSupport {
 //				.computePrefixWith(new CacheKey());
 //        RedisCacheManager cacheManager =
         return new RedisCacheManager(RedisCacheWriter.nonLockingRedisCacheWriter(factory), defaultCacheConfiguration);
-    }
-
-
-    /**
-     * 配置监听适配器、消息监听容器
-     *
-     * @param connectionFactory
-     * @param listenerAdapter
-     * @return container
-     */
-    @Bean
-    public RedisMessageListenerContainer container(RedisConnectionFactory connectionFactory,
-                                                   MessageListenerAdapter listenerAdapter) {
-        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
-        container.setConnectionFactory(connectionFactory);
-        container.addMessageListener(listenerAdapter, new PatternTopic("channel:sync-data"));
-        return container;
     }
 
 }

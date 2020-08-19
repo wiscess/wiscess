@@ -4,6 +4,7 @@ import com.wiscess.redis.aop.LockAspect;
 import com.wiscess.redis.pojo.MultipleServerProperty;
 import com.wiscess.redis.pojo.SingleServerProperty;
 import com.wiscess.redis.pojo.WisRedisProperty;
+import lombok.extern.slf4j.Slf4j;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.client.codec.Codec;
@@ -24,6 +25,7 @@ import org.springframework.util.StringUtils;
  * Created by liuBo
  * 2020/2/20.
  */
+@Slf4j
 @Configuration
 @Import({LockAspect.class})
 @ConditionalOnExpression("'${wis.redisson.multipleServerProperty.nodeAddresses[0]:}'.length()>0 or '${wis.redisson.singleServerProperty.address:}'.length()>0 ")
@@ -31,15 +33,18 @@ public class WisRedissionConfiguration {
     @Bean
     @ConfigurationProperties(prefix = "wis.redisson")
     public WisRedisProperty wisRedisProperty(){
+        log.debug("Redisson configuration inited.");
         return WisRedisProperty.builder().build();
     }
 
     @Bean
     @ConditionalOnMissingBean(RedissonClient.class)
     public RedissonClient redissonClient() {
+        log.debug("redisonClient configuration inited.");
         WisRedisProperty redisProperty = wisRedisProperty();
         Config config=new Config();
         try {
+            //设置编码方式
             config.setCodec((Codec) Class.forName(redisProperty.getCodec()).newInstance());
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -61,6 +66,7 @@ public class WisRedissionConfiguration {
 
         switch (redisProperty.getRedisModel()){
             case SINGLE:
+                //单例的配置
                 SingleServerConfig singleServerConfig = config.useSingleServer();
                 SingleServerProperty singleServer = redisProperty.getSingleServerProperty();
                 singleServerConfig.setAddress(prefixAddress(singleServer.getAddress()));
@@ -97,6 +103,7 @@ public class WisRedissionConfiguration {
                 singleServerConfig.setTimeout(redisProperty.getTimeout());
                 break;
             case CLUSTER:
+                //集群的配置
                 ClusterServersConfig clusterServersConfig = config.useClusterServers();
                 MultipleServerProperty multipleServer = redisProperty.getMultipleServerProperty();
                 clusterServersConfig.setScanInterval(multipleServer.getScanInterval());

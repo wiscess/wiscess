@@ -1,3 +1,4 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.wiscess.redis.configuration.RedisConfig,\
-com.wiscess.redis.configuration.WisRedissionConfiguration
+com.wiscess.redis.configuration.WisRedissionConfiguration,\
+com.wiscess.redis.utils.RedisUtils

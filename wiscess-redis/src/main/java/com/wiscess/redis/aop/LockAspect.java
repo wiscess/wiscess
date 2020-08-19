@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.redisson.RedissonRedLock;
 import org.redisson.api.RLock;
 import org.redisson.api.RReadWriteLock;
@@ -34,24 +35,33 @@ public class LockAspect {
     private RedissonClient redissonClient;
 
     @Around("@annotation(redisLock)")
-    public Object around(ProceedingJoinPoint joinPoint, RedisLock redisLock) throws Throwable{
+    public Object around(ProceedingJoinPoint joinPoint,RedisLock redisLock) throws Throwable{
         String key = "";
+        //可以在参数中注入redisLock，也可以通过下面的方法获取注解
+        //MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        //RedisLock redisLock = signature.getMethod().getAnnotation(RedisLock.class);
+
         if ("".equals(redisLock.prefix())){
+            //锁前缀为空时，默认使用类名和方法名
             key = joinPoint.getSignature().getDeclaringTypeName()+"-"+joinPoint.getSignature().getName();
         }else{
             key = redisLock.prefix();
         }
+        //使用index的参数作为key，默认为-1，不使用参数
         if (redisLock.index()!=-1&&joinPoint.getArgs().length>redisLock.index()){
             key += joinPoint.getArgs()[redisLock.index()].toString();
         }
+        //等待加锁超时时间
         long attemptTimeout = redisLock.attemptTimeout();
         if (attemptTimeout == 0) {
             attemptTimeout = wisRedisProperty.getAttemptTimeout();
         }
+        //锁超时时间,默认30000毫秒
         long lockWatchdogTimeout = redisLock.lockWatchdogTimeout();
         if (lockWatchdogTimeout == 0) {
             lockWatchdogTimeout = wisRedisProperty.getLockWatchdogTimeout();
         }
+        //锁模式
         LockModel lockModel = redisLock.lockModel();
         if (lockModel.equals(LockModel.AUTO)) {
             LockModel defaultLockModel = wisRedisProperty.getLockModel();

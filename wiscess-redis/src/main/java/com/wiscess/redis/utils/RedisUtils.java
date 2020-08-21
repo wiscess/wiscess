@@ -12,6 +12,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 import com.alibaba.fastjson.JSONArray;
 import com.wiscess.utils.JsonUtils;
+import com.wiscess.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -189,7 +190,11 @@ public class RedisUtils {
 	@SuppressWarnings("unchecked")
 	public static <T> T getObject(String key,Class<T> clazz) {
 		try {
-			return (T)JsonUtils.jsonToBean((String)redisTemplate.opsForValue().get(key),clazz);
+			String jsonStr=(String)redisTemplate.opsForValue().get(key);
+			if(StringUtils.isEmpty(jsonStr)) {
+				return null;
+			}
+			return (T)JsonUtils.jsonToBean(jsonStr,clazz);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

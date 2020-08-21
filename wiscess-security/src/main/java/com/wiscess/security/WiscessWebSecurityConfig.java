@@ -253,9 +253,8 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 				.sessionFixation()
 				.none();
-			// 添加JWT filter
-
-			http.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
+			//不添加，使用jwt时均为oauth2认证方式，由oauth2完成token的认证
+//			http.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
 		}
 		else {
 			http.sessionManagement()

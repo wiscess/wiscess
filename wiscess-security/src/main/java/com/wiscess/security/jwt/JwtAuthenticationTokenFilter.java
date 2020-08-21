@@ -44,7 +44,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
     private String tokenHead = "Bearer ";
 
     private String getJwtToken(HttpServletRequest request) {
-        String jwtToken = request.getParameter("token");
+        String jwtToken = request.getParameter("access_token");
         String authHeader = request.getHeader(this.tokenHeader);
         if (StringUtils.isNotEmpty(authHeader) && authHeader.startsWith(tokenHead)) {
             //如果header中存在token，则覆盖掉url中的token

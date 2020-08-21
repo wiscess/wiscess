@@ -11,13 +11,14 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.A
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
-import org.springframework.security.oauth2.provider.error.WebResponseExceptionTranslator;
 import org.springframework.security.oauth2.provider.token.AccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
-import org.springframework.util.ObjectUtils;
+import org.springframework.security.web.AuthenticationEntryPoint;
+
+import com.wiscess.oauth.filter.CustomClientCredentialsTokenEndpointFilter;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -54,10 +55,9 @@ public abstract class AbstractAuthorizationServerConfig extends AuthorizationSer
     // 该对象将为刷新token提供支持
     @Autowired
     private UserDetailsService userDetailsService;
-    
-    @SuppressWarnings("rawtypes")
+
 	@Autowired
-    private WebResponseExceptionTranslator exceptionTranslator;
+	protected AuthenticationEntryPoint authenticationEntryPoint;
     /**
      * Configure secret encryption in the same way as ApiBoot Security
      *
@@ -68,7 +68,17 @@ public abstract class AbstractAuthorizationServerConfig extends AuthorizationSer
     public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
         log.info("AuthorizationServerConfig中配置HttpSecurity对象执行");
     	// 开启该配置，才可以使用oauth2认证，否则模式默认是HTTP的基本认证 
-        security.allowFormAuthenticationForClients();
+        security
+    		.authenticationEntryPoint(authenticationEntryPoint);
+//        	.allowFormAuthenticationForClients()
+        //此处自定义了过滤器，用来处理/oauth/token的认证过程和异常处理过程，其中异常处理使用了authenticationEntryPoint来替换默认的异常信息
+        //无须使用allowFormAuthenticationForClients来使用Form方式提交
+        CustomClientCredentialsTokenEndpointFilter endpointFilter = new CustomClientCredentialsTokenEndpointFilter(security);
+        endpointFilter.afterPropertiesSet();
+        endpointFilter.setAuthenticationEntryPoint(authenticationEntryPoint);
+        // 客户端认证之前的过滤器
+        security.addTokenEndpointAuthenticationFilter(endpointFilter);
+        
         // 这两个配置，目的是开启两个端点url,默认服务器是关闭的 /oauth/token_key /oauth/check_token
         security
         	.tokenKeyAccess("permitAll()")
@@ -82,7 +92,6 @@ public abstract class AbstractAuthorizationServerConfig extends AuthorizationSer
      * @param endpoints AuthorizationServerEndpointsConfigurer
      * @throws Exception 异常信息
      */
-    @SuppressWarnings("unchecked")
 	@Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
         endpoints
@@ -92,12 +101,8 @@ public abstract class AbstractAuthorizationServerConfig extends AuthorizationSer
     		.allowedTokenEndpointRequestMethods(HttpMethod.GET, HttpMethod.POST)
     		.userDetailsService(userDetailsService)
     		;
-
-        if (!ObjectUtils.isEmpty(exceptionTranslator)) {
-        	//自定义认证异常处理页
-            endpoints.exceptionTranslator(exceptionTranslator);
-        }
     }
+	
     /**
      * token enhancer
      *
@@ -128,4 +133,5 @@ public abstract class AbstractAuthorizationServerConfig extends AuthorizationSer
         
         return tokenServices;
     }
+    
 }

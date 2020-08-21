@@ -18,14 +18,7 @@ import lombok.Getter;
  * @author 大仙
  */
 public class TokenUtil {
-//	@Autowired
-//	private ApplicationContext context;
-//	
-//	@SuppressWarnings("unchecked")
-//	@Autowired
-//	public void init() {
-//		redisTemplate=context.getBean(RedisTemplate.class);
-//	}
+
 	@Getter
 	private static Long maxOnlineUser;
 	

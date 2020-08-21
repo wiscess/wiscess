@@ -15,10 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wiscess.common.R;
 import com.wiscess.oauth.utils.TokenUtil;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 自定义Oauth2获取令牌接口
  * Created by macro on 2020/7/17.
  */
+@Slf4j
 @RestController
 @RequestMapping("/oauth")
 public class AuthController {

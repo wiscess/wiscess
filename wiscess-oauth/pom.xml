@@ -12,6 +12,7 @@
 		<distribution.url>http://42.96.168.102:8081/repository/wiscess/</distribution.url>
 		<spring-boot.version>2.2.5.RELEASE</spring-boot.version>
 		<wiscess.version>2.0</wiscess.version>
+		<wiscess-common.version>2.0</wiscess-common.version>
 		<wiscess-security.version>2.1</wiscess-security.version>
 		<wiscess-redis.version>2.1</wiscess-redis.version>
 		<swagger.version>2.7.0</swagger.version>
@@ -85,8 +86,13 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.wiscess</groupId>
-			<artifactId>wiscess-security</artifactId>
-			<version>${wiscess-security.version}</version>
+			<artifactId>wiscess-common</artifactId>
+			<version>${wiscess-common.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.wiscess</groupId>
+			<artifactId>wiscess-vue</artifactId>
+			<version>2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.wiscess</groupId>

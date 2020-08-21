@@ -46,6 +46,14 @@ public class OauthProperties {
 	 * 最大登录用户，默认-1，不限制
 	 */
 	private Long maxOnlineUser = -1L;
+	/**
+	 * 跨域设置
+	 */
+	private List<String> allowedOrigins;
+	/**
+	 * 不认证的路径
+	 */
+	private List<String> ignored;
     /**
      * 配置JWT格式化Oauth2返回的token
      */
@@ -95,7 +103,9 @@ public class OauthProperties {
          * oauth2 access token validity seconds
          * default value is 7200 second
          */
-        private int accessTokenValiditySeconds = 7200;
+        private int accessTokenValiditySeconds = 60 * 60 * 2;
+        
+        private int refreshTokenValiditySeconds = 60 * 60 * 24 * 7;
     }
     /**
      * 自定义Jwt相关的配置

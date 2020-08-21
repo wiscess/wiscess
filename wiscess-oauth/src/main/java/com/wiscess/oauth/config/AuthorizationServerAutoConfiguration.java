@@ -1,20 +1,14 @@
 package com.wiscess.oauth.config;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.error.WebResponseExceptionTranslator;
 import org.springframework.security.oauth2.provider.token.AccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
-
-import com.wiscess.oauth.response.AuthorizationDeniedResponse;
-import com.wiscess.oauth.response.DefaultAuthorizationDeniedResponse;
-import com.wiscess.oauth.translator.WiscessWebResponseExceptionTranslator;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -48,7 +42,7 @@ public class AuthorizationServerAutoConfiguration extends AbstractAuthorizationS
     @Bean
     @ConditionalOnProperty(prefix = SECURITY_OAUTH_PREFIX, name = "jwt.enable", havingValue = "true", matchIfMissing = true)
     public JwtAccessTokenConverter jwtAccessTokenConverter() {
-        log.info("key:{}",oauthProperties.getJwt().getSignKey());
+        log.debug("key:{}",oauthProperties.getJwt().getSignKey());
         JwtAccessTokenConverter accessTokenConverter = new JwtAccessTokenConverter() {
           /**
            * 重写增强token的方法
@@ -57,7 +51,6 @@ public class AuthorizationServerAutoConfiguration extends AbstractAuthorizationS
            */
           @Override
           public OAuth2AccessToken enhance(OAuth2AccessToken accessToken, OAuth2Authentication authentication) {
-
               String userName = authentication.getUserAuthentication().getName();
               // 与登录时候放进去的UserDetail实现类一直查看link{SecurityConfiguration}
               User user = (User) authentication.getUserAuthentication().getPrincipal();
@@ -86,23 +79,4 @@ public class AuthorizationServerAutoConfiguration extends AbstractAuthorizationS
     public AccessTokenConverter defaultAccessTokenConverter() {
         return new DefaultAccessTokenConverter();
     } 
-    @Bean
-    @ConditionalOnMissingBean
-    public AuthorizationDeniedResponse authorizationDeniedResponse() {
-        return new DefaultAuthorizationDeniedResponse();
-    }
-    /**
-     * Customize the exception output format of the authentication server
-    *
-    * @return {@link ApiBootWebResponseExceptionTranslator}
-    * @see WebResponseExceptionTranslator
-    * @see org.springframework.security.oauth2.provider.error.DefaultWebResponseExceptionTranslator
-    * @see ApiBootWebResponseExceptionTranslator
-    */
-   @SuppressWarnings("rawtypes")
-  @Bean
-   @ConditionalOnMissingBean
-   public WebResponseExceptionTranslator webResponseExceptionTranslator(AuthorizationDeniedResponse response) {
-       return new WiscessWebResponseExceptionTranslator(response);
-   }
 }

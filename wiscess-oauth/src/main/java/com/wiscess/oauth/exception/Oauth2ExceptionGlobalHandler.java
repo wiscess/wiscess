@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @ControllerAdvice
 @Priority(-999)
-public class Oauth2ExceptionHandler {
+public class Oauth2ExceptionGlobalHandler {
 
     @ResponseBody
     @ExceptionHandler(value = OAuth2Exception.class)
@@ -31,7 +31,7 @@ public class Oauth2ExceptionHandler {
     	/**
     	 * 处理Oauth2Exception的异常
     	 */
-    	log.info(e.getMessage());
+    	log.debug(e.getMessage());
     	//检查Scope的错误
     	if(e instanceof InvalidScopeException) {
     		//登录时，Scope错误时，提示登录失败

@@ -16,4 +16,5 @@ public class TokenEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 	LocalDateTime invalidDate;
 	String token;
+	String refreshToken;
 }

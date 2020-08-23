@@ -17,10 +17,13 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Oauth Memory Away Support
  * @author wh
  */
+@Slf4j
 @Configuration
  @ConditionalOnClass(AbstractAuthorizationServerConfig.class)
  @EnableConfigurationProperties(OauthProperties.class)
@@ -39,7 +42,6 @@ public class AuthorizationServerRedisAutoConfiguration extends AuthorizationServ
 		super(oauthProperties);
 		this.redisConnectionFactory=redisConnectionFactory;
 	}
-	
 	/**
      * configuration clients
      *
@@ -48,23 +50,26 @@ public class AuthorizationServerRedisAutoConfiguration extends AuthorizationServ
      */
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
+    	log.info("AuthorizationServerRedisAutoConfiguration configure.");
         InMemoryClientDetailsServiceBuilder inMemoryClientDetailsServiceBuilder = clients.inMemory();
         oauthProperties.getClients().stream().forEach(client -> inMemoryClientDetailsServiceBuilder.withClient(client.getClientId())
             .secret(passwordEncoder.encode(client.getClientSecret()))
             .authorizedGrantTypes(client.getGrantTypes())
             .scopes(client.getScopes())
             .resourceIds(client.getResourceId())
+            .refreshTokenValiditySeconds(client.getRefreshTokenValiditySeconds())
             .accessTokenValiditySeconds(client.getAccessTokenValiditySeconds()));
     }
 
     /**
      * Redis Token Store
-     *
      * @return TokenStore
      */
     @Bean
     public TokenStore redisTokenStore() {
-        return new RedisTokenStore(redisConnectionFactory);
+    	RedisTokenStore tokenStore= new RedisTokenStore(redisConnectionFactory);
+    	tokenStore.setAuthenticationKeyGenerator(authenticationKeyGenerator());
+    	return tokenStore;
     }
 }
 

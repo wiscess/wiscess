@@ -41,19 +41,29 @@ public class OauthProperties {
 	 * 默认启用oauth
 	 */
 	private Boolean enabled = Boolean.TRUE;
+	
+	/**
+	 * 是否重复使用RefreshToken
+	 */
+	private Boolean reuseRefreshToken= Boolean.FALSE;
 
 	/**
+	 * 默认的生成key的规则，默认为client_id,username,scope，同一个用户登录获取相同的AccessToken
+	 * 可以自定义，增加code或uuid等信息，由前台生成并保存，获取token时发送
+	 * 为True时，为每个用户生成唯一uuid，可以同时在线
+	 * 为False时，每个用户（client_id,username,scope认为同一用户）共用Token。
+	 */
+	private Boolean allowMultiUserOnline=Boolean.TRUE;
+	/**
 	 * 最大登录用户，默认-1，不限制
+	 * 用户允许不为1的时候，都为允许多用户同时在线。
 	 */
 	private Long maxOnlineUser = -1L;
+	
 	/**
 	 * 跨域设置
 	 */
 	private List<String> allowedOrigins;
-	/**
-	 * 不认证的路径
-	 */
-	private List<String> ignored;
     /**
      * 配置JWT格式化Oauth2返回的token
      */
@@ -105,7 +115,7 @@ public class OauthProperties {
          */
         private int accessTokenValiditySeconds = 60 * 60 * 2;
         
-        private int refreshTokenValiditySeconds = 60 * 60 * 24 * 7;
+        private int refreshTokenValiditySeconds = 60 * 60 * 24;
     }
     /**
      * 自定义Jwt相关的配置

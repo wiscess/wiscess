@@ -12,7 +12,10 @@ security:
   oauth:
     enabled: true       #开启oauth认证方式OAuth相关配置
     away: redis          #使用redis存储token，memory/jdbc/redis，默认使用memory
-    allowedOrigins:      #跨域访问 
+    reuseRefreshToken: false  #是否重复使用RefreshToken，默认jwt时设置为false
+    allowMultiUserOnline: true #是否允许同一用户多次登录
+    maxOnlineUser: -1L        #同一用户最大在线数
+    allowedOrigins:      #跨域访问，不设置时默认为* 
     clients:                 #定义可以使用的客户端，前端发送请求时需增加client_id和client_secret参数，并提供username、password、grant_type、scope
       - clientId: hengboy                 #客户端1，可以定义多个客户端
         clientSecret: chapter            #客户端1密码
@@ -27,7 +30,7 @@ security:
       resourceId: api                                  #定义资源服务器的资源ID，与client中的一致时可以使用，同一个应用，只能有一个资源ID
       authPrefix: /**                                     #定义哪些资源需要进行token认证
       ignored:                                              #定义哪些资源不需要token认证
-        - /resources/phone
+        - /getPublicKey
 
 
 实现内容
@@ -86,7 +89,7 @@ username：错误：抛出InvalidGrantException（error="invalid_grant", error_d
 2.刷新token
 /oauth/token?client_id=【client_id】&client_secret=【client_secret】&grant_type=【grant_type】&scope=【scope】&refresh_token=【refresh_token】
 refresh_token：缺失或错误时，抛出InvalidGrantException（error="invalid_grant", error_description="Invalid refresh token: null"）抛出50001
-
+                          过期：抛出InvalidTokenException("Invalid refresh token (expired): "
 3.访问资源
 url?access_token=【access_token】
 access_token：缺失或错误或过期时，抛出50009
@@ -96,3 +99,13 @@ access_token：缺失或错误或过期时，抛出50009
 50001：与登录认证或刷新token相关，无须执行刷新token，可以跳转到登录页；
 50008：不带access_token访问受限资源或登录clien_id缺失，可以跳转到登录页；
 50009：access_token错误或过期，需执行刷新token请求，并缓存后续所有的请求，刷新token后，重新发起请求。
+
+更新时间： 2020-08-23
+
+更新内容：
+
+配置文件中增加是否允许同一用户多次登录的配置，新增CustomAuthenticationKeyGenerator，在生成token用的key值时，除默认的client_id,username,scope,增加了一个uuid，
+确保每次用户登录时的key都不同，生成的token也不同，互相之间不受影响，在退出时也不会将其他用户退出。
+
+另外对同一用户进行了登录控制逻辑，超过最大人数时自动踢出最早的用户，当所有用户都退出时，为项目提供了一个OAuth2LogoutDelegate，在项目中可以实现该接口，将用户信息从redis中清除。
+

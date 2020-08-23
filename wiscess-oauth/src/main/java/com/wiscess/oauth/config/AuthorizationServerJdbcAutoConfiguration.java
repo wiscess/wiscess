@@ -14,10 +14,13 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Oauth 授权服务器Jdbc方式实现
  * @author wh
  */
+@Slf4j
 @Configuration
  @ConditionalOnClass(AbstractAuthorizationServerConfig.class)
  @EnableConfigurationProperties(OauthProperties.class)
@@ -40,6 +43,7 @@ public class AuthorizationServerJdbcAutoConfiguration extends AuthorizationServe
      */
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
+    	log.info("AuthorizationServerJdbcAutoConfiguration configure.");
     	clients.jdbc(dataSource);
     }
 
@@ -50,7 +54,9 @@ public class AuthorizationServerJdbcAutoConfiguration extends AuthorizationServe
      */
     @Bean
     public TokenStore jdbcTokenStore() {
-        return new JdbcTokenStore(dataSource);
+    	JdbcTokenStore tokenStore= new JdbcTokenStore(dataSource);
+    	tokenStore.setAuthenticationKeyGenerator(authenticationKeyGenerator());
+    	return tokenStore;
     }
 }
 

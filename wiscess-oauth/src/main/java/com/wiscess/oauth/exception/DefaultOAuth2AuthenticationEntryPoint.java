@@ -16,6 +16,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wiscess.common.R;
+import com.wiscess.oauth.delegate.OAuth2AuthenticationEntryPointDelegate;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,15 +29,17 @@ import lombok.extern.slf4j.Slf4j;
 public class DefaultOAuth2AuthenticationEntryPoint  implements AuthenticationEntryPoint {
 
 	@Autowired(required = false)
-	private OAuth2ExceptionDelegate oauth2ExceptionDelegate;
+	private OAuth2AuthenticationEntryPointDelegate oauth2AuthenticationEntryPointDelegate;
 	
 	public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
 			throws IOException, ServletException {
-    	log.info("认证失败：{} {} ",request.getRequestURI(),authException.getMessage()); 
+    	log.debug("认证失败：{} {} ",request.getRequestURI(),authException.getMessage()); 
     	response.setContentType("application/json;charset=utf-8");
         
 		//设置返回状态
         response.setStatus(HttpServletResponse.SC_OK);
+        
+        
         //设置返回对象
         R r=R.error();
         
@@ -70,8 +73,8 @@ public class DefaultOAuth2AuthenticationEntryPoint  implements AuthenticationEnt
         	}
         }
         //设置定制化的消息或内容
-        if(oauth2ExceptionDelegate!=null) {
-        	oauth2ExceptionDelegate.dealReturnObject(response,r);
+        if(oauth2AuthenticationEntryPointDelegate!=null) {
+        	oauth2AuthenticationEntryPointDelegate.doDelegate(response,r);
         }
         //输出json内容
         try {

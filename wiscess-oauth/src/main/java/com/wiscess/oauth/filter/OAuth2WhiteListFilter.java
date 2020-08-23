@@ -16,6 +16,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.wiscess.oauth.config.OauthProperties;
+import com.wiscess.oauth.config.SecurityProperties;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,12 +34,19 @@ public class OAuth2WhiteListFilter extends OncePerRequestFilter implements Order
 
 	private RequestMatcher requireMatcher = null;
     
-    public OAuth2WhiteListFilter(OauthProperties oauthProperties) {
+    public OAuth2WhiteListFilter(SecurityProperties securityProperties,OauthProperties oauthProperties) {
 		List<RequestMatcher> matchers=new ArrayList<>();
         //白名单路径移除JWT请求头
-        List<String> ignoreUrls = oauthProperties.getResources().getIgnored();
-        if(ignoreUrls!=null) {
-	        ignoreUrls.forEach(url->{
+    	//security中设置的ignored，在资源认证中也不进行认证
+    	List<String> ignored=securityProperties.getIgnored();
+    	if(ignored==null) {
+    		ignored=new ArrayList<String>();
+    	}
+    	if(oauthProperties.getResources().getIgnored()!=null) {
+    		ignored.addAll(oauthProperties.getResources().getIgnored());
+    	}
+        if(ignored!=null) {
+        	ignored.forEach(url->{
 				matchers.add(new AntPathRequestMatcher(url));
 				log.debug("white url list: {}",url);
 			});

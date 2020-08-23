@@ -1,11 +1,18 @@
 package com.wiscess.oauth.controll;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.common.OAuth2RefreshToken;
 import org.springframework.security.oauth2.provider.endpoint.TokenEndpoint;
+import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
+import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -13,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.wiscess.common.R;
+import com.wiscess.oauth.delegate.OAuth2LogoutDelegate;
+import com.wiscess.oauth.utils.TokenEntity;
 import com.wiscess.oauth.utils.TokenUtil;
 
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +38,14 @@ public class AuthController {
 	@Autowired
     private TokenEndpoint tokenEndpoint;
 
+	@Autowired
+    private DefaultTokenServices defaultTokenServices;
+	
+	@Autowired
+	private TokenStore tokenStore;
+	
+	@Autowired(required = false)
+	private OAuth2LogoutDelegate logoutDelegate;
     /**
      * Oauth2登录认证
      */
@@ -37,12 +54,32 @@ public class AuthController {
         //调用原oauth/token的方法，获取token的内容
     	OAuth2AccessToken oAuth2AccessToken = tokenEndpoint.postAccessToken(principal, parameters).getBody();
     	if(oAuth2AccessToken!=null) {
+    		//认证成功后，用redis记录当前用户的token信息
+    		String clientId = ((Authentication) principal).getName();
     		String username=oAuth2AccessToken.getAdditionalInformation().get("userName").toString();
-    		String token=oAuth2AccessToken.getValue();
-    		//判断token的和方法性
-            if(!TokenUtil.pushToken(username,token,oAuth2AccessToken.getExpiration())){
-                return null;
-            }
+    		//将当前client下的用户进行存储
+    		/**
+    		 * 当尝试保存当前token时，先将token保存进入，然后判断是否已经超过最大限制人数，如果已经超过，则将前面超出部分的用户的token移除，确保后登录的用户有效
+    		 * 
+    		 */
+    		if(parameters.containsKey("refresh_token")) {
+    			//当刷新token请求时，需要移除缓存的用户
+    			TokenUtil.removeRefreshToken(clientId+"@"+username,parameters.get("refresh_token"));
+    		}
+    		List<TokenEntity> expirationTokenList=TokenUtil.pushToken(clientId+"@"+username,oAuth2AccessToken);
+    		if(!expirationTokenList.isEmpty()) {
+    			//销毁token
+    			expirationTokenList.forEach(token->{
+        	    	if(defaultTokenServices.revokeToken(token.getToken())==false) {
+        	    		//移除token返回false，说明token已经过期，需要手动移除refreshToken
+	        			if (token.getRefreshToken() != null) {
+	        				OAuth2RefreshToken refreshToken= tokenStore.readRefreshToken(token.getRefreshToken());
+	        				if(refreshToken!=null)
+	        					tokenStore.removeRefreshToken(refreshToken);
+	        			}
+        	    	}    				
+    			});
+    		}
 	        Oauth2TokenDto oauth2TokenDto = Oauth2TokenDto.builder()
 	                .token(oAuth2AccessToken.getValue())
 	                .refreshToken(oAuth2AccessToken.getRefreshToken().getValue())
@@ -52,5 +89,24 @@ public class AuthController {
     	}
     	return R.ok();
     }
-
+    
+    @RequestMapping(value = "/logout", method = {RequestMethod.GET,RequestMethod.POST})
+    public R oauthLogout(HttpServletRequest request,@RequestParam("access_token")String accessToken) throws HttpRequestMethodNotSupportedException {
+		//认证成功后，用redis记录当前用户的token信息
+		String clientId = defaultTokenServices.getClientId(accessToken);
+		OAuth2AccessToken oAuth2AccessToken = defaultTokenServices.readAccessToken(accessToken);
+		if(oAuth2AccessToken!=null) {
+    		String username=oAuth2AccessToken.getAdditionalInformation().get("userName").toString();
+    		//移除当前AccessToken对应的用户
+    		int lastUser=TokenUtil.logout(clientId+"@"+username,accessToken);
+    		//
+    		if(logoutDelegate!=null && lastUser==0) {
+    			log.debug("用户{}已退出。",username);
+    			logoutDelegate.doLogout(request,username);
+    		}
+		}
+		//移除token信息
+    	defaultTokenServices.revokeToken(accessToken);
+    	return R.ok();
+    }
 }

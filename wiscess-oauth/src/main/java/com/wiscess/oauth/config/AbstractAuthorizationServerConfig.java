@@ -30,6 +30,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class AbstractAuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
 	/**
+     * Oauth Config Properties
+     */
+	protected OauthProperties oauthProperties;
+	/**
      * authentication manager
      */
     @Autowired
@@ -56,11 +60,14 @@ public abstract class AbstractAuthorizationServerConfig extends AuthorizationSer
     @Autowired
     private UserDetailsService userDetailsService;
 
+    /**
+     * 登录认证结果进行封装
+     */
 	@Autowired
 	protected AuthenticationEntryPoint authenticationEntryPoint;
+	
     /**
      * Configure secret encryption in the same way as ApiBoot Security
-     *
      * @param security AuthorizationServerSecurityConfigurer
      * @throws Exception 异常信息
      */
@@ -96,6 +103,7 @@ public abstract class AbstractAuthorizationServerConfig extends AuthorizationSer
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
         endpoints
             .authenticationManager(authenticationManager)
+            .tokenServices(tokenServices())
             .tokenStore(tokenStore)
             .accessTokenConverter(accessTokenConverter)
     		.allowedTokenEndpointRequestMethods(HttpMethod.GET, HttpMethod.POST)
@@ -120,12 +128,13 @@ public abstract class AbstractAuthorizationServerConfig extends AuthorizationSer
      * @return
      */
     @Primary
-    @Bean
+    @Bean(name="tokenServices")
     public DefaultTokenServices tokenServices() {
         DefaultTokenServices tokenServices = new DefaultTokenServices();
         tokenServices.setTokenStore(tokenStore);
         tokenServices.setSupportRefreshToken(true);
-        tokenServices.setReuseRefreshToken(true);
+      //!(accessTokenConverter instanceof JwtAccessTokenConverter));//用jwt时，设置为false，因为每次刷新，jwt都会生成新的refreshToken；
+        tokenServices.setReuseRefreshToken(oauthProperties.getReuseRefreshToken());
         tokenServices.setClientDetailsService(clientDetailsService);
         tokenServices.setTokenEnhancer(tokenEnhancer());
         tokenServices.setAccessTokenValiditySeconds(60*60*12); // token有效期自定义设置，默认12小时

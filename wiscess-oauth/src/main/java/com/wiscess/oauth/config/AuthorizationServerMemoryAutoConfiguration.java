@@ -46,6 +46,7 @@ public class AuthorizationServerMemoryAutoConfiguration extends AuthorizationSer
             .authorizedGrantTypes(client.getGrantTypes())
             .scopes(client.getScopes())
             .resourceIds(client.getResourceId())
+            .refreshTokenValiditySeconds(client.getRefreshTokenValiditySeconds())
             .accessTokenValiditySeconds(client.getAccessTokenValiditySeconds()));
     }
 
@@ -56,7 +57,9 @@ public class AuthorizationServerMemoryAutoConfiguration extends AuthorizationSer
      */
     @Bean
     public TokenStore memoryTokenStore() {
-        return new InMemoryTokenStore();
+    	InMemoryTokenStore tokenStore = new InMemoryTokenStore();
+    	tokenStore.setAuthenticationKeyGenerator(authenticationKeyGenerator());
+    	return tokenStore;
     }
 }
 

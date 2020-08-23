@@ -5,6 +5,7 @@ import java.util.List;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -78,8 +79,13 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter{
         	.resourceId(oauthProperties.getResources().getResourceId())
         	.stateless(true); // 设置这些资源仅基于令牌认证
     }
-    @Bean
-    public OAuth2WhiteListFilter ignoreUrlsRemoveJwtFilter() {
-    	return  new OAuth2WhiteListFilter(oauthProperties);
-    }
+    /**
+	 * 定义白名单过滤器
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(OAuth2WhiteListFilter.class)
+	public OAuth2WhiteListFilter oAuth2WhiteListFilter() {
+    	return  new OAuth2WhiteListFilter(securityProperties,oauthProperties);
+	}
 }

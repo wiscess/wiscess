@@ -16,8 +16,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.wiscess.oauth.controll.AuthController;
 import com.wiscess.oauth.exception.DefaultOAuth2AuthenticationEntryPoint;
-import com.wiscess.oauth.exception.Oauth2ExceptionHandler;
-import com.wiscess.oauth.filter.OAuth2WhiteListFilter;
+import com.wiscess.oauth.exception.Oauth2ExceptionGlobalHandler;
 import com.wiscess.oauth.utils.TokenUtil;
 
 import lombok.extern.slf4j.Slf4j;
@@ -57,19 +56,15 @@ public class OAuth2SecurityWebMvcConfig implements WebMvcConfigurer   {
 	public AuthenticationEntryPoint authenticationEntryPoint() {
     	return new DefaultOAuth2AuthenticationEntryPoint();
     }
-	@Bean
-	public Oauth2ExceptionHandler oauth2ExceptionHandler() {
-		return new Oauth2ExceptionHandler();
-	}
 	/**
-	 * 定义白名单过滤器
+	 * 自定义全局处理Oauth2Exception
 	 * @return
 	 */
 	@Bean
-	@ConditionalOnMissingBean(OAuth2WhiteListFilter.class)
-	public OAuth2WhiteListFilter oAuth2WhiteListFilter() {
-		return new OAuth2WhiteListFilter(oauthProperties);
+	public Oauth2ExceptionGlobalHandler oauth2ExceptionGlobalHandler() {
+		return new Oauth2ExceptionGlobalHandler();
 	}
+
 	@Override
     public void addCorsMappings(CorsRegistry registry) {
 		//配置跨域访问的设置

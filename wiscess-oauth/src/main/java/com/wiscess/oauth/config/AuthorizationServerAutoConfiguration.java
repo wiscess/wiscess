@@ -5,10 +5,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.common.OAuth2RefreshToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.AccessTokenConverter;
+import org.springframework.security.oauth2.provider.token.AuthenticationKeyGenerator;
 import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
+
+import com.wiscess.oauth.token.CustomAuthenticationKeyGenerator;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,10 +27,6 @@ import java.util.Map;
  */
 @Slf4j
 public class AuthorizationServerAutoConfiguration extends AbstractAuthorizationServerConfig{
-	/**
-     * Oauth Config Properties
-     */
-	protected OauthProperties oauthProperties;
 	
 	public AuthorizationServerAutoConfiguration(OauthProperties oauthProperties) {
 		this.oauthProperties=oauthProperties;
@@ -39,7 +39,7 @@ public class AuthorizationServerAutoConfiguration extends AbstractAuthorizationS
      *
      * @return {@link AccessTokenConverter}
      */
-    @Bean
+    @Bean(name = "accessTokenConverter")
     @ConditionalOnProperty(prefix = SECURITY_OAUTH_PREFIX, name = "jwt.enable", havingValue = "true", matchIfMissing = true)
     public JwtAccessTokenConverter jwtAccessTokenConverter() {
         log.debug("key:{}",oauthProperties.getJwt().getSignKey());
@@ -59,8 +59,18 @@ public class AuthorizationServerAutoConfiguration extends AbstractAuthorizationS
               additionalInformation.put("userName", userName);
               additionalInformation.put("roles", user.getAuthorities());
               ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(additionalInformation);
-              OAuth2AccessToken enhancedToken = super.enhance(accessToken, authentication);
-              return enhancedToken;
+
+              if(oauthProperties.getReuseRefreshToken()) {
+            	  //重复使用RefreshToken,缓存原来的uuid格式的refreshToken
+            	  OAuth2RefreshToken refreshToken = accessToken.getRefreshToken();
+            	  //使用jwt转换token
+                  OAuth2AccessToken enhancedToken = super.enhance(accessToken, authentication);
+                  //将缓存的refreshToken写到token中
+                  ((DefaultOAuth2AccessToken)enhancedToken).setRefreshToken(refreshToken);
+                  return enhancedToken;
+              }else {
+            	  return super.enhance(accessToken, authentication);
+              }
           }
 
       };
@@ -79,4 +89,17 @@ public class AuthorizationServerAutoConfiguration extends AbstractAuthorizationS
     public AccessTokenConverter defaultAccessTokenConverter() {
         return new DefaultAccessTokenConverter();
     } 
+    
+	/**
+     * Token校验key生成器，默认client+username+scope+uuid唯一生成AccessToken
+	 * @return
+	 */
+	@Bean
+	public AuthenticationKeyGenerator authenticationKeyGenerator() {
+		/**
+		 * 为了限制同一个用户多人使用的情况，修改key生成规则，每一个用户登录都是唯一的，目的是生成不同的token；
+		 * 当达到最大人数时，将前面该用户的所有登录信息都移除
+		 */
+		return new CustomAuthenticationKeyGenerator();
+	}
 }

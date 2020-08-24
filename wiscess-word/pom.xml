@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.wiscess</groupId>
   <artifactId>wiscess-word</artifactId>
-  <version>2.0</version>
+  <version>2.1</version>
   	<properties>
 		<!-- <maven.dir>D:/GitHome/mvn-repo</maven.dir> -->
 		<distribution.url>http://42.96.168.102:8081/repository/wiscess/</distribution.url>
@@ -73,7 +73,7 @@
 	    <dependency>
 	    	<groupId>com.wiscess</groupId>
 	    	<artifactId>wiscess-common</artifactId>
-	    	<version>2.0</version>
+	    	<version>2.1</version>
 	    	<optional>true</optional>
 	    </dependency>
     </dependencies>

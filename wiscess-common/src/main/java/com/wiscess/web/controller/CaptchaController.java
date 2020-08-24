@@ -100,7 +100,8 @@ public class CaptchaController {
 		String savedCode=(String)req.getSession().getAttribute(config.getSessionKey());
 		Boolean result = StringUtils.isNotEmpty(code) && StringUtils.isNotEmpty(savedCode)
 				&& code.equals(savedCode);
-		return result? R.ok():
-				R.error();
+		return result
+				? R.ok()
+				: R.ok().success(false).message("验证码不正确");
 	}
 }

@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.util.Locale;
 import java.util.Properties;
 
-import com.wiscess.web.controller.PublicApi;
+import com.wiscess.web.controller.PublicApiControll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -122,7 +122,7 @@ public class WebConfig implements WebMvcConfigurer {
 	 * @return
 	 */
 	@Bean
-	public PublicApi publicApi(){
-		return new PublicApi();
+	public PublicApiControll publicApiControll(){
+		return new PublicApiControll();
 	}
 }

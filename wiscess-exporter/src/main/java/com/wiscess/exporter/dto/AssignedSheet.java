@@ -1,5 +1,6 @@
 package com.wiscess.exporter.dto;
 
+import java.io.Serializable;
 import java.util.List;
 
 import com.wiscess.utils.StringUtils;
@@ -18,14 +19,16 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AssignedSheet {
+public class AssignedSheet implements Serializable {
 	/**
 	 * Sheet名称
 	 */
+	@Builder.Default
 	private String sheetName="Sheet1";
 	/**
 	 * 使用模板Sheet名称
 	 */
+	@Builder.Default
 	private String templateSheetName="Sheet1";
 	
 	/**
@@ -43,6 +46,10 @@ public class AssignedSheet {
 	 */
 	private AssignedCell dataRow;
 	
+	/**
+	 * 样式表
+	 */
+	private List<AssignedCell> cellStyleList;
 	/**
 	 * 特殊显示行，特殊行读取该行样式
 	 */

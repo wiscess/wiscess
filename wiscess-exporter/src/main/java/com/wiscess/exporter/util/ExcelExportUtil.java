@@ -10,7 +10,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,12 +35,12 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFClientAnchor;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import com.wiscess.utils.StringUtils;
-import com.wiscess.common.utils.FileUtils;
+import com.wiscess.utils.FileUtils;
 import com.wiscess.exporter.dto.AssignedCell;
 import com.wiscess.exporter.dto.AssignedSheet;
 import com.wiscess.exporter.dto.ExportExcelParameter;
 import com.wiscess.exporter.exception.ManagerException;
+import com.wiscess.utils.StringUtils;
 
 public class ExcelExportUtil {
 	public static final SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
@@ -58,6 +57,8 @@ public class ExcelExportUtil {
 				res.setContentType("APPLICATION/ms-excel");
 				res.setHeader("Content-Disposition", "attachment; filename="
 						+ FileUtils.encodingFileName(filename));
+				res.setHeader("FileName", FileUtils.encodingFileName(filename));
+				res.setHeader("Access-Control-Expose-Headers", "FileName");
 				ServletOutputStream os = res.getOutputStream();
 				ExcelExportUtil.export(para,os, data);
 				os.flush();
@@ -105,81 +106,10 @@ public class ExcelExportUtil {
 	}
 	
 	/**
-	 * 从map对象中获取值
-	 * @param cell
-	 * @param obj
-	 * @param propertyName
-	 */
-	@SuppressWarnings({ "unused", "rawtypes" })
-	private static void setValueFormMap(Cell cell,Map obj,String propertyName){
-		if(obj.containsKey(propertyName)){
-			Object returnValue=obj.get(propertyName);
-			if(returnValue==null){
-    			cell.setCellValue("");
-    			return;
-    		}
-    		if(returnValue instanceof Date){
-				cell.setCellValue(sdf.format(returnValue));
-    		}else if(returnValue instanceof Integer){
-				cell.setCellValue((Integer)returnValue);
-    		}else{
-    			cell.setCellValue(returnValue.toString());
-    		}
-		}else{
-			cell.setCellValue("");
-		}
-	}
-
-	/*@SuppressWarnings({ "unchecked", "unused", "rawtypes" })
-	private static void setValueFromObj(Cell cell,Object obj,String propertyName){
-		try {
-			Class clazz=obj.getClass();
-			Field f = clazz.getDeclaredField(propertyName);
-			//根据字段名来获取字段   
-	        if(f!=null){   
-	        	//构建方法的后缀   
-	        	String methodEnd = propertyName.substring(0,1).toUpperCase()+propertyName.substring(1);   
-	        	String getMethodName="get"+methodEnd;//构建get方法   
-				Method getMethod=clazz.getMethod(getMethodName, new Class[]{});
-	        	if(getMethod==null){
-	        		getMethodName="is"+methodEnd;//构建get方法   
-		        	getMethod=clazz.getMethod(getMethodName, new Class[]{});
-	        	}
-	        	if(getMethod!=null){
-	        		Object returnValue = getMethod.invoke(obj, new Class[]{});
-	        		if(returnValue==null){
-	        			cell.setCellValue("");
-	        			return;
-	        		}
-	        		if(f.getType()==Date.class){
-						cell.setCellValue(sdf.format(returnValue));
-	        		}else{
-	        			cell.setCellValue(returnValue.toString());
-	        		}
-	        	}
-	        }   
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (NoSuchFieldException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		}
-	}*/
-	
-	/**
 	 * 导出数据，支持多个sheet的导出文件
 	 * 
 	 * @param para
 	 * @param os
-	 * @param session
-	 * @param sheetMap
 	 */
 	public static void export(ExportExcelParameter para, OutputStream os) {
 		InputStream ins = null;
@@ -245,16 +175,18 @@ public class ExcelExportUtil {
 				int rowNumber = aSheet.getDataRow().getRow();
 				Row templateDataRow = sheet.getRow(rowNumber);
 				Row templateHlDataRow = null;
-				int templateHlDataCol = 0;
 				if (aSheet.getHighLightRow() != null) {
 					templateHlDataRow = sheet.getRow(aSheet.getHighLightRow().getRow());
-					templateHlDataCol = aSheet.getHighLightRow().getCol();
 				} else {
 					templateHlDataRow = templateDataRow;
 				}
 				if (templateHlDataRow == null)
 					templateHlDataRow = sheet.getRow(rowNumber);
 
+				//使用指定位置的样式
+				List<AssignedCell> cellStyleList=aSheet.getCellStyleList();
+				if(cellStyleList==null)
+					cellStyleList=new ArrayList<>();
 				// 输出数据
 				outputData(wb, sheet, templateDataRow, templateHlDataRow, aSheet.getDataRow(),
 						aSheet.getColumnWidths(),
@@ -263,7 +195,7 @@ public class ExcelExportUtil {
 						aSheet.isNeedCopyTemplateRow(),
 						aSheet.isAutoHeight(),
 						aSheet.getDataRowSpan(), aSheet.getTotalCol(),
-						templateHlDataCol);
+						cellStyleList);
 				
 				//处理合并sheet的记录
 				if(StringUtils.isEmpty(aSheet.getAppendToSheet()) || 
@@ -364,14 +296,17 @@ public class ExcelExportUtil {
 			Row templateDataRow = sheet.getRow(para.getDataRow().getRow());
 
 			Row templateHlDataRow = null;
-			int hldatacol = 0;
 			if (para.getHighLightRow() != null) {
 				templateHlDataRow = sheet.getRow(para.getHighLightRow().getRow());
-				hldatacol = para.getHighLightRow().getCol();
 			} else {
 				templateHlDataRow = templateDataRow;
 			}
 
+			//使用指定的样式
+			List<AssignedCell> cellStyleList=para.getCellStyleList();
+			if(cellStyleList==null)
+				cellStyleList=new ArrayList<>();
+			
 			// 输出数据
 			if(templateDataRow!=null)
 				outputData(wb, sheet, templateDataRow, templateHlDataRow, para.getDataRow(), 
@@ -379,7 +314,7 @@ public class ExcelExportUtil {
 					data,
 					para.getAssignedCells(), para.isNeedCopyTemplateRow(), 
 					para.isAutoHeight(),
-					para.getDataRowSpan(), para.getTotalCol(), hldatacol);
+					para.getDataRowSpan(), para.getTotalCol(), cellStyleList);
 
 			//单页模式不处理合并sheet操作
 			wb.write(os);
@@ -392,15 +327,15 @@ public class ExcelExportUtil {
 	 * 输出数据
 	 * @param wb
 	 * @param sheet
-	 * @param datarow
-	 * @param hldatarow
+	 * @param templateDataRow
+	 * @param templateHlDataRow
 	 * @param dataRow
 	 * @param data
 	 * @param assignedCells
 	 * @param isNeedCopyTemplateRow
 	 * @param dataRowSpan
 	 * @param totalCol
-	 * @param hldatacol
+	 * @param cellStyleList
 	 */
 	private static void outputData(Workbook wb, Sheet sheet, Row templateDataRow,
 			Row templateHlDataRow, AssignedCell dataRow, 
@@ -408,7 +343,7 @@ public class ExcelExportUtil {
 			List<AssignedCell[]> data,
 			List<AssignedCell> assignedCells, boolean isNeedCopyTemplateRow,
 			boolean autoHeight,
-			int dataRowSpan, int totalCol, int hldatacol) {
+			int dataRowSpan, int totalCol, List<AssignedCell> cellStyleList) {
 		Drawing<?> patriarch = sheet.createDrawingPatriarch();
 
 		int rowNumber = 0;
@@ -424,6 +359,34 @@ public class ExcelExportUtil {
 			//设置列宽
 			for (int j = 0; j < totalCol; j++) {
 				sheet.setColumnWidth(j, columnWidths[j]*40);
+			}
+		}
+		CellStyle[] normalCs=new CellStyle[templateDataRow.getPhysicalNumberOfCells()];
+		CellStyle[] highlightCs=new CellStyle[templateHlDataRow.getPhysicalNumberOfCells()];
+		//指定位置的样式
+		CellStyle[] assignedCs=new CellStyle[cellStyleList.size()];
+		for(int i=0;i<cellStyleList.size();i++) {
+			AssignedCell cs=cellStyleList.get(i);
+			Cell cell=sheet.getRow(cs.getRow()).getCell(cs.getCol());
+			CellStyle lastStyle=wb.createCellStyle();
+			if(cell!=null) {
+				lastStyle.cloneStyleFrom(cell.getCellStyle());
+			}
+			assignedCs[i]=lastStyle;
+		}
+		//记录各位置的样式
+		// 创建所有的列
+		for (int j = 0; j < templateDataRow.getPhysicalNumberOfCells(); j++) {
+			if (templateDataRow != null){
+				//记录样式
+				CellStyle lastStyle=wb.createCellStyle();
+				if(templateDataRow.getCell(j)!=null)
+					lastStyle.cloneStyleFrom(templateDataRow.getCell(j).getCellStyle());
+				normalCs[j]=lastStyle;
+				CellStyle lastHlStyle=wb.createCellStyle();
+				if(templateHlDataRow.getCell(j)!=null)
+					lastHlStyle.cloneStyleFrom(templateHlDataRow.getCell(j).getCellStyle());
+				highlightCs[j]=lastHlStyle;
 			}
 		}
 		// 输出数据
@@ -449,20 +412,12 @@ public class ExcelExportUtil {
 						Cell cell = currRow.getCell(j);
 						if(cell==null)
 							cell = currRow.createCell(j);
-						if (templateDataRow != null){
-							if(dataRow.getUseStyle()==AssignedCell.CELL_STYLE_HLROW){
-								cell.setCellStyle(templateHlDataRow.getCell(hldatacol).getCellStyle());
-								if(j>hldatacol && columnWidths==null)
-									sheet.setColumnWidth(j, sheet.getColumnWidth(hldatacol));							
-							}else{
-								cell.setCellStyle(templateDataRow.getCell(j).getCellStyle());
-							}
-						}
+						CellStyle lastStyle=normalCs[0];
+						cell.setCellStyle(lastStyle);
 					}
 				}
 			}
 
-			int lastUserStyle=0;
 			// 根据列总数处理所有列
 			for (int k = 0; k < rowData.length; k++) {
 				CellStyle lastStyle=null;
@@ -470,8 +425,7 @@ public class ExcelExportUtil {
 				if (acell == null)
 					continue;
 				// 对特殊样式的处理
-				
-				if (acell.getUseStyle() == AssignedCell.CELL_STYLE_PHOTO) {
+				if (acell.getDataStyle() == AssignedCell.DATA_STYLE_PHOTO) {
 					// 写照片
 					// 处理照片
 					ClientAnchor anchor = null;
@@ -502,7 +456,6 @@ public class ExcelExportUtil {
 					}
 					continue;
 				}
-
 				// 根据属性合并单元格
 				if (acell.getRow() != acell.getRowEnd()
 						|| acell.getCol() != acell.getColEnd())
@@ -516,11 +469,21 @@ public class ExcelExportUtil {
 				Cell cell = row.getCell(acell.getCol());
 				if (cell == null)
 					cell = row.createCell(acell.getCol());
+				
+				//设置单元格样式
+				lastStyle=getLastStyle(wb,acell, normalCs, highlightCs, assignedCs);
+				if(lastStyle==null)
+					lastStyle=cell.getCellStyle();
+				//调整行高,变为自动换行
+				if(autoHeight){
+					lastStyle.setWrapText(true);
+				}
+				cell.setCellStyle(lastStyle);
 				// 根据类型设置
 				CellType cType = CellType.STRING;
 				
 				Object value = acell.getValue();
-				if (acell.getUseStyle() == AssignedCell.CELL_STYLE_FORMULA) {
+				if (acell.getDataStyle() == AssignedCell.DATA_STYLE_FORMULA) {
 					//公式,根据当前行解析公式,如R[-2]C/R[-1]C
 					//Pattern p
 					try {
@@ -531,14 +494,11 @@ public class ExcelExportUtil {
 							cell.setCellFormula(cformula);
 						else
 							cell.setCellFormula(cell.getCellFormula());
-						
-						lastStyle=getLastStyle(wb,lastUserStyle, templateDataRow, templateHlDataRow, acell.getCol(), hldatacol,acell.isLocked());
-						if(lastStyle!=null)
-							cell.setCellStyle(lastStyle);
 					}catch(Exception e) {
 					}
 					continue;
 				}
+				
 				if (value == null) {
 					cell.setCellValue("");
 				} else {
@@ -558,15 +518,6 @@ public class ExcelExportUtil {
 					}
 				}
 				
-				lastStyle=getLastStyle(wb,acell.getUseStyle(), templateDataRow, templateHlDataRow, acell.getCol(), hldatacol,acell.isLocked());
-				lastUserStyle=acell.getUseStyle();
-				if(lastStyle==null)
-					lastStyle=cell.getCellStyle();
-				//调整行高,变为自动换行
-				if(autoHeight){
-					lastStyle.setWrapText(true);
-				}
-				cell.setCellStyle(lastStyle);
 			}
 			rowNumber += dataRowSpan;
 		}
@@ -602,54 +553,77 @@ public class ExcelExportUtil {
 					cs.setLocked(false);
 					assignCell.setCellStyle(cs);
 				}
-				assignCell.setCellValue(cell.getValue().toString());
+				Object value = cell.getValue();
+				CellType cType = CellType.STRING;
+				if (value == null) {
+					assignCell.setCellValue("");
+				} else {
+					if (value instanceof Integer || value instanceof Double) {
+						cType = CellType.NUMERIC;
+						try {
+							assignCell.setCellValue(new BigDecimal(value.toString())
+									.doubleValue());
+						} catch (Exception e) {
+							assignCell.setCellType(CellType.STRING);
+							assignCell.setCellValue(value.toString());
+						}
+					} else {
+						cType = CellType.STRING;
+						assignCell.setCellType(cType);
+						assignCell.setCellValue(value.toString());
+					}
+				}
 			}
 		}
 		//重新计算公式
 		adjustformula(sheet);
 	}
-
 	/**
-	 * 根据样式定义，获取使用的样式
-	 * @param useStyle
-	 * @param templateDataRow
-	 * @param templateHlDataRow
-	 * @param col
-	 * @param hldatacol
+	 * 
+	 * @param wb
+	 * @param acell
+	 * @param normalCs
+	 * @param highlightCs
+	 * @param assignedCs
 	 * @return
 	 */
-	private static CellStyle getLastStyle(Workbook wb,int useStyle,Row templateDataRow,Row templateHlDataRow,int col,int hldatacol,boolean locked){
+	private static CellStyle getLastStyle(Workbook wb,AssignedCell acell,CellStyle[] normalCs,CellStyle[] highlightCs,CellStyle[] assignedCs){
 		// 使用样式
-		CellStyle lastStyle=null;
-		if (useStyle == AssignedCell.CELL_STYLE_NORMAL) {
-			// 使用默认样式
-			if(locked)
-				lastStyle=(templateDataRow.getCell(col).getCellStyle());
-			else {
-				lastStyle=wb.createCellStyle();
-				lastStyle.cloneStyleFrom(templateDataRow.getCell(col).getCellStyle());
-			}
-		} else if (useStyle == AssignedCell.CELL_STYLE_HLROW_COL) {
-			// 使用数据样式
-			if(locked)
-				lastStyle=(templateHlDataRow.getCell(hldatacol).getCellStyle());
-			else{
-				lastStyle=wb.createCellStyle();
-				lastStyle.cloneStyleFrom(templateHlDataRow.getCell(hldatacol).getCellStyle());
-			}
-		} else if (useStyle == AssignedCell.CELL_STYLE_HLROW) {
+		CellStyle lockedStyle=null;
+		Integer dataStyle=acell.getDataStyle();
+		Integer cellStyle=acell.getCellStyle();
+		int col=acell.getCol();
+		boolean locked=acell.isLocked();
+		
+		if (dataStyle == AssignedCell.DATA_STYLE_NORMAL || dataStyle == AssignedCell.DATA_STYLE_FORMULA) {
+			// 使用默认样式，公式也使用默认的样式
+			lockedStyle=(normalCs[col]);
+		} else if (dataStyle == AssignedCell.DATA_STYLE_HLROW) {
 			// 使用高亮样式
-			if(locked)
-				lastStyle=(templateHlDataRow.getCell(col).getCellStyle());
-			else{
-				lastStyle=wb.createCellStyle();
-				lastStyle.cloneStyleFrom(templateHlDataRow.getCell(col).getCellStyle());
+			lockedStyle=(highlightCs[col]);
+		} else if (dataStyle == AssignedCell.DATA_STYLE_ASSIGNED) {
+			//使用指定的样式
+			if(assignedCs.length==0) {
+				//没有指定时，使用Normal
+				lockedStyle=normalCs[0];
+			}else if(cellStyle==null) {
+				lockedStyle=assignedCs[0];
+			}else {
+				lockedStyle=assignedCs[cellStyle];
 			}
 		}
-		if(!locked)
+		//如果指定了单元格样式，强制覆盖
+		if(cellStyle!=null) {
+			lockedStyle=(assignedCs[cellStyle]);
+		}
+		
+		if(!locked) {
+			CellStyle lastStyle=wb.createCellStyle();
+			lastStyle.cloneStyleFrom(lockedStyle);
 			lastStyle.setLocked(false);
-
-		return lastStyle;
+			return lastStyle;
+		}
+		return lockedStyle;
 	}
 	/**
 	 * 处理照片

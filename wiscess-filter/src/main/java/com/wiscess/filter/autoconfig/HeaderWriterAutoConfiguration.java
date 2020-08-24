@@ -3,7 +3,10 @@ package com.wiscess.filter.autoconfig;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.wiscess.filter.autoconfig.properties.XssFilterProperties;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.web.header.HeaderWriter;
@@ -19,11 +22,13 @@ import com.wiscess.filter.StaticResourceHeaderFilter;
 import com.wiscess.filter.header.P3pDisabledWriter;
 import com.wiscess.utils.StringUtils;
 
-
 public class HeaderWriterAutoConfiguration {
 
 	@Value("${header.contentSecurityPolicy:}")
 	private String policyDirectives;
+
+	@Value("${header.staticResource:}")
+	private List<String> excludes = new ArrayList<>();
 	@Bean
 	public FilterRegistrationBean<HeaderWriterFilter> headerFilterRegistration() {
 		List<HeaderWriter> writers = getHeaderWriters();
@@ -31,7 +36,7 @@ public class HeaderWriterAutoConfiguration {
 			throw new IllegalStateException(
 					"Headers security is enabled, but no headers will be added. Either add headers or disable headers security");
 		}
-		HeaderWriterFilter headersFilter = new StaticResourceHeaderFilter(writers);
+		HeaderWriterFilter headersFilter = new StaticResourceHeaderFilter(writers,excludes);
 	    FilterRegistrationBean<HeaderWriterFilter> registration = new FilterRegistrationBean<HeaderWriterFilter>();
 	    registration.setFilter(headersFilter);
 	    registration.addUrlPatterns("/*");

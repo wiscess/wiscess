@@ -33,10 +33,12 @@ public class StaticResourceHeaderFilter extends HeaderWriterFilter implements Or
 	private List<String> excludes = new ArrayList<>();
 	private RequestMatcher requireMatcher = null;
 	
-	public StaticResourceHeaderFilter(List<HeaderWriter> headerWriters){
+	public StaticResourceHeaderFilter(List<HeaderWriter> headerWriters,List<String> staticResourceList){
 		super(headerWriters);
 		//增加默认的资源
 		excludes.addAll(Arrays.asList(DEFAULT_IGNORES));
+		//增加附加的资源
+		excludes.addAll(staticResourceList);
 		//
 		List<RequestMatcher> matchers=new ArrayList<>();
 		excludes.forEach(url->{

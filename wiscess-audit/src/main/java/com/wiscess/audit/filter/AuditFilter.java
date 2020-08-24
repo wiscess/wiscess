@@ -1,5 +1,16 @@
 package com.wiscess.audit.filter;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Pattern;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.boot.web.servlet.filter.OrderedFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
@@ -11,16 +22,6 @@ import com.wiscess.audit.dto.AuditLog;
 import com.wiscess.audit.jdbc.AuditService;
 
 import lombok.extern.slf4j.Slf4j;
-
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * @author wh
@@ -41,7 +42,7 @@ public class AuditFilter extends OncePerRequestFilter implements OrderedFilter{
 	/**
 	 * 默认静态资源文件
 	 */
-	private static String[] DEFAULT_IGNORES="/css/**,/js/**,/images/**,/webjars/**,/**/favicon.ico,/captcha.jpg".split(",");
+	private static String[] DEFAULT_IGNORES="/css/**,/js/**,/images/**,/webjars/**,/**/favicon.ico,/captcha.jpg,/accessdenied,/error,/deny".split(",");
 	/**
 	 * 排除的资源
 	 */
@@ -56,10 +57,15 @@ public class AuditFilter extends OncePerRequestFilter implements OrderedFilter{
 	 */
 	private List<String> simples= new ArrayList<>();
 	private RequestMatcher ignoreMatcher = null;
+	
+	/**
+	 * 是否启用黑名单功能
+	 */
+	private boolean blackIpEnabled = true;
 	/**
 	 * 审计的method
 	 */
-	private Pattern auditMethods=Pattern.compile("^(GET|POST|HEAD|TRACE|OPTIONS|PUT|DELETE|PATCH)$");
+	private Pattern auditMethods;//=Pattern.compile("^(GET|POST|HEAD|TRACE|OPTIONS|PUT|DELETE|PATCH)$");
 	
 	/**
 	 * 审计等级
@@ -107,6 +113,7 @@ public class AuditFilter extends OncePerRequestFilter implements OrderedFilter{
 		//应用名
 		auditService.setApplicationName(properties.getApplication());
 		auditLevel=properties.getAuditLevel();
+		blackIpEnabled=properties.isBlackIp();
 	}
 
 	@Override
@@ -131,6 +138,13 @@ public class AuditFilter extends OncePerRequestFilter implements OrderedFilter{
 					auditLog=auditService.createAuditLog(request,false);
 				}
 			}
+			//判断是否在黑名单中
+			if(blackIpEnabled && auditService.isBlackip(request.getRemoteAddr())) {
+				//输出访问被拒绝的页面
+				response.sendError(999, "error");
+				//writeAccessDenied(request,response);
+				return;
+			}
 			//执行下一个过滤器
 			filterChain.doFilter(request, response);
 		}finally {
@@ -154,5 +168,31 @@ public class AuditFilter extends OncePerRequestFilter implements OrderedFilter{
 	@Override
 	public int getOrder() {
 		return AUDIT_FILTER_ORDER;
+	}
+	
+	/**
+	 * 输出拒绝页面
+	 * @param request
+	 * @param response
+	 */
+	public void writeAccessDenied(HttpServletRequest request, HttpServletResponse response) {
+		if (response.isCommitted()) {
+			return;
+		}
+		StringBuilder builder = new StringBuilder();
+		if (response.getContentType() == null) {
+			response.setContentType("text/html");
+		}
+		builder.append("<html><body><h1>访问被拒绝</h1>")
+				.append("<p>您的IP在短时间内多次访问服务器，访问被拒绝。</p>")
+				.append("<div>您的IP："+request.getRemoteAddr()+"已被加入黑名单，如有异议，请联系系统管理员。")
+				.append("</div>");
+		builder.append("</body></html>");
+		try {
+			response.setCharacterEncoding("utf-8");
+			response.getWriter().append(builder.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

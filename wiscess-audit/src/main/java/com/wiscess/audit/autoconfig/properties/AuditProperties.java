@@ -54,6 +54,11 @@ public class AuditProperties {
 	 */
 	private String application;
 	
+	/**
+	 * 是否启用黑名单过滤功能
+	 */
+	private boolean blackIp = true;
+	
 	public List<String> getExcludes() {
 		return excludes;
 	}
@@ -108,5 +113,13 @@ public class AuditProperties {
 
 	public void setApplication(String application) {
 		this.application = application;
+	}
+
+	public boolean isBlackIp() {
+		return blackIp;
+	}
+
+	public void setBlackIp(boolean blackIp) {
+		this.blackIp = blackIp;
 	}
 }

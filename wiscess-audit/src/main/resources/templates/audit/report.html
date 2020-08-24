@@ -27,12 +27,11 @@ $(document).ready(function(){
 		return false;
 	});
 });
-function queryDetail(username,create_time,session_id,url,method,status_code){
+function queryDetail(username,create_time,ip,method,status_code){
 	frmDetail.username.value=username;
 	frmDetail.accessStartDate.value=create_time+" 00:00:00";
 	frmDetail.accessEndDate.value=create_time+" 23:59:59";
-	frmDetail.sessionId.value=session_id;
-	frmDetail.url.value=url;
+	frmDetail.ip.value=ip;
 	frmDetail.method.value=method;
 	frmDetail.statusCode.value=status_code;
 	frmDetail.submit();
@@ -109,10 +108,9 @@ function queryDetail(username,create_time,session_id,url,method,status_code){
 		<table class="table table-bordered table-striped with-check" style="word-break:break-all; word-wrap:break-all;">
 			<colgroup>
 				<col width="5%"/><!-- 序号 -->
-				<col width="10%"/><!-- 姓名 -->
-				<col width="10%"/><!-- 访问时间 -->
-				<col width="25%"/><!-- session -->
-				<col width="25%"/><!-- url -->
+				<col width="20%"/><!-- 姓名 -->
+				<col width="20%"/><!-- 访问时间 -->
+				<col width="25%"/><!-- remote_addr -->
 				<col width="8%"/><!-- method -->
 				<col width="7%"/><!-- 响应码 -->
 				<col width="8%"/><!-- 访问次数 -->
@@ -122,8 +120,7 @@ function queryDetail(username,create_time,session_id,url,method,status_code){
 				<th>序号</th>
 				<th data-sort-id="user_name">用户姓名</th>
 				<th data-sort-id="create_time">访问时间</th>
-				<th data-sort-id="session_id">Session</th>
-				<th data-sort-id="url">url</th>
+				<th data-sort-id="remote_addr">IP</th>
 				<th data-sort-id="method">Method</th>
 				<th data-sort-id="status_code">响应码</th>
 				<th data-sort-id="cn">访问次数</th>
@@ -134,11 +131,10 @@ function queryDetail(username,create_time,session_id,url,method,status_code){
 				<td th:text="${i.count+ page.size * (page.number)}">1</td>
 				<td th:text="${obj.user_name}">用户姓名</td>
 				<td th:text="${obj.create_time}">访问日期</td>
-				<td th:text="${obj.session_id}">Session</td>
-				<td th:text="${obj.url}">url</td>
+				<td th:text="${obj.remote_addr}">Session</td>
 				<td th:text="${obj.method}">Metdod</td>
 				<td th:text="${obj.status_code}">响应码</td>
-				<td><a href="#" th:onclick="return queryDetail([[${obj.user_name}]],[[${obj.create_time}]],[[${obj.session_id}]],[[${obj.url}]],[[${obj.method}]],[[${obj.status_code}]])" >[[${obj.cn}]]</a></td>
+				<td><a href="#" th:onclick="return queryDetail([[${obj.user_name}]],[[${obj.create_time}]],[[${obj.remote_addr}]],[[${obj.method}]],[[${obj.status_code}]])" >[[${obj.cn}]]</a></td>
 			</tr>
 			</tbody>
 		</table>
@@ -152,8 +148,7 @@ function queryDetail(username,create_time,session_id,url,method,status_code){
 <input type="hidden" name="username"/>
 <input type="hidden" name="accessStartDate"/>
 <input type="hidden" name="accessEndDate"/>
-<input type="hidden" name="sessionId"/>
-<input type="hidden" name="url"/>
+<input type="hidden" name="ip"/>
 <input type="hidden" name="method"/>
 <input type="hidden" name="statusCode"/>
 </form>

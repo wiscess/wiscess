@@ -121,7 +121,7 @@ public class AuditControll {
 			Sort sort=Sort.by(o[0]);
 			if(o.length>1){
 				if(o[1].equalsIgnoreCase("desc")){
-					sort=new Sort(Direction.DESC,o[0]);
+					sort=Sort.by(Direction.DESC,o[0]);
 				}
 			}
 			return sort;

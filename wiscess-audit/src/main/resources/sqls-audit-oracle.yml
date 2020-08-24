@@ -23,9 +23,9 @@ oracle.autoCreateTable:
     remote_addr VARCHAR2(32),
     session_id VARCHAR2(32),
     parameters clob,
-    create_time TIMESTAMP(6),
+    create_time DATE,
     status_code INTEGER,
-    return_time TIMESTAMP(6),
+    return_time DATE,
     time_cousuming NUMBER(6),
     PRIMARY KEY (log_id)
   )TABLESPACE TBS_${dbName};
@@ -48,6 +48,7 @@ oracle.findAuditLogPage:
   </#if>
   from ${dbName}.audit_log
   where 1=1
+  <#if applicationName?has_content>and application_name=:applicationName</#if>
   <#if username?has_content>and user_name like %:username%</#if>
   <#if sessionId?has_content>and session_id = :sessionId</#if>
   <#if ip?has_content>and remote_addr = :ip</#if>
@@ -69,9 +70,10 @@ oracle.findAuditLogReportPage:
   select count(*) from (
   </#if>
   select 
-  user_name,to_char(create_time,'yyyy-mm-dd') as create_time,session_id,url,method,status_code,COUNT(*) cn
+  user_name,to_char(create_time,'yyyy-mm-dd') as create_time,remote_addr,method,status_code,COUNT(*) cn
   from ${dbName}.audit_log
   where 1=1
+  <#if applicationName?has_content>and application_name=:applicationName</#if>
   <#if username?has_content>and user_name like %:username%</#if>
   <#if sessionId?has_content>and session_id = :sessionId</#if>
   <#if ip?has_content>and remote_addr = :ip</#if>
@@ -82,7 +84,7 @@ oracle.findAuditLogReportPage:
   <#if url?has_content>and url like %:url%</#if>
   <#if timeMin?has_content>and time_cousuming >=:timeMin</#if>
   <#if timeMax?has_content>and time_cousuming <=:timeMax</#if>
-  group by to_char(create_time,'yyyy-mm-dd'),session_id,user_name,url,method,status_code
+  group by to_char(create_time,'yyyy-mm-dd'),user_name,remote_addr,method,status_code
   <#if count?has_content>
   ) a
   <#else>
@@ -90,3 +92,13 @@ oracle.findAuditLogReportPage:
   order by ${orderBy}
   </#if>
   </#if>
+
+#查询黑名单,未登录用户，最近 5分钟之内变换session超过10次
+oracle.queryBlackIpList.in5Minutes: 
+  select remote_addr from ${dbName}.audit_log
+  where floor(to_number(sysdate-create_time)*24*60)<=5
+  <#if applicationName?has_content>and application_name=:applicationName</#if>
+  and user_name='未登录'
+  group by remote_addr
+  having COUNT(distinct session_id)>=10
+    

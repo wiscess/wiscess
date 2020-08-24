@@ -61,10 +61,13 @@ public class AuditService extends JdbcJpaSupport{
 	 * 无须记录的参数
 	 */
 	public static List<String> notRecordParameterName=Arrays.asList("_csrf".split(","));
+	
+	/**
+	 * 黑名单列表
+	 */
+	private List<String> blackIpList=new ArrayList<>();
 	/**
 	 * 检测并创建审计数据库和表
-	 * @param databaseName
-	 * @param dbType
 	 * @return
 	 */
 	public boolean initDatabase(String auditDbName) {
@@ -172,7 +175,7 @@ public class AuditService extends JdbcJpaSupport{
 			auditList.add(log);
 		}
  		//TODO 测试代码，直接保存
- 		batchSave();
+ 		//batchSave();
 	}
   	
 	/**
@@ -320,6 +323,7 @@ public class AuditService extends JdbcJpaSupport{
 	public Page<Map<String, Object>> findAuditLogPage(Map<String, Object> map, Pageable pageable) {
 		try {
 			map.put("dbName", auditDbName);
+			map.put("applicationName", applicationName);
 			return findPage(currentDbType+".findAuditLogPage",map, pageable);
 		} catch (Exception e) {
 			log.error(e.getMessage());
@@ -336,6 +340,7 @@ public class AuditService extends JdbcJpaSupport{
 	public Page<Map<String, Object>> findAuditLogReportPage(Map<String, Object> map, Pageable pageable) {
 		try {
 			map.put("dbName", auditDbName);
+			map.put("applicationName", applicationName);
 			return findPage(currentDbType+".findAuditLogReportPage",map, pageable);
 		} catch (Exception e) {
 			log.error(e.getMessage());
@@ -351,6 +356,36 @@ public class AuditService extends JdbcJpaSupport{
 			this.applicationName = currentDbName;
 		}else {
 			this.applicationName = applicationName;
+		}
+	}
+	
+	/**
+	 * 刷新黑名单列表
+	 */
+	public void refreshBlackIpList(Map<String, Object> map) {
+		//先查询黑名单列表
+		try {
+			map.put("dbName", auditDbName);
+			map.put("applicationName", applicationName);
+			//查询5分钟之内的黑名单
+			List<String> list=findList(currentDbType+".queryBlackIpList.in5Minutes", map,String.class);
+			synchronized (blackIpList) {
+				blackIpList.clear();
+				blackIpList.addAll(list);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage());
+		}
+	}
+	
+	/**
+	 * 判断是否在黑名单中
+	 * @param ip
+	 * @return
+	 */
+	public boolean isBlackip(String ip) {
+		synchronized (blackIpList) {
+			return blackIpList.contains(ip);
 		}
 	}
 }

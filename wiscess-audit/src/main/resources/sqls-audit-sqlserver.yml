@@ -44,6 +44,7 @@ sqlserver.findAuditLogPage:
   </#if>
   from ${dbName}.dbo.audit_log
   where 1=1
+  <#if applicationName?has_content>and application_name=:applicationName</#if>
   <#if username?has_content>and user_name like %:username%</#if>
   <#if sessionId?has_content>and session_id = :sessionId</#if>
   <#if ip?has_content>and remote_addr = :ip</#if>
@@ -65,9 +66,10 @@ sqlserver.findAuditLogReportPage:
   select count(*) from (
   </#if>
   select 
-  user_name,convert(nvarchar(10),create_time,120) as create_time,session_id,url,method,status_code,COUNT(*) cn
+  user_name,convert(nvarchar(10),create_time,120) as create_time,remote_addr,method,status_code,COUNT(*) cn
   from ${dbName}.dbo.audit_log
   where 1=1
+  <#if applicationName?has_content>and application_name=:applicationName</#if>
   <#if username?has_content>and user_name like %:username%</#if>
   <#if sessionId?has_content>and session_id = :sessionId</#if>
   <#if ip?has_content>and remote_addr = :ip</#if>
@@ -78,7 +80,7 @@ sqlserver.findAuditLogReportPage:
   <#if url?has_content>and url like %:url%</#if>
   <#if timeMin?has_content>and time_cousuming >=:timeMin</#if>
   <#if timeMax?has_content>and time_cousuming <=:timeMax</#if>
-  group by convert(nvarchar(10),create_time,120),session_id,user_name,url,method,status_code
+  group by convert(nvarchar(10),create_time,120),user_name,remote_addr,method,status_code
   <#if count?has_content>
   ) a
   <#else>
@@ -86,3 +88,13 @@ sqlserver.findAuditLogReportPage:
   order by ${orderBy}
   </#if>
   </#if>
+
+#查询黑名单,未登录用户，最近 5分钟之内变换session超过10次
+sqlserver.queryBlackIpList.in5Minutes: 
+  select remote_addr from ${dbName}.dbo.audit_log
+  where datediff(minute,create_time,GETDATE())<=5
+  <#if applicationName?has_content>and application_name=:applicationName</#if>
+  and user_name='未登录'
+  group by remote_addr
+  having COUNT(distinct session_id)>10
+  

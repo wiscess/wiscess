@@ -55,4 +55,5 @@ public class AuditAutoConfiguration implements WebMvcConfigurer{
 	public AuditControll auditControll(){
 		return new AuditControll();
 	}
+	
 }

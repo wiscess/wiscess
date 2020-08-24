@@ -1,6 +1,9 @@
 package com.wiscess.audit.jdbc;
 
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -30,8 +33,9 @@ public class Schedule {
 	private AuditProperties properties;
 	@Autowired
 	private AuditService auditService;
+	
 	//第一次延迟10秒执行，当执行完后60秒再执行
-    @Scheduled(initialDelay = 10000, fixedDelay = 30*1000)
+    @Scheduled(initialDelay = 10000, fixedDelay = 60*1000)
     @Transactional
     public void saveAuditLog() {
     	if(!properties.isEnable())
@@ -39,5 +43,17 @@ public class Schedule {
     	log.debug("batchSaveAuditLog.");
     	//执行保存方法
     	auditService.batchSave();
+    }
+    
+    /**
+     * 刷新黑名单列表
+     */
+    @Scheduled(initialDelay = 1000, fixedDelay = 60*1000)
+    public void blackIp() {
+    	if(!properties.isBlackIp())
+    		return;
+    	Map<String, Object> map=new HashMap<>();
+		//预设加入黑名单的条件
+    	auditService.refreshBlackIpList(map);
     }
 }

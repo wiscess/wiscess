@@ -3,6 +3,7 @@ package com.wiscess.common.utils;
 import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -36,9 +37,25 @@ public class RequestParamMapTypeConverter extends DefaultTypeConverter {
         if (value != null) {
 			if(value.equals(""))
 				return null;
-        	if (toType.isAssignableFrom(value.getClass()))
+			if (toType.isAssignableFrom(value.getClass()))
                 return value;
-			if (value.getClass().isArray() && !toType.isArray()) {
+			if (value.getClass().isArray() && toType.isArray()) {
+				Class componentType = toType.getComponentType();
+
+				List list=new ArrayList();
+				for(int i = 0, icount = Array.getLength(value); i < icount; i++) {
+					Object obj=convertValue(context,Array.get(value, i), componentType,df);
+					if(obj!=null) {
+						list.add(obj);
+					}
+				}
+				result = Array.newInstance(componentType, list.size());
+				for(int i=0;i<list.size();i++) {
+					Array.set(result, i, list.get(i));
+				}
+				return result;
+			}
+			else if (value.getClass().isArray() && !toType.isArray()) {
 				return convertValue(context, Array.get(value, 0), toType,df);
 			} else if (!value.getClass().isArray() && toType.isArray()) {
 				Object obj = Array.newInstance(value.getClass(), 1);

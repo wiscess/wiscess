@@ -13,6 +13,8 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.wiscess.common.R;
+import com.wiscess.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.google.code.kaptcha.Producer;
 import com.google.code.kaptcha.util.Config;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * @author audin
@@ -70,5 +73,24 @@ public class CaptchaController {
 		// against to make sure someone hasn't taken too long to enter
 		// their kaptcha
 		req.getSession().setAttribute(config.getSessionDate(), new Date());
+	}
+
+	/**
+	 * 校验验证码
+	 * @param req
+	 * @param resp
+	 * @return
+	 * @throws ServletException
+	 * @throws IOException
+	 */
+	@ResponseBody
+	@RequestMapping(value = "${app.captcha.checkurl:/js/validateCode}", method = RequestMethod.GET)
+	public R validateCode(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		String code=req.getParameter("code");
+		String savedCode=(String)req.getSession().getAttribute(config.getSessionKey());
+		Boolean result = StringUtils.isNotEmpty(code) && StringUtils.isNotEmpty(savedCode)
+				&& code.equals(savedCode);
+		return result? R.ok():
+				R.error();
 	}
 }

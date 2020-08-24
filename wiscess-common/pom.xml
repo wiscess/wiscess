@@ -3,18 +3,19 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.wiscess</groupId>
 	<artifactId>wiscess-common</artifactId>
-	<version>2.0</version>
+	<version>2.1</version>
 	<description>wiscess common package</description>
 	<name>wiscess common</name>
 	<url>http://www.wiscess.com.cn</url>
 	<properties>
 		<!-- <maven.dir>D:/GitHome/mvn-repo</maven.dir> -->
 		<distribution.url>http://42.96.168.102:8081/repository/wiscess/</distribution.url>
-		<spring-boot.version>2.2.1.RELEASE</spring-boot.version>
+		<spring-boot.version>2.2.5.RELEASE</spring-boot.version>
 		<wiscess-utils.version>2.0</wiscess-utils.version>
 		<thymeleaf.version>3.1.1.RELEASE</thymeleaf.version>
 		<java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<swagger.version>2.7.0</swagger.version>
     </properties>
     <!-- 远程发布
     <distributionManagement>
@@ -128,7 +129,7 @@
 		<dependency>
 		    <groupId>com.fasterxml.jackson.core</groupId>
 		    <artifactId>jackson-annotations</artifactId>
-		    <version>2.9.10.3</version>
+		    <version>2.9.8</version>
 		</dependency>
 	    <dependency>
 	      <groupId>org.thymeleaf</groupId>
@@ -182,6 +183,13 @@
 			<groupId>com.wiscess</groupId>
 			<artifactId>wiscess-filter</artifactId>
 			<version>2.0</version>
+		</dependency>
+		<!--swagger-->
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger2</artifactId>
+			<version>${swagger.version}</version>
+			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 </project>

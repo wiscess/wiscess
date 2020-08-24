@@ -15,6 +15,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.wiscess.common.R;
 import com.wiscess.utils.StringUtils;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +34,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  *
  */
 @Controller
+@Api(value = "CaptchaControll")
 public class CaptchaController {
 	@Autowired
 	private Producer kaptchaProducer = null;
@@ -84,6 +90,10 @@ public class CaptchaController {
 	 * @throws IOException
 	 */
 	@ResponseBody
+	@ApiOperation(value = "校验验证码")
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "code",value = "验证码",paramType = "query")
+	})
 	@RequestMapping(value = "${app.captcha.checkurl:/js/validateCode}", method = RequestMethod.GET)
 	public R validateCode(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String code=req.getParameter("code");

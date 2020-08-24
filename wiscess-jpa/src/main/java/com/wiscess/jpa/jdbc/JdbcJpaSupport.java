@@ -1,8 +1,12 @@
 package com.wiscess.jpa.jdbc;
+import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,7 +43,8 @@ import lombok.extern.slf4j.Slf4j;
 public class JdbcJpaSupport {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
-	
+
+	private static String databaseProductName="";
 	/**
 	 * 处理动态sql.
 	 * @param params
@@ -229,7 +234,7 @@ public class JdbcJpaSupport {
 		return queryForObjectByTemplate(this.jdbcTemplate, sqlName, params, requiredType);
 	}
 	public <E> Object queryForObjectByTemplate(JdbcTemplate template,String sqlName,Map<String, Object> params,Class<E> requiredType) {
-		return queryForObjectByTemplate(template, sqlName, params, new SingleColumnRowMapper<E>(requiredType));
+		return queryForObjectByTemplate(template, sqlName, params, getRowMaperByClazz(requiredType));
 	}
 	public <E> Object queryForObject(String sqlName,Map<String, Object> params,RowMapper<E> rowMapper) {
 		return queryForObjectByTemplate(this.jdbcTemplate, sqlName, params, rowMapper);
@@ -306,9 +311,33 @@ public class JdbcJpaSupport {
 		}
 		if(total>pageable.getOffset()){
 			//如果未超过总记录，则读取数据，返回List
-			content = template.query(
-					seQuery.getSql(),seQuery.getParams(),
-					new PageResultSetExtractor<E>(rm,pageable));
+			Connection con = null;// 本地库连接
+			try {
+				if(databaseProductName.equals("")) {
+					con=template.getDataSource().getConnection();
+					DatabaseMetaData md = con.getMetaData();
+					databaseProductName=md.getDatabaseProductName();
+					JdbcUtils.closeConnection(con);
+				}
+				if(databaseProductName.equalsIgnoreCase("mysql")) {
+					//如果是mysql，换用limit的方式读取内容
+					String sql=seQuery.getSql();
+					//添加limit
+					sql+=" limit "+pageable.getOffset() +","+pageable.getPageSize();
+					content=template.query(sql, seQuery.getParams(), rm);
+				}else {
+					//用原方式读取
+					content = template.query(
+							seQuery.getSql(),seQuery.getParams(),
+							new PageResultSetExtractor<E>(rm,pageable));
+				}
+			} catch (SQLException e) {
+				//按原方式查询
+				content = template.query(
+						seQuery.getSql(),seQuery.getParams(),
+						new PageResultSetExtractor<E>(rm,pageable));
+			}
+
 		}
 
 		return new PageImpl<E>(content, pageable, total);
@@ -345,11 +374,15 @@ public class JdbcJpaSupport {
 			fieldMap=fillFieldMap(fieldMap, rows);
 		}
 		//按新方法校验字段是否存在
+		String missCol="";
 		for(int i=0;i<titleRow.length;i++){
 			if(!fieldMap.containsKey(titleRow[i])){
-				errorList.add("缺少列："+titleRow[i]+";");
+				missCol+=","+titleRow[i];
 				continue;
 			}
+		}
+		if(StringUtils.isNotEmpty(missCol)) {
+			errorList.add("缺少列："+missCol.substring(1)+";");
 		}
 		if(errorList.size()>0){
 			checkResult(session, importStatus, "字段名称不正确。");
@@ -495,7 +528,6 @@ public class JdbcJpaSupport {
 	}
 	/**
 	 * 批量执行数据操作
-	 * @param sqlKey
 	 * @param list
 	 * @throws Exception 
 	 */
@@ -556,5 +588,57 @@ public class JdbcJpaSupport {
 			JdbcUtils.closeConnection(con);
 		}
 	}
-	
+	private static SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+	protected void setValue(PreparedStatement ps,int order , Object obj ,int type) throws SQLException
+	{
+		if(obj == null)
+		{
+			ps.setNull(order, type);
+			return;
+		}
+		switch (type) {
+			case Types.INTEGER:
+				ps.setInt(order , new Integer(obj.toString()));
+				break;
+			case Types.NUMERIC:
+				ps.setLong(order , new Long(obj.toString()));
+				break;
+			case Types.VARCHAR:
+				ps.setString(order, obj.toString());
+				break;
+			case Types.DATE:
+				try {
+					ps.setDate(order,new java.sql.Date(sdf.parse(obj.toString()).getTime()));
+				}catch (Exception e) {
+					ps.setNull(order, type);
+				}
+				break;
+			case Types.TIMESTAMP:
+				try {
+					ps.setTimestamp(order,new java.sql.Timestamp(sdf.parse(obj.toString()).getTime()));
+				}catch (Exception e) {
+					ps.setNull(order, type);
+				}
+				break;
+			case Types.DOUBLE:
+				ps.setDouble(order, new Double(obj.toString()));
+				break;
+			case Types.FLOAT:
+				ps.setFloat(order, new Float(obj.toString()));
+				break;
+			case Types.SMALLINT:
+				ps.setShort(order, new Short(obj.toString()));
+				break;
+			case Types.BOOLEAN:
+				ps.setBoolean(order, new Boolean(obj.toString()));
+				break;
+			case Types.DECIMAL:
+				ps.setBigDecimal(order, new BigDecimal(obj.toString()));
+				break;
+			default:
+				break;
+		}
+	}
+
 }

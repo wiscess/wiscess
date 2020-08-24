@@ -20,8 +20,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class SqlMap implements IQueryProvider{
+	@Builder.Default
 	private Map<String, String> sqls = new HashMap<>();
 
+	@Override
 	public String getQuery(String name) {
 		return sqls.get(name);
 	}

@@ -43,7 +43,8 @@ public class ObjectRowMapper<T> implements RowMapper<T> {
 			propertyNames = new String[columnCount+1];// 数组第一个不用
 			setterMethodNames = new String[columnCount+1];// 数组第一个不用
 			for (int i = 1; i <= columnCount; i++) {
-				String columnName = meta.getColumnName(i);
+//				String columnName = meta.getColumnName(i);
+				String columnName=meta.getColumnLabel(i);
 				String propertyName = JdbcUtils.convertUnderscoreNameToPropertyName(columnName);
 				String setterMethodName = "set"+propertyName.substring(0, 1).toUpperCase()+propertyName.substring(1);
 				propertyNames[i] = propertyName;

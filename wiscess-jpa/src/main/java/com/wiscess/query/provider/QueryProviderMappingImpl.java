@@ -13,8 +13,10 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class QueryProviderMappingImpl implements IQueryProvider {
+	@Builder.Default
 	private Map<String, String> queryMap = new HashMap<String, String>();
 
+	@Override
 	public String getQuery(String name) {
 		return queryMap.get(name);
 	}

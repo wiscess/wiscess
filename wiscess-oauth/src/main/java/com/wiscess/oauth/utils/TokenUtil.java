@@ -44,7 +44,7 @@ public class TokenUtil {
 
 	@Value("${security.oauth.maxOnlineUser:-1}")
 	public void setMaxOnlineUser(Long maxOnlineUser) {
-		this.maxOnlineUser=maxOnlineUser;
+		TokenUtil.maxOnlineUser=maxOnlineUser;
 	}
 	
 	/**

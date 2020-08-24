@@ -11,7 +11,7 @@
 		<!-- <maven.dir>D:/GitHome/mvn-repo</maven.dir> -->
 		<distribution.url>http://42.96.168.102:8081/repository/wiscess/</distribution.url>
 		<spring-boot.version>2.2.5.RELEASE</spring-boot.version>
-		<wiscess.version>2.0</wiscess.version>
+		<wiscess.version>2.1</wiscess.version>
 		<swagger.version>2.7.0</swagger.version>
 		<java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -96,11 +96,6 @@
 			<artifactId>wiscess-jpa</artifactId>
 			<version>${wiscess.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>com.wiscess</groupId>
-			<artifactId>wiscess-vue</artifactId>
-			<version>2.0</version>
-		</dependency>
     	<dependency>
     		<groupId>org.springframework.security</groupId>
     		<artifactId>spring-security-core</artifactId>
@@ -115,13 +110,6 @@
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt</artifactId>
 			<version>0.9.1</version>
-		</dependency>
-		<!--swagger-->
-		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-swagger2</artifactId>
-			<version>${swagger.version}</version>
-			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 </project>

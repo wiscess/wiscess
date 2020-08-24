@@ -387,7 +387,6 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
     /**
      * 配置Jwt方式默认的登出的处理
      */
-    @Bean
     public LogoutSuccessHandler jwtLogoutSuccessHandler() {
     	if(logoutSuccessHandler==null) {
     		logoutSuccessHandler=new DefaultJwtLogoutSuccessHandler();
@@ -397,7 +396,6 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
     /**
      * 配置Vue方式默认的登出的处理
      */
-    @Bean
     public LogoutSuccessHandler vueLogoutSuccessHandler() {
     	if(logoutSuccessHandler==null) {
     		logoutSuccessHandler=new DefaultJwtLogoutSuccessHandler();

@@ -21,6 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
 
+import javax.annotation.Priority;
+
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.cache.annotation.EnableCaching;
@@ -46,6 +48,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 @EnableCaching
 @Slf4j
+@Priority(-1000)
 public class RedisConfig extends CachingConfigurerSupport {
     @Bean(name = "stringRedisTemplate")
     public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory factory) {
@@ -54,7 +57,6 @@ public class RedisConfig extends CachingConfigurerSupport {
         return new StringRedisTemplate(factory);
     }
     @Primary
-    @SuppressWarnings("deprecation")
 	@Bean(name = "redisTemplate")
     public RedisTemplate<String, Serializable> redisTemplate(RedisConnectionFactory factory) {
     	log.info("Redis配置完成。");
@@ -88,7 +90,6 @@ public class RedisConfig extends CachingConfigurerSupport {
      * @param factory
      * @return
      */
-    @SuppressWarnings("deprecation")
 	@Bean
     @Primary
     public CacheManager cacheManager(RedisConnectionFactory factory) {

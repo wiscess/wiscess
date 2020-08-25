@@ -6,20 +6,25 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.Priority;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import com.alibaba.fastjson.JSONArray;
+import com.wiscess.redis.configuration.RedisConfig;
 import com.wiscess.utils.JsonUtils;
 import com.wiscess.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@AutoConfigureAfter(RedisConfig.class)
+@Priority(-900)
 public class RedisUtils {
 
-//    @Autowired(required=true)
     private static RedisTemplate<String, Object> redisTemplate;
     
     @Autowired

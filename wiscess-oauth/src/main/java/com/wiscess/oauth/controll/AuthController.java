@@ -24,12 +24,17 @@ import com.wiscess.oauth.delegate.OAuth2LogoutDelegate;
 import com.wiscess.oauth.utils.TokenEntity;
 import com.wiscess.oauth.utils.TokenUtil;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * 自定义Oauth2获取令牌接口
  * Created by macro on 2020/7/17.
  */
+@Api(value = "Oauth登录登出接口",tags = "Oauth登录登出接口")
 @Slf4j
 @RestController
 @RequestMapping("/oauth")
@@ -46,10 +51,20 @@ public class AuthController {
 	
 	@Autowired(required = false)
 	private OAuth2LogoutDelegate logoutDelegate;
+	
     /**
      * Oauth2登录认证
      */
     @RequestMapping(value = "/token", method = {RequestMethod.GET,RequestMethod.POST})
+	@ApiOperation(value = "Oauth2登录")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "client_id",value = "客户端id",paramType = "query"),
+		@ApiImplicitParam(name = "client_secret",value = "客户端密码",paramType = "query"),
+		@ApiImplicitParam(name = "grant_type",value = "授权模式",paramType = "query"),
+		@ApiImplicitParam(name = "username",value = "用户名",paramType = "query"),
+		@ApiImplicitParam(name = "password",value = "密码",paramType = "query"),
+		@ApiImplicitParam(name = "refresh_token",value = "RefreshToke",paramType = "query")
+	})
     public R postAccessToken(Principal principal, @RequestParam Map<String, String> parameters) throws HttpRequestMethodNotSupportedException {
         //调用原oauth/token的方法，获取token的内容
     	OAuth2AccessToken oAuth2AccessToken = tokenEndpoint.postAccessToken(principal, parameters).getBody();
@@ -91,6 +106,10 @@ public class AuthController {
     }
     
     @RequestMapping(value = "/logout", method = {RequestMethod.GET,RequestMethod.POST})
+	@ApiOperation(value = "Oauth2登出")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "access_token",value = "accessToken",paramType = "query")
+	})
     public R oauthLogout(HttpServletRequest request,@RequestParam("access_token")String accessToken) throws HttpRequestMethodNotSupportedException {
 		//认证成功后，用redis记录当前用户的token信息
 		String clientId = defaultTokenServices.getClientId(accessToken);

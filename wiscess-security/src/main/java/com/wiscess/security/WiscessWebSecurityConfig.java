@@ -9,7 +9,6 @@ import java.util.Set;
 import com.wiscess.security.jwt.DefaultUserMapRepository;
 import com.wiscess.security.jwt.DefaultJwtLoginSuccessHandler;
 import com.wiscess.security.jwt.DefaultJwtLogoutSuccessHandler;
-import com.wiscess.security.jwt.JwtAuthenticationTokenFilter;
 import com.wiscess.security.jwt.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -149,7 +148,7 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
 			.xssProtection()
 			.and()
 			.frameOptions()
-				.sameOrigin();
+				.disable();
 		//排除Csrf路径
 		if(this.wiscessSecurityProperties.getExecludeUrls()!=null && this.wiscessSecurityProperties.getExecludeUrls().size()>0){
 			http.csrf().ignoringAntMatchers(this.wiscessSecurityProperties.getExecludeUrls().toArray(new String[0]));
@@ -269,10 +268,10 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
 		}
 		myConfigure(http);
 	}
-	@Bean
-	public JwtAuthenticationTokenFilter authenticationTokenFilterBean() throws Exception {
-		return new JwtAuthenticationTokenFilter();
-	}
+//	@Bean
+//	public JwtAuthenticationTokenFilter authenticationTokenFilterBean() throws Exception {
+//		return new JwtAuthenticationTokenFilter();
+//	}
     /**
      * session监听器，监听session的创建和销毁的代码
      * @return

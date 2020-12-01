@@ -35,8 +35,8 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
 	@Autowired(required=false)
 	public UserRepository userRepository;
-	
-    @Resource
+
+    @Autowired(required=false)
     private JwtTokenUtils jwtTokenUtils;
 
     private String tokenHeader = "Authorization";
@@ -66,7 +66,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
                 //从已有的user缓存中取了出user信息
                 UserDetails user = userDetailsService.loadUserByUsername(username);
                 
-                String cacheUsername=(String)userRepository.findByToken(jwtToken);
+                String cacheUsername=userRepository.findByToken(jwtToken);
                 
                 //检查token是否有效
                 if (jwtTokenUtils.validateToken(jwtToken, user) && cacheUsername!=null && cacheUsername.equals(username)) {

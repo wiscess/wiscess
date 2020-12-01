@@ -57,7 +57,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter{
     	log.info("认证资源路径：{}",oauthProperties.getResources().getAuthPrefix());
     	//启用跨域支持
     	http.cors();
-      
+      	http.headers().frameOptions().disable();
     	http.requestMatchers()
             	.antMatchers(oauthProperties.getResources().getAuthPrefix())
             	.and()

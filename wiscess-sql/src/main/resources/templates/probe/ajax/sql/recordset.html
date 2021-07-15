@@ -1,0 +1,56 @@
+<div id="sqlResultsContainer">
+	<div id="rs_error" class="errorMessage" th:if="${not #strings.isEmpty(errorMessage)}">
+		<p>[[${errorMessage}]]</p>
+	</div>
+
+	<th:block th:if="${not #lists.isEmpty(results)}">
+		<script type="text/javascript" th:inline="javascript">
+				kkpager.generPageHtml({
+				    pno : '[[${pageNumber}]]',
+				    //总页码  
+				    total :  '[[${totalPage}]]',
+				    //总数据条数  
+				    totalRecords : '[[${totalCount}]]',
+					pageRecords  :  '[[${pageRecord}]]',
+					isShowPageRecord    : false, //是否显示每页记录数
+//					isGoPage 			: false,	//是否显示页码跳转输入框
+				    //设置为click模式
+				    mode : 'click',
+				    //点击页码、页码输入框跳转、以及首页、下一页等按钮都会调用click
+				    //适用于不刷新页面，比如ajax
+				    click : function(n){
+				    	var href=[[@{/sql/cachedRecordset.ajax?pageNo=}]]+n;
+						Element.show(ajaxActivityId);
+						Element.show(resultsH3Id);
+						var p = Form.serialize(formId);
+						new Ajax.Updater(sqlOutputDivId, href, {
+							method: 'post',
+							postBody: p,
+							evalScripts: true,
+							onComplete: setupPaginationLinks
+						});
+						return false;
+				    }
+				},true);//true表示重新刷新分页控件的数据
+		</script>
+		<table cellpadding="0" cellspacing="0" id="sqlResultTbl" class="genericTbl table" th:with="min=${(pageNumber-1)*pageRecord},max=${pageNumber*pageRecord}">
+			<thead>
+				<tr th:each="obj,i:${results }" th:if="${i.index==0 }">
+					<th th:each="row:${obj}">[[${row.key}]]</th>
+				</tr>
+			<thead>
+			<tbody>
+				<tr th:each="obj,i:${results }" th:class="${i.odd}?'odd':'even'"  th:if="${i.index>=min and i.index<max }">
+					<td th:each="row:${obj}">[[${row.value}]]</td>
+				</tr>
+			</tbody>
+		</table>
+	</th:block>
+	<div id="rs_empty" class="infoMessage" th:if="${#lists.isEmpty(results) and  #strings.isEmpty(errorMessage)}">
+		<p>
+			Statement completed.
+			[[${rowsAffected}]] record(s) affected.
+		</p>
+	</div>
+			
+</div>

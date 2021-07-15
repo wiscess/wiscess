@@ -1,0 +1,8 @@
+<ul th:if="${not #lists.isEmpty(queryHistory)}">
+	<li th:each="obj,i:${queryHistory }">
+		<a th:href="@{'/sql/queryHistoryItem.ajax?sqlId='+${i.index}}" onClick="getQueryHistoryItem(this); return false;">
+			<span style="display: block" th:utext="${obj }"></span>
+		</a>
+	</li>
+</ul>
+<div id="historyEmpty" th:if="${#lists.isEmpty(queryHistory)}">The history list is empty</div>

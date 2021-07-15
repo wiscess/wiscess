@@ -1,0 +1,168 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:app="http://www.thymeleaf.org" >
+
+	<head>
+		<title>datasourcetest</title>
+
+		<link type="image/gif" rel="shortcut icon" th:href="@{/probe/css/favicon.gif}"/>
+		<link type="text/css" rel="stylesheet" th:href="@{/probe/css/classic/tables.css}"/>
+		<link type="text/css" rel="stylesheet" th:href="@{/probe/css/classic/main.css}"/>
+		<link type="text/css" rel="stylesheet" th:href="@{/probe/css/classic/messages.css}"/>
+		<link type="text/css" rel="stylesheet" th:href="@{/probe/css/classic/tooltip.css}"/>
+		
+		<link type="text/css" rel="stylesheet" th:href="@{/probe/css/classic/datasourcetest.css}"/>
+		<link type="text/css" rel="stylesheet" th:href="@{/probe/css/classic/scroller.css}"/>
+		
+		<script type="text/javascript" th:src="@{/probe/js/prototype.js}"></script>
+		<script type="text/javascript" th:src="@{/probe/js/behaviour.js}"></script>
+		<script type="text/javascript" th:src="@{/probe/js/scriptaculous/scriptaculous.js}"></script>
+		<script type="text/javascript" th:src="@{/probe/js/func.js}"></script>
+		<script type="text/javascript" th:src="@{/probe/js/areascroller.js}"></script>
+		<script type="text/javascript" th:src="@{/probe/js/jsencrypt.min.js}"></script>
+		<script type="text/javascript" th:src="@{/probe/js/datasourcetest.js}"></script>
+		
+		<script type="text/javascript" th:src="@{/probe/js/jquery.min.js}"></script>
+		<script type="text/javascript" th:src="@{/probe/js/kkpaper/js/kkpager.js}" ></script>
+		<link th:href="@{/probe/js/kkpaper/css/kkpager_blue.css}" rel="stylesheet" type="text/css" />
+		<script type="text/javascript" th:src="@{/probe/js/clipboard.min.js}" ></script>
+	</head>
+	<body>
+		[[${ip}]]
+		<div class="dataSourceTestMenu">
+			<ul class="options">
+				<li id="connect">
+					<a href="#">
+						Test connection
+					</a>
+				</li>
+				<li id="executeSql">
+					<a href="#">
+						Execute sql (Ctrl+Enter)
+					</a>
+				</li>
+				<li id="showHistory">
+					<a href="#">
+						Show history (Ctrl+Down)
+					</a>
+				</li>
+				<li id="hideHistory" style="display: none;">
+					<a href="#">
+						Hide history (Ctrl+Down)
+					</a>
+				</li>
+				<li id="showOptions">
+					<a href="#">
+						Show options (Ctrl+Up)
+					</a>
+				</li>
+				<li id="hideOptions" style="display: none;">
+					<a href="#">
+						Hide options (Ctrl+Up)
+					</a>
+				</li>
+			</ul>
+		</div>
+
+		<div class="dataSourceTestContent">
+			<div id="help" class="helpMessage" style="display: none;">
+				<div class="ajax_activity"></div>
+			</div>
+
+			<form id="sqlForm" action="" method="post">
+				<dl id="sqlDL">
+					<dt><label for="sql">Sql (auto-commit enabled)</label></dt>
+					<dd id="sqlContainer">
+						<input type="hidden" id="sqlEncrypt" name="sql"/>
+						<textarea id="sql" rows="5" cols="80"></textarea>
+						<div id="sqlDragHandle">&#160;</div>
+					</dd>
+				</dl>
+				<dl id="optionsDL" style="display: none;">
+					<dt><label for="maxRows">查询最大记录数</label></dt>
+					<dd><input type="text" id="maxRows" name="maxRows" class="txtInput" th:value="${maxRows}" value="100" size="6"></dd>
+					<dt><label for="rowsPerPage">每页记录数</label></dt>
+					<dd><input type="text" id="rowsPerPage" name="rowsPerPage" class="txtInput" th:value="${rowsPerPage}" value="10" size="6"></dd>
+					<dt><label for="historySize">查询历史数</label></dt>
+					<dd><input type="text" id="historySize" name="historySize" class="txtInput" th:value="${historySize}" value="10" size="6"></dd>
+					<dt><label for="isEncrypt">是否加密传输</label></dt>
+					<dd>
+					<input type="radio" id="isEncrypt0" name="isEncrypt" th:value="0" th:checked="${isEncrypt==0}" >否
+					<input type="radio" id="isEncrypt1" name="isEncrypt" th:value="1" th:checked="${isEncrypt==1}" >是</dd>
+				</dl>
+			</form>
+			<div id="queryHistoryContainer" style="display: none;">
+				<h3 id="queryHistoryH3">查询历史</h3>
+				<ul class="options">
+					<li id="wrap" style="display: none;">
+						<a href="#">自动换行</a>
+					</li>
+					<li id="nowrap" style="display: none;">
+						<a href="#">不自动换行</a>
+					</li>
+				</ul>
+				<div id="queryHistoryBorder">
+					<div id="queryHistoryHolder"></div>
+					<div id="historyDragHandle" style="position: relative;">&nbsp;</div>
+				</div>
+			</div>
+
+			<div id="sqlResultsHeader">
+				<h3 id="metaDataH3" style="display: none;">Database Info</h3>
+				<h3 id="resultsH3" style="display: none;">Query results</h3>
+
+				<div id="ajaxActivity" class="ajax_activity" style="display: none;"></div>
+			</div>
+
+			<div id="sqlResultsWrapper" style="display: none;">
+				<input id="copyBtn" type="button" value="复制表格"  class="copy_btn" data-clipboard-target="#sqlResultTbl">
+				<div id="kkpager" class="kkpager" style="width: 97%;"></div>
+				<table id="resultsTable" style="border-spacing:0;border-collapse:separate;">
+					<tr>
+						<td id="left_scroller" class="scroller" style="display: none;">&#160;</td>
+						<td id="separator" width="1%" style="display: none;">&#160;</td>
+						<td><div id="outputHolder"></div></td>
+						<td id="right_scroller" class="scroller" style="display: none;">&#160;</td>
+					</tr>
+				</table>
+			</div>
+
+		</div>
+
+		<script type="text/javascript" th:inline="javascript" >
+			var $j = jQuery.noConflict();
+			setupAjaxActions(
+					[[@{/sql/connection.ajax}]],
+					[[@{/sql/recordset.ajax}]],
+					[[@{/sql/queryHistory.ajax}]]);
+			setupShortcuts();
+//			setupHelpToggle('<c:url value="/help/datasourcetest.ajax"/>');
+			new Draggable('sqlDragHandle', {
+				constraint: 'vertical',
+				change: resizeTextArea,
+				revert: revertDragHandle
+			});
+			new Draggable('historyDragHandle', {
+				constraint: 'vertical',
+				change: resizeQueryHistory,
+				revert: revertDragHandle
+			});
+			setupScrollers('sqlResultsContainer');
+
+			var clipboard = new ClipboardJS('.copy_btn');
+	        clipboard.on('success', function(e) {
+	                e.clearSelection();
+	                alert("复制成功");
+            });
+
+            clipboard.on('error', function(e) {
+                alert(e);
+                console.log(e);
+            });
+			
+			$('sql').focus();
+		</script>
+
+	</body>
+
+</html>

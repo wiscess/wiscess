@@ -1,0 +1,42 @@
+<div id="sqlResultsContainer">
+
+	<div class="errorMessage" th:if="${not #strings.isEmpty(errorMessage)}">
+		<p>[[${errorMessage}]]</p>
+	</div>
+
+	<div id="dbMetaData" class="sqlResultsContainer" th:if="${not #lists.isEmpty(dbMetaData)}">
+		<table class="genericTbl table"
+			style="padding: 0; border-spacing: 0; border-collapse: separate;"
+			id="row">
+			<thead>
+				<tr>
+					<th>Property Name</th>
+					<th>Property Value</th>
+				</tr>
+			</thead>
+			<tbody th:remove="all-but-first" >
+				<tr th:each="obj,i:${dbMetaData }" th:class="${i.odd}?'odd':'even'">
+					<td class="leftmost">[[${obj.propertyName }]]</td>
+					<td>[[${obj.propertyValue }]]</td>
+				</tr>
+				<tr class="even">
+					<td class="leftmost">Database Product Version</td>
+					<td>10.50.1600</td>
+				</tr>
+				<tr class="odd">
+					<td class="leftmost">JDBC Driver Name</td>
+					<td>Microsoft SQL Server JDBC Driver 3.0</td>
+				</tr>
+				<tr class="even">
+					<td class="leftmost">JDBC Driver Version</td>
+					<td>3.0.1301.101</td>
+				</tr>
+				<tr class="odd">
+					<td class="leftmost">JDBC Version</td>
+					<td>4</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+</div>

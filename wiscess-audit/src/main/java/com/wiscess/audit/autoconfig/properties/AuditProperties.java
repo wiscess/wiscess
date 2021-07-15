@@ -116,7 +116,7 @@ public class AuditProperties {
 	}
 
 	public boolean isBlackIp() {
-		return blackIp;
+		return enable && blackIp;
 	}
 
 	public void setBlackIp(boolean blackIp) {

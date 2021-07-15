@@ -126,6 +126,6 @@ public class AuditControll {
 			}
 			return sort;
 		}
-		return null;
+		return Sort.unsorted();
 	}
 }

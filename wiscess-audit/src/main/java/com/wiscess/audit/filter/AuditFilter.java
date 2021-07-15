@@ -42,7 +42,7 @@ public class AuditFilter extends OncePerRequestFilter implements OrderedFilter{
 	/**
 	 * 默认静态资源文件
 	 */
-	private static String[] DEFAULT_IGNORES="/css/**,/js/**,/images/**,/webjars/**,/**/favicon.ico,/captcha.jpg,/accessdenied,/error,/deny".split(",");
+	private static String[] DEFAULT_IGNORES="/css/**,/js/**,/bower_components/**,/less/**,/images/**,/img/**,/webjars/**,/**/favicon.ico,/captcha.jpg,/accessdenied,/error,/deny,/audit/list,/audit/report".split(",");
 	/**
 	 * 排除的资源
 	 */

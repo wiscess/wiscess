@@ -137,14 +137,17 @@ public class AuditService extends JdbcJpaSupport{
 		String queryString=request.getQueryString();
 		if(StringUtils.isNotEmpty(queryString)) {
 			url+="?"+queryString;
+			if(url.length()>2000){
+				url=url.substring(0,2000);
+			}
 		}
-		AuditLog log=AuditLog.builder()	
+		AuditLog log=AuditLog.builder()
 				.applicationName(applicationName)
 				.userId(getAttribute(session,"userId","-1"))
 				.userName(getCurrentUser(session, "未登录"))
 				.method(request.getMethod())
 				.url(url)
-				.remoteAddr(request.getRemoteAddr())
+				.remoteAddr(getIpAddress(request))
 				.sessionId(request.getSession().getId())
 				.parameters(getParameter(request,simples))
 				.createTime(new Timestamp(System.currentTimeMillis()))
@@ -188,7 +191,30 @@ public class AuditService extends JdbcJpaSupport{
 	private String getAttribute(HttpSession session,String attr,String defaultValue) {
 		return session.getAttribute(attr)==null?defaultValue:session.getAttribute(attr).toString();
 	}
-	
+	private String getIpAddress(HttpServletRequest request){
+		String ip = "";
+		try {
+			ip = request.getHeader("x-real-ip");
+			if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+				ip = request.getHeader("x-original-forwarded-for");
+				if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+					ip = request.getRemoteAddr();
+				}
+			} else if (ip.length() > 15) {
+				String[] ips = ip.split(",");
+				for (int index = 0; index < ips.length; index++) {
+					String strIp = (String) ips[index];
+					if (!("unknown".equalsIgnoreCase(strIp))) {
+						ip = strIp;
+						break;
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return ip;
+	}
 	/**
 	 * 获取当前登录用户
 	 * @param session

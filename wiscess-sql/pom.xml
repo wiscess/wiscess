@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.wiscess</groupId>
   <artifactId>wiscess-sql</artifactId>
-  <version>1.0</version>
+  <version>1.1</version>
 	<!-- pom通用模板 -->
 	<properties>
 		<!-- 自定义组件，需定义上传地址，普通项目可不用 -->

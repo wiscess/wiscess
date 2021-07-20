@@ -70,32 +70,35 @@ public class NoServiceUtil {
     	LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, zone);
     	return localDateTime.toLocalDate();
     }
-
-    public static String getIpAddress(HttpServletRequest request){     
-    	 String ip = "";
- 		try {
-// 			ip = request.getHeader("X-Forwarded-For");
- 			ip = request.getHeader("x-real-ip");
- 			if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
- 			    ip = request.getHeader("x-original-forwarded-for");
- 			    if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
- 			        ip = request.getRemoteAddr();
- 			    }
- 			} else if (ip.length() > 15) {
- 			    String[] ips = ip.split(",");
- 			    for (int index = 0; index < ips.length; index++) {
- 			        String strIp = (String) ips[index];
- 			        if (!("unknown".equalsIgnoreCase(strIp))) {
- 			            ip = strIp;
- 			            break;
- 			        }
- 			    }
- 			}
- 		} catch (Exception e) {
- 			e.printStackTrace();
- 		}
-        return ip;     
-    }
+	/**
+	 * 获取用户真实ip
+	 * @param request
+	 * @return
+	 */
+	public static String getIpAddress(HttpServletRequest request){
+		String ip = "";
+		try {
+			ip = request.getHeader("x-real-ip");
+			if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+				ip = request.getHeader("x-original-forwarded-for");
+				if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+					ip = request.getRemoteAddr();
+				}
+			} else if (ip.length() > 15) {
+				String[] ips = ip.split(",");
+				for (int index = 0; index < ips.length; index++) {
+					String strIp = (String) ips[index];
+					if (!("unknown".equalsIgnoreCase(strIp))) {
+						ip = strIp;
+						break;
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return ip;
+	}
 
 	public static Object getCurrDate() {
         SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd");
@@ -306,30 +309,30 @@ public class NoServiceUtil {
 	 * @param obj
 	 * @return
 	 */
-	public static Object deepClone(Object obj){
-        //将对象写入流中
-        ByteArrayOutputStream bao=new ByteArrayOutputStream();
-        ObjectOutputStream oos= null;
-        try {
-            oos = new ObjectOutputStream(bao);
-            oos.writeObject(obj);
- 
- 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        //将对象从流中取出
-        ByteArrayInputStream bis=new ByteArrayInputStream(bao.toByteArray());
-        ObjectInputStream ois= null;
-        try {
-            ois = new ObjectInputStream(bis);
-            return ois.readObject();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
- 
-    }
+	public static Object deepClone(Object obj) {
+		//将对象写入流中
+		ByteArrayOutputStream bao = new ByteArrayOutputStream();
+		ObjectOutputStream oos = null;
+		try {
+			oos = new ObjectOutputStream(bao);
+			oos.writeObject(obj);
+
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		//将对象从流中取出
+		ByteArrayInputStream bis = new ByteArrayInputStream(bao.toByteArray());
+		ObjectInputStream ois = null;
+		try {
+			ois = new ObjectInputStream(bis);
+			return ois.readObject();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		return null;
+
+	}
 }

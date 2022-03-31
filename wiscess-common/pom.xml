@@ -10,7 +10,7 @@
 	<properties>
 		<!-- <maven.dir>D:/GitHome/mvn-repo</maven.dir> -->
 		<distribution.url>http://42.96.168.102:8081/repository/wiscess/</distribution.url>
-		<spring-boot.version>2.2.5.RELEASE</spring-boot.version>
+		<spring-boot.version>2.5.12</spring-boot.version>
 		<wiscess-utils.version>2.0</wiscess-utils.version>
 		<thymeleaf.version>3.1.1.RELEASE</thymeleaf.version>
 		<java.version>1.8</java.version>

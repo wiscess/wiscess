@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
+import com.wiscess.redis.utils.RedisUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
@@ -60,7 +61,6 @@ public class RedisConfig extends CachingConfigurerSupport {
 	@Bean(name = "redisTemplate")
     public RedisTemplate<String, Serializable> redisTemplate(RedisConnectionFactory factory) {
     	log.info("Redis配置完成。");
-    	
     	RedisTemplate<String, Serializable> redisTemplate = new RedisTemplate<>();
     	redisTemplate.setKeySerializer(new StringRedisSerializer());
          //redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
@@ -74,7 +74,7 @@ public class RedisConfig extends CachingConfigurerSupport {
          // 解决jackson2无法反序列化LocalDateTime的问题
          om.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
          om.registerModule(new JavaTimeModule());
-         om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+        om.activateDefaultTyping(om.getPolymorphicTypeValidator(), ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
          j2jrs.setObjectMapper(om);
          // 序列化 value 时使用此序列化方法
          redisTemplate.setValueSerializer(j2jrs);
@@ -84,6 +84,11 @@ public class RedisConfig extends CachingConfigurerSupport {
         return redisTemplate;
     }
 
+    @Bean(name = "redisUtils")
+    public RedisUtils redisUtils(RedisTemplate<?, ?> redisTemplate){
+        log.info("RedisUtils配置完成。");
+        return new RedisUtils(redisTemplate);
+    }
     /**
      * 解决持久化乱码问题，在redistemlate中指定了持久化的策略
      *
@@ -97,7 +102,7 @@ public class RedisConfig extends CachingConfigurerSupport {
         Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<Object>(Object.class);
         ObjectMapper objectMapper = new ObjectMapper();
         // 此项必须配置，否则会报java.lang.ClassCastException: java.util.LinkedHashMap cannot be cast to XXXX
-        objectMapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+        objectMapper.activateDefaultTyping(objectMapper.getPolymorphicTypeValidator(), ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
         jackson2JsonRedisSerializer.setObjectMapper(objectMapper);
         // 配置序列化
         RedisCacheConfiguration defaultCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()

@@ -159,7 +159,7 @@ public class WisRedissionConfiguration {
     }
 
     private String prefixAddress(String address){
-        if(!StringUtils.isEmpty(address)&&!address.startsWith("redis")){
+        if(StringUtils.hasText(address)&&!address.startsWith("redis")){
             return "redis://"+address;
         }
         return address;

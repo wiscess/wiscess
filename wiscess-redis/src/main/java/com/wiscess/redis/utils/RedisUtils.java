@@ -1,39 +1,39 @@
 package com.wiscess.redis.utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import javax.annotation.Priority;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.alibaba.fastjson2.JSON;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
 
-import com.alibaba.fastjson.JSONArray;
 import com.wiscess.redis.configuration.RedisConfig;
 import com.wiscess.utils.JsonUtils;
 import com.wiscess.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 
 @Slf4j
+@Configuration
 @AutoConfigureAfter(RedisConfig.class)
-@Priority(-900)
+@Priority(-999)
 public class RedisUtils {
 
     private static RedisTemplate<String, Object> redisTemplate;
     
-    @Autowired
-	private ApplicationContext context;
-	
-	@SuppressWarnings("unchecked")
-	@Autowired
-	public void init() {
-		redisTemplate=context.getBean(RedisTemplate.class);
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public RedisUtils(RedisTemplate _redisTemplate) {
+		RedisUtils.redisTemplate=_redisTemplate;
 	}
 	/**
 	 * 设置字符串缓存
@@ -167,7 +167,7 @@ public class RedisUtils {
 		try {
 			Object obj=redisTemplate.opsForValue().get(key);
 			if(obj!=null) {
-				return (List<?>)JSONArray.parseArray((String)obj, clazz);
+				return (List<?>) JSON.parseArray((String)obj, clazz);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -178,7 +178,6 @@ public class RedisUtils {
 	/**
 	 * 设置Object
 	 * @param key
-	 * @param list
 	 */
 	public static void setObject(String key,Object obj) {
 		try {
@@ -251,8 +250,8 @@ public class RedisUtils {
     	return  redisTemplate.opsForList().leftPop(key);
     }
     
-	public static <T> List<T> range(String key,long begin,long end){
-		 return (List<T>)redisTemplate.opsForList().range(key, begin, end);
+	public static List<?> range(String key,long begin,long end){
+		 return (List<?>)redisTemplate.opsForList().range(key, begin, end);
 	}
 
 	/**
@@ -269,4 +268,56 @@ public class RedisUtils {
     	}
     	return list;
     }
+	/**
+	 * 尝试获取分布式锁
+	 */
+	public static Boolean lock(String key, String value, Long expireSeconds) {
+		// 判断是不是可以加锁成功
+		if (redisTemplate.opsForValue().setIfAbsent(key, value, expireSeconds, TimeUnit.SECONDS)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	/**
+	 * 解锁
+	 * @param key
+	 * @param value
+	 */
+	public static void unlock(String key, String value) {
+		String lua = "if redis.call(\"get\",KEYS[1]) == ARGV[1]\n" +
+				"then\n" +
+				"    return redis.call(\"del\",KEYS[1])\n" +
+				"else\n" +
+				"    return 0\n" +
+				"end";
+		DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>(lua,Long.class);
+		redisScript.setScriptText(lua);
+		redisTemplate.execute(redisScript, Collections.singletonList(key), value);
+	}
+
+	/**
+	 * 锁定并执行后解锁
+	 * @param key
+	 * @param expireSeconds
+	 * @param action
+	 */
+	public static void lockAction(String key, Long expireSeconds, Consumer<Long> action) {
+		String value= UUID.randomUUID().toString();
+		/**
+		 * 调用Redis锁定资源，设定超时时间，并执行代码段
+		 */
+		if(RedisUtils.lock(key, value, expireSeconds)) {
+			try {
+				action.accept(expireSeconds);
+			}catch(Exception e) {
+				e.printStackTrace();
+			}finally {
+				/**
+				 * 执行完解锁资源
+				 */
+				RedisUtils.unlock(key, value);
+			}
+		}
+	}
 }

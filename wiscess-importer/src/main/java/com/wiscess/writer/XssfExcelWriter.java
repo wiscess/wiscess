@@ -1,4 +1,4 @@
-package com.wiscess.reader;
+package com.wiscess.writer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,16 +13,17 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  * @date 2021-04-18
  *
  */
-public class XssfExcelReader extends ExcelReader{
+public class XssfExcelWriter extends ExcelWriter{
 	
 	/**
 	 * 打开文件
 	 * @param input
 	 * @throws IOException
 	 */
-	public XssfExcelReader(InputStream input) throws IOException {
+	public XssfExcelWriter(InputStream input) throws IOException {
 		wb = new XSSFWorkbook(input);
 		ev = new XSSFFormulaEvaluator((XSSFWorkbook)wb);
+		input.close();
 	}
 	
 } 

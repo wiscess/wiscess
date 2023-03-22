@@ -1,4 +1,4 @@
-package com.wiscess.reader;
+package com.wiscess.writer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,16 +14,17 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
  * @date 2021-04-18
  *
  */
-public class HssfExcelReader extends ExcelReader{
+public class HssfExcelWriter extends ExcelWriter{
 	
 	/**
 	 * 打开文件
 	 * @param input
 	 * @throws IOException
 	 */
-	public HssfExcelReader(InputStream input) throws IOException {
+	public HssfExcelWriter(InputStream input) throws IOException {
 		wb = new HSSFWorkbook(new POIFSFileSystem(input));
 		ev = new HSSFFormulaEvaluator((HSSFWorkbook) wb);
+		input.close();
 	}
 
 } 

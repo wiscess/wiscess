@@ -52,7 +52,7 @@ public class ExportUtil {
 		//输出到浏览器
 		filename=filename.substring(filename.lastIndexOf("\\")+1);
 		res.setContentType(getContentType(filename));
-		res.setHeader("Content-Disposition", "attachment; filename="
+		res.setHeader("Content-Disposition", "attachment; filename* = UTF-8''"
 				+ FileUtils.encodingFileName(filename));
 		res.setCharacterEncoding("utf-8");
 		res.setHeader("FileName", FileUtils.encodingFileName(filename));

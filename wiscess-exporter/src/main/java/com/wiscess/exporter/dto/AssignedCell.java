@@ -3,6 +3,7 @@ package com.wiscess.exporter.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import org.apache.poi.ss.util.CellAddress;
 
 import java.io.Serializable;
 
@@ -40,8 +41,13 @@ public class AssignedCell implements Serializable {
 	/**
 	 * 默认锁定单元格
 	 */
-	private boolean locked = true; 
-	
+	private boolean locked = true;
+	public AssignedCell(String cellStr,Object value){
+		this(new CellAddress(cellStr),value);
+	}
+	public AssignedCell(CellAddress cell,Object value){
+		this(cell.getRow(),cell.getColumn(),value,0);
+	}
 	public AssignedCell(int row,int col,Object value){
 		this(row,col,row,col,value,0);
 	}

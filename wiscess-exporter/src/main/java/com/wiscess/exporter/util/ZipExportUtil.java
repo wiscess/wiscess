@@ -23,17 +23,17 @@ public class ZipExportUtil {
 	 * @param files
 	 * @param zipName
 	 */
-	public static boolean exportZip(String basePath, List<String> files,String zipName,HttpServletResponse rep){
+	public static boolean exportZip(String basePath, String zipName, List<String> files,HttpServletResponse rep){
 		ZipPath zp = new ZipPath();
 		rep.setCharacterEncoding("utf-8");
 		rep.setContentType("multipart/form-data");
-		String zipFile = basePath + zipName;
+		String zipFile = basePath + "/" + System.currentTimeMillis()+".zip";
 		try {
 			if(files!=null && files.size()>0){
 				zp.zip(zipFile, files);
 				rep.setCharacterEncoding("utf-8");
 				rep.setContentType("multipart/form-data");
-				rep.setHeader("Content-Disposition", "attachment;fileName=" + FileUtils.encodingFileName(zipName));
+				rep.setHeader("Content-Disposition", "attachment;fileName* = UTF-8''" + FileUtils.encodingFileName(zipName));
 				InputStream is = new FileInputStream(new File(zipFile));
 				OutputStream os = rep.getOutputStream();
 				byte[] b = new byte[1024*1024];
@@ -52,23 +52,23 @@ public class ZipExportUtil {
 	}
 	
 	/**
-	 * 导出zip文件，文件存储位置和文件名不用，在压缩时，使用原始文件名
-	 * @param basePath
-	 * @param inputFiles
-	 * @param scholNames
+	 * 导出zip文件，在压缩时，使用原始文件名
+	 * 输出到浏览器，使用临时zip文件
+	 * @param basepath
 	 * @param zipName
+	 * @param inputFilePath
 	 * @param rep
 	 */
-	public static void exportZip(String basePath, List<String> inputFiles,List<String> attachNames,String zipName,HttpServletResponse rep){
+	public static void exportZip(String basepath,String zipName,String inputFilePath,HttpServletResponse rep){
 		ZipPath zp = new ZipPath();
 		rep.setCharacterEncoding("utf-8");
 		rep.setContentType("multipart/form-data");
-		String zipFile = basePath + zipName;
+		String zipFile = basepath + "/" + System.currentTimeMillis()+".zip";
 		try {
-			zp.zip(zipFile, inputFiles,attachNames);
+			zp.zip(zipFile, inputFilePath);
 			rep.setCharacterEncoding("utf-8");
 			rep.setContentType("multipart/form-data");
-			rep.setHeader("Content-Disposition", "attachment;fileName=" + FileUtils.encodingFileName(zipName));
+			rep.setHeader("Content-Disposition", "attachment;fileName* = UTF-8''" + FileUtils.encodingFileName(zipName));
 			InputStream is = new FileInputStream(new File(zipFile));
 			OutputStream os = rep.getOutputStream();
 			byte[] b = new byte[1024*1024];

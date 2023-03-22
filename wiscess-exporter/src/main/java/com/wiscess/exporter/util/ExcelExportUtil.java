@@ -55,7 +55,7 @@ public class ExcelExportUtil {
 				//输出到浏览器
 				filename=filename.substring(filename.lastIndexOf("\\")+1);
 				res.setContentType("APPLICATION/ms-excel");
-				res.setHeader("Content-Disposition", "attachment; filename="
+				res.setHeader("Content-Disposition", "attachment; filename* = UTF-8''"
 						+ FileUtils.encodingFileName(filename));
 				res.setHeader("FileName", FileUtils.encodingFileName(filename));
 				res.setHeader("Access-Control-Expose-Headers", "FileName");
@@ -85,7 +85,7 @@ public class ExcelExportUtil {
 			if(res!=null){
 				//输出到浏览器
 				res.setContentType("APPLICATION/ms-excel");
-				res.setHeader("Content-Disposition", "attachment; filename="
+				res.setHeader("Content-Disposition", "attachment; filename* = UTF-8''"
 						+ FileUtils.encodingFileName(filename));
 				ServletOutputStream os = res.getOutputStream();
 				ExcelExportUtil.export(para,os);

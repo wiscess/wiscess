@@ -2,16 +2,15 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.wiscess</groupId>
   <artifactId>wiscess-exporter</artifactId>
-  <version>2.1</version>
+  <version>2.6.6</version>
   <name>wiscess exporter</name>
   <url>http://www.wiscess.com.cn</url>
 	<properties>
 		<!-- <maven.dir>D:/GitHome/mvn-repo</maven.dir> -->
 		<distribution.url>http://42.96.168.102:8081/repository/wiscess/</distribution.url>
-		<wiscess-common.version>2.1</wiscess-common.version>
-		<spring-boot.version>2.2.5.RELEASE</spring-boot.version>
+		<wiscess-common.version>2.6.6</wiscess-common.version>
+		<spring-boot.version>2.6.6</spring-boot.version>
 		<java.version>1.8</java.version>
-		<itext.version>RELEASE</itext.version>
 	</properties>
     <build>
         <plugins>
@@ -61,11 +60,6 @@
 			<id>nexus</id>
 			<url>http://42.96.168.102:8081/repository/maven-public/</url>
 		</repository>
-	    <repository>
-	    	<id>itext</id>
-	    	<name>iText Repository - releases</name>
-	    	<url>https://repo.itextsupport.com/releases</url>
-	  	</repository>
 	</repositories>
 	<!-- 插件仓库地址 -->
 	<pluginRepositories>
@@ -79,7 +73,7 @@
 	    <dependency>
 	    	<groupId>org.apache.poi</groupId>
 	    	<artifactId>poi-ooxml</artifactId>
-	    	<version>4.0.1</version>
+	    	<version>4.1.2</version>
 	    </dependency>
 	    <dependency>
 	    	<groupId>com.wiscess</groupId>
@@ -87,17 +81,26 @@
 	    	<version>${wiscess-common.version}</version>
 	    	<optional>true</optional>
 	    </dependency>
-	    <!-- add all iText 7 Community modules -->
-	    <dependency>
-	        <groupId>com.itextpdf</groupId>
-	        <artifactId>itext7-core</artifactId>
-	        <version>${itext.version}</version>
-	        <type>pom</type>
-	    </dependency>
-	    <dependency>
-	    	<groupId>com.itextpdf</groupId>
-	    	<artifactId>html2pdf</artifactId>
-	    	<version>2.0.2</version>
-	    </dependency>
+
+		<!-- easyexcel -->
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>easyexcel</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.poi</groupId>
+					<artifactId>poi</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.poi</groupId>
+					<artifactId>poi-ooxml</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.poi</groupId>
+					<artifactId>poi-ooxml-schemas</artifactId>
+				</exclusion>
+			</exclusions>
+			<version>3.1.0</version>
+		</dependency>
     </dependencies>
 </project>

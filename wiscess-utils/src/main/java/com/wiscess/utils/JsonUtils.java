@@ -10,8 +10,13 @@
  */
 package com.wiscess.utils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class JsonUtils {
@@ -69,8 +74,59 @@ public class JsonUtils {
      * @param jsonString
      * @return
      */
+    @Deprecated
     public static Object jsonToBean(String jsonString,Class clazz) throws Exception{
     	return mapper.readValue(jsonString, clazz);
     }
+
+    /**
+     * 转换成未知对象
+     * @param json
+     * @return
+     */
+    public static Object parseObject(String json){
+        return JSON.parseObject(json);
+    }
+
+    /**
+     * 转换成已知对象
+     * @param json
+     * @param clazz
+     * @param <T>
+     * @return
+     */
+    public static <T> T parseObject(String json,Class<T> clazz){
+        return JSONObject.parseObject(json,clazz);
+    }
+
+    /**
+     * 转换成数组
+     * @param json
+     * @return
+     */
+    public static JSONArray parseArray(String json){
+        return JSON.parseArray(json);
+    }
+    public static List<?> parseArray(String json,Class<?> clazz){
+        return JSON.parseArray(json,clazz);
+    }
     
+    /**
+     * 转成成List
+     * @param json
+     * @return
+     */
+    public static List<Map<String, Object>> jsonToList(String json){
+		List<Map<String, Object>> list=new ArrayList<Map<String,Object>>();
+
+		if(!StringUtils.isEmpty(json)){
+			JSONArray array = JsonUtils.parseArray(json);
+			
+			int total=array.size();
+			for(int i=0;i<total;i++) {
+				list.add(array.getJSONObject(i));
+			}
+		}
+		return list;
+	}
 }

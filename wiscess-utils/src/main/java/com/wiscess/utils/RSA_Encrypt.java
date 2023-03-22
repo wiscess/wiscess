@@ -2,6 +2,8 @@ package com.wiscess.utils;
 
 import javax.crypto.Cipher;
 
+import org.springframework.util.Base64Utils;
+
 import sun.security.rsa.RSAPublicKeyImpl;
 
 import java.io.FileNotFoundException;
@@ -24,8 +26,6 @@ import java.security.spec.RSAPrivateCrtKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
 
 /**
  * RSA encrypt
@@ -87,7 +87,7 @@ public class RSA_Encrypt {
 		pw.println("-------------PUBLIC_KEY-------------");
 		if (useBase64) {
 			// 使用base64编码
-			pw.println((new BASE64Encoder()).encodeBuffer(publicKey.getEncoded()));
+			pw.println(encryptBASE64(publicKey.getEncoded()));
 		} else {
 			BigInteger m = ((RSAPublicKeyImpl) publicKey).getModulus();
 			BigInteger e = ((RSAPublicKeyImpl) publicKey).getPublicExponent();
@@ -117,7 +117,7 @@ public class RSA_Encrypt {
 		pw.println("-------------PRIVATE_KEY-------------");
 		if (useBase64) {
 			// 使用Base64编码
-			pw.println((new BASE64Encoder()).encodeBuffer(privateKey.getEncoded()));
+			pw.println(encryptBASE64(privateKey.getEncoded()));
 		} else {
 			BigInteger m = ((RSAPrivateCrtKey) privateKey).getModulus();
 			BigInteger e = ((RSAPrivateCrtKey) privateKey).getPublicExponent();
@@ -210,7 +210,7 @@ public class RSA_Encrypt {
 		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 		if (useBase64) {
 			s = s.replaceAll("-------------PRIVATE_KEY-------------", "");
-			keySpec = new PKCS8EncodedKeySpec(new BASE64Decoder().decodeBuffer(s));
+			keySpec = new PKCS8EncodedKeySpec(decryptBASE64(s));
 		} else {
 			BigInteger modules = new BigInteger(GetValue("m=", s), 16);
 			BigInteger publicExponent = new BigInteger(GetValue("e=", s), 16);
@@ -259,7 +259,7 @@ public class RSA_Encrypt {
 		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 		if (useBase64) {
 			s = s.replaceAll("-------------PUBLIC_KEY-------------", "");
-			keySpec = new X509EncodedKeySpec(new BASE64Decoder().decodeBuffer(s));
+			keySpec = new X509EncodedKeySpec(decryptBASE64(s));
 		} else {
 			String mod = GetValue("m=", s);
 			String pubExp = GetValue("e=", s);
@@ -311,7 +311,7 @@ public class RSA_Encrypt {
 			/** do encrypt */
 			byte[] b1 = cipher.doFinal(b);
 			if (useBase64) {
-				mi += new BASE64Encoder().encodeBuffer(b1);
+				mi += encryptBASE64(b1);
 			} else {
 				mi += HexConver.byte2HexStr(b1, b1.length);
 			}
@@ -351,7 +351,7 @@ public class RSA_Encrypt {
 		cipher.init(Cipher.DECRYPT_MODE, privateKey);
 		byte[] bytes = null;
 		if (useBase64) {
-			bytes = new BASE64Decoder().decodeBuffer(cryptograph);
+			bytes = decryptBASE64(cryptograph);
 		} else {
 			bytes = HexConver.hexStr2Bytes(cryptograph);
 		}
@@ -412,7 +412,7 @@ public class RSA_Encrypt {
 		signature.update(data.getBytes());
 		byte[] b1 = signature.sign();
 		if(useBase64){
-			return new BASE64Encoder().encodeBuffer(b1);
+			return encryptBASE64(b1);
 		}else{
 			return HexConver.byte2HexStr(b1, b1.length);
 		}
@@ -439,7 +439,7 @@ public class RSA_Encrypt {
 		signature.initVerify(publicKey);
 		byte[] bytes = null;
 		if (useBase64) {
-			bytes = new BASE64Decoder().decodeBuffer(sign);
+			bytes = decryptBASE64(sign);
 		} else {
 			bytes = HexConver.hexStr2Bytes(sign);
 		}
@@ -456,8 +456,9 @@ public class RSA_Encrypt {
 	 * @return
 	 * @throws Exception
 	 */
-	public static byte[] decryptBASE64(String key) throws Exception {
-		return (new BASE64Decoder()).decodeBuffer(key);
+	public static byte[] decryptBASE64(String key) {
+		key=key.trim().replaceAll("\r\n", "");
+		return Base64Utils.decodeFromString(key);
 	}
 
 	/**
@@ -467,8 +468,8 @@ public class RSA_Encrypt {
 	 * @return
 	 * @throws Exception
 	 */
-	public static String encryptBASE64(byte[] key) throws Exception {
-		return (new BASE64Encoder()).encodeBuffer(key);
+	public static String encryptBASE64(byte[] key)  {
+		return Base64Utils.encodeToString(key);
 	}
 
 	// 编码返回字符串

@@ -12,7 +12,7 @@ import javax.crypto.Cipher;
  */
 public class DesUtils {
 
-	private static String strDefaultKey = "cysy_cms.20151024";// 字符串默认键值
+	private static String strDefaultKey = "wiscess@2020";// 字符串默认键值
 	private static enum Method {decrypt,encrypt};
 
 	/**

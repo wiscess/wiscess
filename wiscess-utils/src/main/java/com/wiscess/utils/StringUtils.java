@@ -1655,7 +1655,7 @@ public class StringUtils{
 			return null;
 		if(isNotEmpty(val.toString())){
 			try{
-				return new Double(val.toString());
+				return Double.parseDouble(val.toString());
 			}catch(Exception e){
 				e.printStackTrace();
 				return null;
@@ -1669,7 +1669,7 @@ public class StringUtils{
 			return null;
 		if(isNotEmpty(val.toString())){
 			try{
-				return new Integer(val.toString());
+				return Integer.parseInt(val.toString());
 			}catch(Exception e){
 				e.printStackTrace();
 				return null;
@@ -1682,7 +1682,7 @@ public class StringUtils{
 			return null;
 		if(isNotEmpty(val.toString())){
 			try{
-				return new Long(val.toString());
+				return Long.parseLong(val.toString());
 			}catch(Exception e){
 				e.printStackTrace();
 				return null;

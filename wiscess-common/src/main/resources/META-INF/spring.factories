@@ -1,3 +1,6 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.wiscess.thymeleaf.ThymeleafWebWiscessConfiguration,\
-com.wiscess.web.WebConfig
+com.wiscess.web.WebConfig,\
+com.wiscess.web.CaptchaAutoConfig,\
+com.wiscess.web.controller.PublicApiControll,\
+com.wiscess.web.controller.CaptchaController

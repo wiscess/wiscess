@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -90,7 +89,7 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
 			value = JsoupUtil.cleanValue(value);
 			return value;
 		}
-		if(isRichText(name) && StringUtils.isNotEmpty(value)) {
+		if(isRichText(name)) {
 			//富文本
 			if(value==null || StringUtils.isEmpty(value)) {
 				value=super.getParameter(name.replaceAll("WithHtml", ""));

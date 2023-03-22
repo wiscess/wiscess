@@ -2,29 +2,23 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.wiscess</groupId>
 	<artifactId>wiscess-filter</artifactId>
-	<version>2.1</version>
+	<version>2.6.7</version>
 	<properties>
 		<!-- <maven.dir>D:/GitHome/mvn-repo</maven.dir> -->
 		<distribution.url>http://42.96.168.102:8081/repository/wiscess/</distribution.url>
-		<spring-boot.version>2.2.5.RELEASE</spring-boot.version>
+		<spring-boot.version>2.6.7</spring-boot.version>
 		<java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<wiscess.version>2.1</wiscess.version>
+		<wiscess.version>2.6.6</wiscess.version>
+		<lombok.version>1.18.22</lombok.version>
 	</properties>
-    <!-- 远程发布 
-    <distributionManagement>
-        <repository>
-        	<id>wiscess</id>
-            <url>${distribution.url}</url>
-		</repository>    
-	</distributionManagement>-->
     <build>
         <plugins>
         	<!-- 编译插件 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.7.0</version>
+                <version>3.8.1</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
@@ -42,7 +36,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>2.4</version>
+				<version>3.2.1</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -88,7 +82,19 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
 			<version>${spring-boot.version}</version>
+			<scope>provided</scope>
 	   	</dependency> 
+	   	<dependency> 
+		   <groupId>javax.servlet</groupId> 
+		   <artifactId>servlet-api</artifactId> 
+		   <version>2.5</version> 
+		   <scope>provided</scope> 
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>${lombok.version}</version>
+		</dependency>
 		<!-- xss过滤组件 -->
 		<dependency>
 		  <groupId>org.jsoup</groupId>
@@ -100,23 +106,18 @@
    			<groupId>org.springframework.security</groupId>
    			<artifactId>spring-security-web</artifactId>
    			<version>5.1.4.RELEASE</version>
+			<scope>provided</scope>
    		</dependency>
    		<!--  -->
 		<dependency>
-			<groupId>com.alibaba</groupId>
-			<artifactId>fastjson</artifactId>
-			<version>1.2.62</version>
+			<groupId>com.alibaba.fastjson2</groupId>
+			<artifactId>fastjson2</artifactId>
+			<version>2.0.4</version>
 		</dependency>
    		<dependency>
    			<groupId>com.wiscess</groupId>
    			<artifactId>wiscess-utils</artifactId>
-   			<version>2.0</version>
-   		</dependency>
-   		<dependency>
-   			<groupId>org.springframework.boot</groupId>
-   			<artifactId>spring-boot-starter-tomcat</artifactId>
-   			<version>2.2.5.RELEASE</version>
-			<scope>compile</scope>
+   			<version>[2.6.6,)</version>
    		</dependency>
     </dependencies>
 </project>

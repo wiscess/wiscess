@@ -29,7 +29,7 @@ public class FileTypeAutoConfiguration {
 	public FilterRegistrationBean<FileTypeFilter> fileTypeFilterRegistration() {
 	    FilterRegistrationBean<FileTypeFilter> registration = new FilterRegistrationBean<FileTypeFilter>();
 	    registration.setFilter(fileTypeFilter());
-	    registration.addUrlPatterns("/*");
+	    registration.addUrlPatterns("/**");
 	    registration.setName("fileTypeFilter");
 	    registration.setOrder(2);
 	    return registration;

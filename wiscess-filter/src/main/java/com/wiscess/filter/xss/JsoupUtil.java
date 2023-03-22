@@ -6,9 +6,10 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.safety.Whitelist;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONException;
+import com.alibaba.fastjson2.JSONObject;
 import com.wiscess.utils.StringUtils;
 
 /**
@@ -64,11 +65,11 @@ public class JsoupUtil {
 //				} catch (Exception e) {
 //					//转换失败后
 //				}
-				content=Jsoup.clean(content, "", whitelist, outputSettings);	
+				content=Jsoup.clean(content, "http://localhost", whitelist, outputSettings);
 				//替换已知的不允许出现的所有字符
 				content=html(content);
 			}else {
-				content=Jsoup.clean(content, "", whitelist, outputSettings);	
+				content=Jsoup.clean(content, "http://localhost", whitelist, outputSettings);
 			}
 		}
 		return content;
@@ -151,19 +152,20 @@ public class JsoupUtil {
         value = value.replaceAll("(?i)<script.*?>.*?</script.*?>", "");
         value = value.replaceAll("(?i)<.*?javascript:.*?>.*?</.*?>", "");
         value = value.replaceAll("(?i)<.*?\\s+on.*?>.*?</.*?>", "");
-        value = value.replaceAll("(?i)alert", "");
-        value = value.replaceAll("(?i)script", "");
-        value = value.replaceAll("(?i)svg", "");
-        value = value.replaceAll("(?i)confirm", "");
-        value = value.replaceAll("(?i)prompt", "");
-        value = value.replaceAll("(?i)onload", "");
-        value = value.replaceAll("(?i)onmouseover", "");
-        value = value.replaceAll("(?i)onmouse", "");
-        value = value.replaceAll("(?i)onfocus", "");
-        value = value.replaceAll("(?i)onerror", "");
-        value = value.replaceAll("(?i)xss", "");
-        value = value.replaceAll("(?i)iframe", "");
-        value = value.replaceAll("(?i)<iframe.*?>.*?</iframe.*?>", "");
+		//\\W匹配任意非单词
+		value = value.replaceAll("(\\W)((?i)alert)(\\W)", "$1$3");
+		value = value.replaceAll("(\\W)((?i)script)(\\W)", "$1$3");
+		value = value.replaceAll("(\\W)((?i)svg)(\\W)", "$1$3");
+		value = value.replaceAll("(\\W)((?i)confirm)(\\W)", "$1$3");
+		value = value.replaceAll("(\\W)((?i)prompt)(\\W)", "$1$3");
+		value = value.replaceAll("(\\W)((?i)onload)(\\W)", "$1$3");
+		value = value.replaceAll("(\\W)((?i)onmouseover)(\\W)", "$1$3");
+		value = value.replaceAll("(\\W)((?i)onmouse)(\\W)", "$1$3");
+		value = value.replaceAll("(\\W)((?i)onfocus)(\\W)", "$1$3");
+		value = value.replaceAll("(\\W)((?i)onerror)(\\W)", "$1$3");
+		value = value.replaceAll("(\\W)((?i)xss)(\\W)", "$1$3");
+		value = value.replaceAll("(\\W)((?i)iframe)(\\W)", "$1$3");
+		value = value.replaceAll("(?i)<iframe.*?>.*?</iframe.*?>", "");
         //value = value.replaceAll(";", "");
         value = value.replaceAll("\'", "");
         value = value.replaceAll("\"", "");
@@ -232,7 +234,7 @@ public class JsoupUtil {
 		text=cleanValue(text);
 		System.out.println(cleanValue(text));
 		
-		JSONObject object=JSONObject.parseObject(text);
+		JSONObject object=JSON.parseObject(text);
 		JSONArray array=((JSONArray)object.get("practiceTasks"));
 		array=(JSONArray)((JSONObject)array.get(0)).get("practiceGroups");
 		System.out.println(((JSONObject)array.get(0)).get("groupIdStr"));
@@ -241,10 +243,10 @@ public class JsoupUtil {
 
 	public final static boolean isJSONValid(String test) {
         try {
-            JSONObject.parseObject(test);
+        	JSON.parseObject(test);
         } catch (JSONException ex) {
             try {
-                JSONObject.parseArray(test);
+            	JSON.parseArray(test);
             } catch (JSONException ex1) {
                 return false;
             }

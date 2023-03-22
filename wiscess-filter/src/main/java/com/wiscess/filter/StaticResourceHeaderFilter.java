@@ -3,7 +3,9 @@ package com.wiscess.filter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -11,15 +13,20 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.boot.web.servlet.filter.OrderedFilter;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.security.web.header.HeaderWriterFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * @author wh
  */
+@Slf4j
 public class StaticResourceHeaderFilter extends HeaderWriterFilter implements OrderedFilter{
 	/**
 	 * 过滤器顺序
@@ -28,18 +35,31 @@ public class StaticResourceHeaderFilter extends HeaderWriterFilter implements Or
 	/**
 	 * 默认静态资源文件
 	 */
-	private static String[] DEFAULT_IGNORES="/css/**,/js/**,/images/**,/webjars/**,/**/favicon.ico,/captcha.jpg".split(",");
+	private static String[] DEFAULT_IGNORES="/bower_components/**,/css/**,/js/**,/images/**,/webjars/**,/**/favicon.ico,/captcha.jpg".split(",");
 	
-	private List<String> excludes = new ArrayList<>();
+	private Set<String> excludes = new HashSet<>();
 	private RequestMatcher requireMatcher = null;
 	
-	public StaticResourceHeaderFilter(List<HeaderWriter> headerWriters,List<String> staticResourceList){
+	public StaticResourceHeaderFilter(List<HeaderWriter> headerWriters, List<String> ignoreList){
 		super(headerWriters);
-		//增加默认的资源
+		//1、增加默认的资源
 		excludes.addAll(Arrays.asList(DEFAULT_IGNORES));
-		//增加附加的资源
-		excludes.addAll(staticResourceList);
+		//2、默认加载public目录下的目录
+		try {
+			Resource[] resources = new PathMatchingResourcePatternResolver().getResources("classpath*:public/*");
+			for(Resource r:resources) {
+				excludes.add("/"+r.getFilename()+"/**");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		//3、增加附加的资源
+		if(!ignoreList.isEmpty())
+			excludes.addAll(ignoreList);
 		//
+		excludes.forEach(url->{log.debug("static resource:{}",url);});
+		
 		List<RequestMatcher> matchers=new ArrayList<>();
 		excludes.forEach(url->{
 			matchers.add(new AntPathRequestMatcher(url));

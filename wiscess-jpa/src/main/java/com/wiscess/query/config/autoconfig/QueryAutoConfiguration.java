@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 @AutoConfigureBefore({MultiDataSourceConfig.class})
 @ConditionalOnWebApplication
 @ConditionalOnClass(Query.class)
-@Order(1)
+@Order(-900)
 public class QueryAutoConfiguration {
 	
 	@Bean

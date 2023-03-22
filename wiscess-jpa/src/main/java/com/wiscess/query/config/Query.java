@@ -32,8 +32,12 @@ public final class Query implements CacheClearable{
 		/**
 		 * 添加所有sqls开头的yml文件和queryProviderMpping-开头的xml文件
 		 */
-		sqlResourceFiles.add("classpath*:queryProviderMapping-*.xml");
 		sqlResourceFiles.add("classpath*:sqls-*.yml");
+		sqlResourceFiles.add("classpath*:sqls/*.yml");
+		sqlResourceFiles.add("classpath*:sqls/*/*.yml");
+		sqlResourceFiles.add("classpath*:query*.xml");
+		sqlResourceFiles.add("classpath*:sqls/query*.xml");
+		sqlResourceFiles.add("classpath*:sqls/*/query*.xml");
 	}
 	/**
 	 * 缓存

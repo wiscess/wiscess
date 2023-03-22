@@ -5,10 +5,16 @@ import java.util.Map;
 public class SqlElementImpl implements ISqlElement {
 	private Object[] params;
 	private Map<String, Object> paramsMap;
+	private int[] argTypes;
 	private String sql;
 
 	public Object[] getParams() {
 		return params;
+	}
+
+	@Override
+	public int[] getArgTypes() {
+		return argTypes;
 	}
 
 	public Map<String, Object> getParamsMap() {
@@ -26,6 +32,9 @@ public class SqlElementImpl implements ISqlElement {
 		this.params = params;
 	}
 
+	public void setArgTypes(int[] argTypes) {
+		this.argTypes = argTypes;
+	}
 	/**
 	 * @param paramsMap the paramsMap to set
 	 */

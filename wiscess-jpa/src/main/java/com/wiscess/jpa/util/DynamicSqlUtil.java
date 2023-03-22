@@ -16,6 +16,7 @@ import freemarker.ext.beans.BeansWrapperBuilder;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import org.springframework.jdbc.core.StatementCreatorUtils;
 
 /**
  * Dynamic SQL processer, supportting Freemarker based syntax.
@@ -23,11 +24,11 @@ import freemarker.template.TemplateException;
  * @author austin
  */
 public class DynamicSqlUtil {
-	protected static Configuration freeMarkerEngine = new Configuration(Configuration.VERSION_2_3_28);
+	protected static Configuration freeMarkerEngine = new Configuration(Configuration.VERSION_2_3_31);
 	private static ConcurrentMap<String, Template> templateCache = new ConcurrentHashMap<String, Template>();
 	
 	static {
-		freeMarkerEngine.setObjectWrapper(new BeansWrapperBuilder(Configuration.VERSION_2_3_28).build());
+		freeMarkerEngine.setObjectWrapper(new BeansWrapperBuilder(Configuration.VERSION_2_3_31).build());
 	}
 
 	/**
@@ -83,17 +84,23 @@ public class DynamicSqlUtil {
         	String lastValue = m.group(4);
         	if(params.containsKey(name)) {
         		//判断name是否是参数表中的key
-        		paramsMap.put(name, preValue+params.get(name)+lastValue);
+				if(params.get(name)==null) {
+					paramsMap.put(name, null);
+				}else {
+					paramsMap.put(name, preValue+params.get(name)+lastValue);
+				}
 	        	//paramValuesList.add(params.get(name));
 	        	paramNamesList.add(name);
 	        	//找到一个替换一个，未找到name的不替换
         	}
         }
         Object[] paramValues = new Object[paramNamesList.size()];
-       
+        int[] argTypes = new int[paramNamesList.size()];
+
         for(int i=0; i<paramNamesList.size(); i++)
         {
         	paramValues[i] = paramsMap.get(paramNamesList.get(i));
+			argTypes[i] = StatementCreatorUtils.javaTypeToSqlParameterType(params.get(paramNamesList.get(i))==null?null:params.get(paramNamesList.get(i)).getClass());
         }
         
         // replace all named params with ?
@@ -105,6 +112,7 @@ public class DynamicSqlUtil {
 		SqlElementImpl s = new SqlElementImpl();
 		s.setParams(paramValues);
 		s.setParamsMap(paramsMap);
+		s.setArgTypes(argTypes);
 		s.setSql(sql);
 		
 		return s;

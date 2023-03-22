@@ -14,6 +14,8 @@ public interface ISqlElement {
 	 * @return
 	 */
 	public Object[] getParams();
+
+	public int[] getArgTypes();
 	
 	/**
 	 * get all named avaliable parameters.

@@ -9,6 +9,7 @@ import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -83,9 +84,9 @@ public class JdbcJpaSupport {
 		log.debug("findList(String, Map<String,Object>, RowMapper) - start");
 		final ISqlElement se = processSql(params, sqlName);
 		if (rm == null) {
-			return (List<E>)template.query(se.getSql(),	se.getParams(),new ColumnMapRowMapper());
+			return (List<E>)template.query(se.getSql(),	se.getParams(),se.getArgTypes(),new ColumnMapRowMapper());
 		} else {
-			return template.query(se.getSql(), se.getParams(), rm);
+			return template.query(se.getSql(), se.getParams(), se.getArgTypes(),rm);
 		}
 	}
 	public <E> List<E> findList(String sqlName, Map<String, Object> params) {
@@ -138,7 +139,8 @@ public class JdbcJpaSupport {
 	
 	private <E> RowMapper<E> getRowMaperByClazz(Class<E> clazz){
 		try {
-			if(clazz==String.class 
+			if(clazz==String.class
+					|| clazz == Date.class
 					|| ((Class<?>) clazz.getField("TYPE").get(null)).isPrimitive())
 				return new SingleColumnRowMapper<E>(clazz);
 		} catch (NoSuchFieldException | SecurityException e) {
@@ -230,18 +232,18 @@ public class JdbcJpaSupport {
 	 * @return
 	 * @throws Exception
 	 */
-	public <E> Object queryForObject(String sqlName,Map<String, Object> params,Class<E> requiredType){
+	public <E> E queryForObject(String sqlName,Map<String, Object> params,Class<E> requiredType){
 		return queryForObjectByTemplate(this.jdbcTemplate, sqlName, params, requiredType);
 	}
-	public <E> Object queryForObjectByTemplate(JdbcTemplate template,String sqlName,Map<String, Object> params,Class<E> requiredType) {
+	public <E> E queryForObjectByTemplate(JdbcTemplate template,String sqlName,Map<String, Object> params,Class<E> requiredType) {
 		return queryForObjectByTemplate(template, sqlName, params, getRowMaperByClazz(requiredType));
 	}
-	public <E> Object queryForObject(String sqlName,Map<String, Object> params,RowMapper<E> rowMapper) {
+	public <E> E queryForObject(String sqlName,Map<String, Object> params,RowMapper<E> rowMapper) {
 		return queryForObjectByTemplate(this.jdbcTemplate, sqlName, params, rowMapper);
 	}
-	public <E> Object queryForObjectByTemplate(JdbcTemplate template,String sqlName,Map<String, Object> params,RowMapper<E> rowMapper) {
+	public <E> E queryForObjectByTemplate(JdbcTemplate template,String sqlName,Map<String, Object> params,RowMapper<E> rowMapper) {
 		ISqlElement se=processSql(params, sqlName);
-		return template.queryForObject(se.getSql(),se.getParams(), rowMapper);
+		return template.queryForObject(se.getSql(),se.getParams(),se.getArgTypes(), rowMapper);
 	}
 	/**
 	 * 新分页查询方法
@@ -303,7 +305,7 @@ public class JdbcJpaSupport {
 		}
 		ISqlElement seQuery = processSql(params, querySqlName);
 
-		final int total = template.queryForObject(seCount.getSql(), seCount.getParams(),Integer.class);
+		final int total = template.queryForObject(seCount.getSql(), seCount.getParams(),seCount.getArgTypes(),Integer.class);
 		//创建空集合
 		List<E> content = Collections.<E> emptyList();
 		while(total<=pageable.getOffset() && pageable.getOffset()>0){
@@ -324,17 +326,17 @@ public class JdbcJpaSupport {
 					String sql=seQuery.getSql();
 					//添加limit
 					sql+=" limit "+pageable.getOffset() +","+pageable.getPageSize();
-					content=template.query(sql, seQuery.getParams(), rm);
+					content=template.query(sql, seQuery.getParams(),seQuery.getArgTypes(), rm);
 				}else {
 					//用原方式读取
 					content = template.query(
-							seQuery.getSql(),seQuery.getParams(),
+							seQuery.getSql(),seQuery.getParams(),seQuery.getArgTypes(),
 							new PageResultSetExtractor<E>(rm,pageable));
 				}
 			} catch (SQLException e) {
 				//按原方式查询
 				content = template.query(
-						seQuery.getSql(),seQuery.getParams(),
+						seQuery.getSql(),seQuery.getParams(),seQuery.getArgTypes(),
 						new PageResultSetExtractor<E>(rm,pageable));
 			}
 

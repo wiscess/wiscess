@@ -1,0 +1,124 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.baidu</groupId>
+  <artifactId>ueditor</artifactId>
+  <version>1.1.3-fix</version>
+   <name>Baidu UEditor Java Lib</name>
+  <description>百度UEditor的java服务端库</description>
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+	<!-- pom通用模板 -->
+	<properties>
+		<!-- 自定义组件，需定义上传地址，普通项目可不用 -->
+		<distribution.url>http://42.96.168.102:8081/repository/wiscess/</distribution.url>
+		<!-- java版本和编码 -->
+		<java.version>1.8</java.version>
+		<version.commons-codec>1.15</version.commons-codec>
+		<version.commons-io>2.11.0</version.commons-io>
+		<version.commons-fileupload>1.4</version.commons-fileupload>
+		<version.servlet-api>3.1.0</version.servlet-api>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	<!-- 仓库地址 -->
+	<repositories>
+		<repository>
+			<id>central</id>
+			<url>http://42.96.168.102:8081/repository/maven-public/</url>
+		</repository>
+	</repositories>
+	<!-- 插件仓库地址 -->
+	<pluginRepositories>
+		<pluginRepository>
+			<id>central</id>
+			<url>http://42.96.168.102:8081/repository/maven-public/</url>
+		</pluginRepository>
+	</pluginRepositories> 
+	<!-- 构建参数 -->
+	<build>
+        <plugins>
+        	<!-- 打包插件 -->
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+        	<!-- 编译插件 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+					<encoding>utf8</encoding>
+                    <showDeprecation>true</showDeprecation>
+                    <showWarnings>true</showWarnings> 
+                    <fork>true</fork>
+                    <compilerArgs>
+                        <arg>-verbose</arg>
+                        <arg>-Xlint:all</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+            <!-- 源码打包插件 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<phase>verify</phase><!-- 要绑定到的生命周期的阶段 在verify之后，install之前执行下面指定的goal -->
+						<goals>
+							<goal>jar-no-fork</goal><!-- 类似执行mvn source:jar -->
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+		        <artifactId>maven-deploy-plugin</artifactId>
+		        <version>2.8.2</version><!--$NO-MVN-MAN-VER$-->
+		        <!-- 发布到远程仓库-->
+		        <configuration>
+		            <altDeploymentRepository>wiscess::default::${distribution.url}</altDeploymentRepository>
+		        </configuration>
+		    </plugin>
+        </plugins>
+    </build>
+    <!-- 依赖包 -->
+	<dependencies>
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>${version.commons-codec}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>${version.commons-io}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+			<version>${version.commons-fileupload}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.alibaba.fastjson2</groupId>
+			<artifactId>fastjson2</artifactId>
+			<version>2.0.4</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>${version.servlet-api}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<version>5.3.18</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>    
+</project>

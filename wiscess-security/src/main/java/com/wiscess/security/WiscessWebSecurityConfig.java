@@ -19,6 +19,10 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.AccessDecisionManager;
+import org.springframework.security.access.AccessDecisionVoter;
+import org.springframework.security.access.vote.AuthenticatedVoter;
+import org.springframework.security.access.vote.UnanimousBased;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -29,6 +33,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
@@ -47,6 +52,7 @@ import com.wiscess.security.sso.SSOAuthenticationProvider;
 import com.wiscess.security.sso.SSOLoginConfigurer;
 import com.wiscess.security.sso.SSOLogoutJsSuccessHandler;
 import com.wiscess.security.sso.SSOLogoutSuccessHandler;
+import com.wiscess.security.voter.CustomAuthorityVoter;
 import com.wiscess.security.vue.DefaultVueAccessDeniedHandler;
 import com.wiscess.security.vue.DefaultVueAuthenticationEntryPoint;
 import com.wiscess.security.vue.DefaultVueLoginFilureHandler;
@@ -70,7 +76,7 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
 	/**
 	 * 默认静态资源文件
 	 */
-	public static String[] DEFAULT_IGNORES="/css/**,/js/**,/images/**,/webjars/**,/**/favicon.ico,/captcha.jpg".split(",");
+	public static String[] DEFAULT_IGNORES="/css/**,/less/**,/plugin/**,/bower_components/**,/js/**,/images/**,/webjars/**,/**/favicon.ico,/captcha.jpg".split(",");
 	
 	@Autowired
 	protected WiscessSecurityProperties wiscessSecurityProperties;
@@ -272,6 +278,23 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
 //	public JwtAuthenticationTokenFilter authenticationTokenFilterBean() throws Exception {
 //		return new JwtAuthenticationTokenFilter();
 //	}
+    
+	@Bean
+	public AccessDecisionManager accessDecisionManager() {
+	    List<AccessDecisionVoter<? extends Object>> decisionVoters 
+	      = Arrays.asList(
+	        new WebExpressionVoter(),
+//	        new RoleVoter(),
+	        new AuthenticatedVoter(),
+	        //自定义投票器，只对authenticated进行数据库判断，其他已定义的权限均弃权
+	        new CustomAuthorityVoter());
+//	    AffirmativeBased – 任何一个AccessDecisionVoter返回同意则允许访问
+//	    ConsensusBased – 同意投票多于拒绝投票（忽略弃权回答）则允许访问
+//	    UnanimousBased – 每个投票者选择弃权或同意则允许访问
+	    return new UnanimousBased(decisionVoters);
+	}
+
+    
     /**
      * session监听器，监听session的创建和销毁的代码
      * @return

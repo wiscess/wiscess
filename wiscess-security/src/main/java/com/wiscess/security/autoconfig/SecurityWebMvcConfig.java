@@ -29,16 +29,11 @@ public class SecurityWebMvcConfig implements WebMvcConfigurer   {
 	
 	@Autowired
 	protected WiscessSecurityProperties wiscessSecurityProperties;
-	
-	/**
-	 * 定义验证码的访问路径
-	 * @return
-	 */
+
 	@Bean
-	public LoginController loginController(){
+	public LoginController loginController() {
 		return new LoginController();
 	}
-	
 	@Override
     public void addCorsMappings(CorsRegistry registry) {
 		//配置跨域访问的设置

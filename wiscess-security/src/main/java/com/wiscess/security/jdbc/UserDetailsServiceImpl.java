@@ -37,10 +37,16 @@ public class UserDetailsServiceImpl extends JdbcJpaSupport implements UserDetail
 	private String groupAuthoritiesByUsernameQuery;
 	private String usersByUsernameQuery="usersByUsernameQuery";
 	private String rolePrefix = "";
+	/*锁定用户*/
+	private String clearLockTimeByUser="clearLockTimeByUser";
+	private String updateLockTimeByUser = "updateLockTimeByUser";
+	private String updateLoginFailNumByUser = "updateLoginFailNumByUser";
+	private String updateLoginSuccessByUser = "updateLoginSuccessByUser";
+
 	private boolean usernameBasedPrimaryKey = true;
 	private boolean enableAuthorities = true;
 	private boolean enableGroups;
-	
+
 	/**
 	 * @return the messages
 	 */
@@ -94,16 +100,32 @@ public class UserDetailsServiceImpl extends JdbcJpaSupport implements UserDetail
 		Map<String,Object> params=new HashMap<>();
 		params.put("username", username);
 		return findList(usersByUsernameQuery, params, new RowMapper<UserDetails>() {
-					@Override
-					public UserDetails mapRow(ResultSet rs, int rowNum)
-							throws SQLException {
-						String username = rs.getString(1);
-						String password = rs.getString(2);
-						boolean enabled = rs.getBoolean(3);
-						return new User(username, password, enabled, true, true, true,
-								AuthorityUtils.NO_AUTHORITIES);
-					}
-				});
+			@Override
+			public UserDetails mapRow(ResultSet rs, int rowNum)
+					throws SQLException {
+				if(rs.getMetaData().getColumnCount()==3) {
+					String username = rs.getString(1);
+					String password = rs.getString(2);
+					boolean enabled = rs.getBoolean(3);
+					return new User(username, password, enabled, true, true, true,
+							AuthorityUtils.NO_AUTHORITIES);
+				}
+				//判断锁定次数
+				return new SecUserDetails(SecUserInfo.builder()
+						.userId(rs.getInt("user_id"))
+						.loginName(rs.getString("login_name"))
+						.loginPwd(rs.getString("login_pwd"))
+						.name(rs.getString("name"))
+						.phone(rs.getString("phone"))
+						.isUsed(rs.getBoolean("is_used"))
+						.lastLoginTime(rs.getTimestamp("last_login_time"))
+						.loginNum(rs.getInt("login_num"))
+						.loginFailNum(rs.getInt("login_fail_num"))
+						.lockTime(rs.getTimestamp("lock_time"))
+						.build(),
+						AuthorityUtils.NO_AUTHORITIES);
+			}
+		});
 	}
 
 	/**
@@ -160,7 +182,10 @@ public class UserDetailsServiceImpl extends JdbcJpaSupport implements UserDetail
 		if (!this.usernameBasedPrimaryKey) {
 			returnUsername = username;
 		}
-
+		if(userFromUserQuery instanceof SecUserDetails) {
+			return new SecUserDetails(((SecUserDetails) userFromUserQuery).getUser(),
+					combinedAuthorities);
+		}
 		return new User(returnUsername, userFromUserQuery.getPassword(),
 				userFromUserQuery.isEnabled(), true, true, true, combinedAuthorities);
 	}
@@ -174,5 +199,42 @@ public class UserDetailsServiceImpl extends JdbcJpaSupport implements UserDetail
 
 	public void setRolePrefix(String rolePrefix) {
 		this.rolePrefix = rolePrefix;
+	}
+
+	/**
+	 * 清除用户的锁定信息
+	 * @param user
+	 */
+	public void clearLockTime(SecUserInfo user){
+		Map<String,Object> params=new HashMap<>();
+		params.put("userId", user.getUserId());
+		update(clearLockTimeByUser,params);
+	}
+	/**
+	 * 锁定用户
+	 * @param user
+	 */
+	public void updateLockTime(SecUserInfo user){
+		Map<String,Object> params=new HashMap<>();
+		params.put("userId", user.getUserId());
+		update(updateLockTimeByUser,params);
+	}
+	/**
+	 * 记录用户登录失败次数
+	 * @param user
+	 */
+	public void updateLoginFailNum(SecUserInfo user){
+		Map<String,Object> params=new HashMap<>();
+		params.put("userId", user.getUserId());
+		update(updateLoginFailNumByUser,params);
+	}
+	/**
+	 * 记录用户登录成功
+	 * @param user
+	 */
+	public void updateLoginSuccess(SecUserInfo user){
+		Map<String,Object> params=new HashMap<>();
+		params.put("userId", user.getUserId());
+		update(updateLoginSuccessByUser,params);
 	}
 }

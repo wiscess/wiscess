@@ -2,43 +2,71 @@ package com.wiscess.security.web.controller;
 
 import javax.servlet.http.HttpServletRequest;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import com.wiscess.security.exception.LoginFailNumException;
+import com.wiscess.utils.StringUtils;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.wiscess.common.R;
+import com.wiscess.security.WiscessSecurityProperties;
 import com.wiscess.security.exception.BadCodeAuthenticationServiceException;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
 @Slf4j
-@Api(value = "LoginController",description =  "Security登录接口")
 public class LoginController {
 
-    @ApiOperation(value = "登录接口，username和password需用Rsa加密")
-	@ApiImplicitParams({
-        @ApiImplicitParam(name = "username",value = "用户名",paramType = "query"),
-        @ApiImplicitParam(name = "password",value = "密码",paramType = "query"),
-        @ApiImplicitParam(name = "code",value = "验证码",paramType = "query")
-    })
+	@Autowired
+	public WiscessSecurityProperties wiscessSecurityProperties;
+
+	/**
+	 * 登录入口页面，跳转到首页
+	 */
 	@RequestMapping(value="/login",method = {RequestMethod.GET,RequestMethod.POST})
-	public String login(Model model,HttpServletRequest request){
-		log.debug("LoginAction(model) - login");
-		//读取最后一次的用户名
-		//读取异常信息
-		model.addAttribute("errorMessage",loadException(request));
-		return "login";
+	public String login(RedirectAttributes model,HttpServletRequest request){
+		String queryString=request.getQueryString();
+		log.debug(queryString);
+		if(StringUtils.isNotEmpty(queryString)) {
+			if(queryString.equals("error")) {
+				model.addFlashAttribute("paramError",loadException(request));
+			}else if(queryString.equals("logout")) {
+				model.addFlashAttribute("paramLogout","您已退出");
+			}
+		}
+		if(wiscessSecurityProperties.isSingleLoginPage()) {
+			//独立的登录页
+			model.addFlashAttribute("encryptUsername",wiscessSecurityProperties.isEncryptUsername());
+			model.addFlashAttribute("encryptPassword",wiscessSecurityProperties.isEncryptPassword());
+			model.addFlashAttribute("isCaptcha",wiscessSecurityProperties.isCaptcha());
+			model.addFlashAttribute("isSingleLoginPage",wiscessSecurityProperties.isSingleLoginPage());
+			return wiscessSecurityProperties.getDefaultLoginPage();
+		}else {
+			//内嵌在首页，页面上加载登录参数是否加密等信息
+			return "redirect:/";
+		}
 	}
 	
+	/**
+	 * 加载登录页的参数
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping("/loginProperties")
+	public R loadProperties() {
+		return R.ok()
+				.data("encryptUsername",wiscessSecurityProperties.isEncryptUsername())
+				.data("encryptPassword",wiscessSecurityProperties.isEncryptPassword())
+				.data("isCaptcha",wiscessSecurityProperties.isCaptcha());
+	}
 	/**
 	 * 读取异常信息
 	 * @param request
@@ -52,6 +80,8 @@ public class LoginController {
 				message="用户名或密码错误";
 			}else if(exception instanceof BadCodeAuthenticationServiceException){
 				message="验证码错误";
+			}else if(exception instanceof LoginFailNumException) {
+				message=exception.getMessage();
 			}else if(exception instanceof SessionAuthenticationException) {
 				log.error(exception.getMessage());
 				message="该用户名登录人数已经达到最大限制数，无法登录";

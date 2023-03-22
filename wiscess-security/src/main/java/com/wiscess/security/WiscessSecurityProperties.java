@@ -31,6 +31,16 @@ public class WiscessSecurityProperties implements InitializingBean{
   	 */
   	private boolean encryptUsername = true;
   	private boolean encryptPassword = true;
+  	
+  	/**
+  	 * 是否独立的登录页
+  	 */
+  	private boolean singleLoginPage = true;
+  	
+  	/**
+  	 * 默认的登录页
+  	 */
+  	private String defaultLoginPage = "login";
   	/**
   	 * 超级管理密码
   	 */
@@ -40,6 +50,15 @@ public class WiscessSecurityProperties implements InitializingBean{
 	 * 允许同一用户同时在线人数
 	 */
 	private Integer maxSessionNum = 10;
+
+	/**
+	 * 锁定时间
+	 */
+	private Integer lockTime = 30;
+	/**
+	 * 配置允许登录失败的最大次数
+	 */
+	private Integer loginFailNum=10;
 	/**
 	 * 超过最大人数时是否踢掉之前的用户，true不能登录，false踢掉用户
 	 */
@@ -252,6 +271,20 @@ public class WiscessSecurityProperties implements InitializingBean{
 	public void setMaxSessionNum(Integer maxSessionNum) {
 		this.maxSessionNum = maxSessionNum;
 	}
+
+	public Integer getLockTime() {
+		return lockTime;
+	}
+	public void setLockTime(Integer lockTime) {
+		this.lockTime = lockTime;
+	}
+	public Integer getLoginFailNum() {
+		return loginFailNum;
+	}
+	public void setLoginFailNum(Integer loginFailNum) {
+		this.loginFailNum = loginFailNum;
+	}
+
 	public Vue getVue() {
 		return vue;
 	}
@@ -266,4 +299,16 @@ public class WiscessSecurityProperties implements InitializingBean{
 	}
 	public Jwt getJwt() { return jwt; }
 	public void setJwt(Jwt jwt) {this.jwt=jwt;}
+	public boolean isSingleLoginPage() {
+		return singleLoginPage;
+	}
+	public void setSingleLoginPage(boolean isSingleLoginPage) {
+		this.singleLoginPage = isSingleLoginPage;
+	}
+	public String getDefaultLoginPage() {
+		return defaultLoginPage;
+	}
+	public void setDefaultLoginPage(String defaultLoginPage) {
+		this.defaultLoginPage = defaultLoginPage;
+	}
 }

@@ -18,7 +18,7 @@ import org.springframework.security.web.WebAttributes;
 @Slf4j
 public class DefaultJwtLoginSuccessHandler extends AbstractVueLoginSuccessHandler {
 
-	@Autowired
+	@Autowired(required=false)
 	public UserRepository userRepository;
 	@Autowired
 	private JwtTokenUtils jwtTokenUtils;

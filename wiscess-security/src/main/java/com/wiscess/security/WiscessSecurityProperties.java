@@ -36,6 +36,11 @@ public class WiscessSecurityProperties implements InitializingBean{
   	 * 是否独立的登录页
   	 */
   	private boolean singleLoginPage = true;
+
+  	/**
+  	 * 是否包含LoginController
+  	 */
+  	private boolean defaultLoginController = true;
   	
   	/**
   	 * 默认的登录页
@@ -299,6 +304,7 @@ public class WiscessSecurityProperties implements InitializingBean{
 	}
 	public Jwt getJwt() { return jwt; }
 	public void setJwt(Jwt jwt) {this.jwt=jwt;}
+	
 	public boolean isSingleLoginPage() {
 		return singleLoginPage;
 	}
@@ -310,5 +316,11 @@ public class WiscessSecurityProperties implements InitializingBean{
 	}
 	public void setDefaultLoginPage(String defaultLoginPage) {
 		this.defaultLoginPage = defaultLoginPage;
+	}
+	public boolean isDefaultLoginController() {
+		return defaultLoginController;
+	}
+	public void setDefaultLoginController(boolean defaultLoginController) {
+		this.defaultLoginController = defaultLoginController;
 	}
 }

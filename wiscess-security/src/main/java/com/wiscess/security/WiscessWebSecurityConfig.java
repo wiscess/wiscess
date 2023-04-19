@@ -274,10 +274,6 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
 		}
 		myConfigure(http);
 	}
-//	@Bean
-//	public JwtAuthenticationTokenFilter authenticationTokenFilterBean() throws Exception {
-//		return new JwtAuthenticationTokenFilter();
-//	}
     
 	@Bean
 	public AccessDecisionManager accessDecisionManager() {
@@ -360,8 +356,7 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
      * @return
      */
     public UsernamePasswordAuthenticationFilter encryptUsernamePasswordAuthenticationFilter(boolean encryptUsername,boolean encryptPassword) throws Exception {
-    	UsernamePasswordAuthenticationFilter filter = new EncryptUsernamePasswordAuthenticationFilter(encryptUsername,encryptPassword);
-        return filter;
+    	return new EncryptUsernamePasswordAuthenticationFilter(encryptUsername,encryptPassword);
     }
     /**
      * 配置记住密码

@@ -16,20 +16,18 @@ import java.util.Map;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
-import com.alibaba.fastjson2.JSONObject;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class JsonUtils {
-	private static final ObjectMapper mapper = new ObjectMapper();
 	
     /**
      * 将map对象的内容转换成json
      * @param map
      * @return
      */
-    public static String mapToJson(Map map)throws Exception{
+    @SuppressWarnings("rawtypes")
+	public static String mapToJson(Map map)throws Exception{
     	// 将对象转成字符串
-		return mapper.writeValueAsString(map);
+    	return JSON.toJSONString(map);
     }
     /**
      *  将对象转成字符串
@@ -38,7 +36,7 @@ public class JsonUtils {
      * @throws Exception
      */
     public static String objectToJson(Object obj) throws Exception {
-        return mapper.writeValueAsString(obj);
+    	return JSON.toJSONString(obj);
     }
     
     /**
@@ -48,8 +46,9 @@ public class JsonUtils {
      * @return
      * @throws Exception
      */
-    public static Object mapToBean(Map map, Class clazz) throws Exception {
-        return mapper.readValue(objectToJson(map), clazz);
+    @SuppressWarnings({ "rawtypes"})
+	public static <T> T mapToBean(Map map, Class<T> clazz) throws Exception {
+    	return JSON.parseObject(mapToJson(map), clazz);
     }
     /**
      *  将Bean转成Map
@@ -57,8 +56,9 @@ public class JsonUtils {
      * @return
      * @throws Exception
      */
-    public static Map beanToMap(Object obj) throws Exception {
-        return mapper.readValue(objectToJson(obj), Map.class);
+    @SuppressWarnings("rawtypes")
+	public static Map beanToMap(Object obj) throws Exception {
+    	return JSON.parseObject(objectToJson(obj),Map.class);
     }
     
     /**
@@ -66,17 +66,17 @@ public class JsonUtils {
      * @param jsonString
      * @return
      */
-    public static Map jsonToMap(String jsonString) throws Exception{
-    	return mapper.readValue(jsonString, Map.class);
+    @SuppressWarnings("rawtypes")
+	public static Map jsonToMap(String jsonString) throws Exception{
+    	return JSON.parseObject(jsonString,Map.class);
     }
     /**
      * 字符串转Bean
      * @param jsonString
      * @return
      */
-    @Deprecated
-    public static Object jsonToBean(String jsonString,Class clazz) throws Exception{
-    	return mapper.readValue(jsonString, clazz);
+    public static <T> T jsonToBean(String jsonString,Class<T> clazz) throws Exception{
+    	return JSON.parseObject(jsonString, clazz);
     }
 
     /**
@@ -96,7 +96,7 @@ public class JsonUtils {
      * @return
      */
     public static <T> T parseObject(String json,Class<T> clazz){
-        return JSONObject.parseObject(json,clazz);
+        return JSON.parseObject(json,clazz);
     }
 
     /**

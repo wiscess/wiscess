@@ -3,7 +3,9 @@ package com.wiscess.utils;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 
-import org.springframework.util.ReflectionUtils;
+import cn.hutool.core.lang.reflect.MethodHandleUtil;
+import cn.hutool.core.util.ObjectUtil;
+
 
 /**
  * Excel导入校验类
@@ -29,10 +31,10 @@ public class ObjectUtils {
 		Method setter;
 		try {
 			setter = setMethod(obj.getClass(),fieldName,String.class);
-			if(org.springframework.util.ObjectUtils.isEmpty(value)) {
-				ReflectionUtils.invokeMethod(setter, obj, defaultValue);
+			if(ObjectUtil.isEmpty(value)) {
+				MethodHandleUtil.invoke(obj, setter, defaultValue);
 			}else {
-				ReflectionUtils.invokeMethod(setter, obj, value);
+				MethodHandleUtil.invoke(obj, setter, value);
 			}
 		} catch (Exception e1) {
 			e1.printStackTrace();
@@ -55,10 +57,10 @@ public class ObjectUtils {
 		Method setter;
 		try {
 			setter = setMethod(obj.getClass(),fieldName,Integer.class); 
-			if(org.springframework.util.ObjectUtils.isEmpty(value)) {
-				ReflectionUtils.invokeMethod(setter, obj, defaultValue);
+			if(ObjectUtil.isEmpty(value)) {
+				MethodHandleUtil.invoke(obj, setter, defaultValue);
 			}else {
-				ReflectionUtils.invokeMethod(setter, obj, Integer.parseInt(value.toString()));
+				MethodHandleUtil.invoke(obj, setter, Integer.parseInt(value.toString()));
 			}
 		} catch (SecurityException e1) {
 			e1.printStackTrace();
@@ -82,10 +84,10 @@ public class ObjectUtils {
 		Method setter;
 		try {
 			setter = setMethod(obj.getClass(),fieldName,BigDecimal.class);
-			if(org.springframework.util.ObjectUtils.isEmpty(value)) {
-				ReflectionUtils.invokeMethod(setter, obj, defaultValue);
+			if(ObjectUtil.isEmpty(value)) {
+				MethodHandleUtil.invoke(obj, setter, defaultValue);
 			}else {
-				ReflectionUtils.invokeMethod(setter, obj, new BigDecimal(value.toString()));
+				MethodHandleUtil.invoke(obj, setter, new BigDecimal(value.toString()));
 			}
 		} catch (SecurityException e1) {
 			e1.printStackTrace();
@@ -102,12 +104,12 @@ public class ObjectUtils {
 		Method setter;
 		try {
 			setter = setMethod(obj.getClass(),fieldName,classType);
-			if(org.springframework.util.ObjectUtils.isEmpty(value)) {
+			if(ObjectUtil.isEmpty(value)) {
 				//传入值为null或空串，使用默认值保存
 				value=defaultValue;
 			}
 			//转换为泛型
-			ReflectionUtils.invokeMethod(setter, obj, value==null
+			MethodHandleUtil.invoke(obj, setter, value==null
 					?null
 					:JsonUtils.parseObject(value.toString(),classType));
 		} catch (SecurityException e1) {

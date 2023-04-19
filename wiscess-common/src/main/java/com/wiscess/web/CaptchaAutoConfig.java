@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import com.google.code.kaptcha.Producer;
 import com.google.code.kaptcha.util.Config;
@@ -14,7 +14,7 @@ import com.google.code.kaptcha.util.Config;
 /**
  * @author wanghai
  */
-@Configuration
+@AutoConfiguration
 @EnableConfigurationProperties
 public class CaptchaAutoConfig {
 	/**

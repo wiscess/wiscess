@@ -1,0 +1,5 @@
+com.wiscess.thymeleaf.ThymeleafWebWiscessConfiguration
+com.wiscess.web.WebConfig
+com.wiscess.web.CaptchaAutoConfig
+com.wiscess.web.controller.PublicApiController
+com.wiscess.web.controller.CaptchaController

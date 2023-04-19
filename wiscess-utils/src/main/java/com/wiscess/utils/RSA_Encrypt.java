@@ -2,10 +2,6 @@ package com.wiscess.utils;
 
 import javax.crypto.Cipher;
 
-import org.springframework.util.Base64Utils;
-
-import sun.security.rsa.RSAPublicKeyImpl;
-
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -25,6 +21,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.RSAPrivateCrtKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 
 
 /**
@@ -33,7 +30,6 @@ import java.security.spec.X509EncodedKeySpec;
  * @author wanghai
  * @version 1.0.0
  */
-@SuppressWarnings("restriction")
 public class RSA_Encrypt {
 	/** assign to RSA */
 	private static String ALGORITHM = "RSA";
@@ -89,8 +85,8 @@ public class RSA_Encrypt {
 			// 使用base64编码
 			pw.println(encryptBASE64(publicKey.getEncoded()));
 		} else {
-			BigInteger m = ((RSAPublicKeyImpl) publicKey).getModulus();
-			BigInteger e = ((RSAPublicKeyImpl) publicKey).getPublicExponent();
+			BigInteger m = publicKey.getModulus();
+			BigInteger e = publicKey.getPublicExponent();
 			pw.println("bitlen=" + m.bitLength() + ";");
 			String mStr = m.toString(16);
 			if ((mStr.length() % 2) == 1)
@@ -458,7 +454,7 @@ public class RSA_Encrypt {
 	 */
 	public static byte[] decryptBASE64(String key) {
 		key=key.trim().replaceAll("\r\n", "");
-		return Base64Utils.decodeFromString(key);
+		return Base64.getDecoder().decode(key);
 	}
 
 	/**
@@ -469,7 +465,7 @@ public class RSA_Encrypt {
 	 * @throws Exception
 	 */
 	public static String encryptBASE64(byte[] key)  {
-		return Base64Utils.encodeToString(key);
+		return Base64.getEncoder().encodeToString(key);
 	}
 
 	// 编码返回字符串

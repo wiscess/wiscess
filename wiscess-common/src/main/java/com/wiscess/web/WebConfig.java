@@ -2,9 +2,9 @@ package com.wiscess.web;
 
 import java.util.Locale;
 
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.validation.Validator;
@@ -19,7 +19,7 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 /**
  * @author wanghai
  */
-@Configuration
+@AutoConfiguration
 @EnableScheduling
 @EnableConfigurationProperties
 public class WebConfig implements WebMvcConfigurer {

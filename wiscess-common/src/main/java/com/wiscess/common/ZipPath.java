@@ -7,11 +7,8 @@ package com.wiscess.common;
 // import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
@@ -38,7 +35,7 @@ public class ZipPath {
 		String encoding=System.getProperty("sun.jnu.encoding");
 		System.setProperty("sun.zip.encoding", System.getProperty("sun.jnu.encoding")); //防止文件名中有中文时出错  
 	    ZipFile zipFile = new ZipFile(new File(zipFileName),encoding);
-		Enumeration e = zipFile.getEntries();
+		Enumeration<ZipEntry> e = zipFile.getEntries();
 		org.apache.tools.zip.ZipEntry z = null;
 		InputStream in = null;
 		File outFile = new File(outputDirectory);

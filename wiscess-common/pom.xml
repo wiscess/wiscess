@@ -3,27 +3,20 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.wiscess</groupId>
 	<artifactId>wiscess-common</artifactId>
-	<version>2.6.7</version>
+	<version>3.0.5</version>
 	<description>wiscess common package</description>
 	<name>wiscess common</name>
 	<url>http://www.wiscess.com.cn</url>
 	<properties>
 		<!-- <maven.dir>D:/GitHome/mvn-repo</maven.dir> -->
 		<distribution.url>http://42.96.168.102:8081/repository/wiscess/</distribution.url>
-		<spring-boot.version>2.6.7</spring-boot.version>
+		<spring-boot.version>3.0.5</spring-boot.version>
 		<thymeleaf.version>3.1.1.RELEASE</thymeleaf.version>
+		<security.version>6.0.3</security.version>
 		<java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<swagger.version>2.7.0</swagger.version>
-		<lombok.version>1.18.22</lombok.version>
+		<lombok.version>1.18.26</lombok.version>
     </properties>
-    <!-- 远程发布
-    <distributionManagement>
-        <repository>
-        	<id>wiscess</id>
-            <url>${distribution.url}</url>
-		</repository>    
-	</distributionManagement> -->
     <build>
         <plugins>
         	<!-- 编译插件 -->
@@ -59,10 +52,6 @@
 			<plugin>
 		        <artifactId>maven-deploy-plugin</artifactId>
 		        <version>2.8.2</version>
-		        <!-- 发布到本地
-		        <configuration>
-		            <altDeploymentRepository>internal.repo::default::file://${maven.dir}</altDeploymentRepository>
-		        </configuration>-->
 		        <!-- 发布到远程仓库-->
 		        <configuration>
 		            <altDeploymentRepository>wiscess::default::${distribution.url}</altDeploymentRepository>
@@ -76,15 +65,6 @@
 			<id>nexus</id>
 			<url>http://42.96.168.102:8081/repository/maven-public/</url>
 		</repository>
-		<!-- 	
-		<repository>
-			<id>spring-milestone</id>
-			<url>https://repo.spring.io/libs-release</url>
-		</repository>
-        <repository>
-            <id>github</id>
-            <url>https://raw.github.com/wiscess/mvn-repo/release</url>
-        </repository> -->
 	</repositories>
 	<!-- 插件仓库地址 -->
 	<pluginRepositories>
@@ -92,11 +72,6 @@
 			<id>nexus</id>
 			<url>http://42.96.168.102:8081/repository/maven-public/</url>
 		</pluginRepository>
-		<!-- 
-		<pluginRepository>
-			<id>spring-milestone</id>
-			<url>https://repo.spring.io/libs-release</url>
-		</pluginRepository> -->
 	</pluginRepositories>
 	<!-- 依赖包 -->
 	<dependencies>
@@ -120,10 +95,16 @@
             <artifactId>spring-boot-starter-validation</artifactId>
 			<version>${spring-boot.version}</version>
         </dependency>
+        <!-- 代替javax.servlet.* -->
+		<dependency>
+		    <groupId>jakarta.servlet</groupId>
+		    <artifactId>jakarta.servlet-api</artifactId>
+			<version>6.0.0</version>
+		</dependency>
 		<dependency>
 			<groupId>com.wiscess</groupId>
 			<artifactId>wiscess-utils</artifactId>
-			<version>2.6.7</version>
+			<version>3.0.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.ant</groupId>
@@ -134,28 +115,34 @@
 			<groupId>com.github.penggle</groupId>
 			<artifactId>kaptcha</artifactId>
 			<version>2.3.2</version>
+            <exclusions>
+		        <exclusion>
+			      <groupId>javax.servlet</groupId>
+			      <artifactId>javax.servlet-api</artifactId>
+		        </exclusion>
+		    </exclusions>
 		</dependency>
 		<!-- --> 
 	    <dependency>
 	      <groupId>org.thymeleaf</groupId>
 	      <artifactId>thymeleaf</artifactId>
-	      <version>3.0.12.RELEASE</version>
+	      <version>${thymeleaf.version}</version>
 	    </dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-web</artifactId>
-			<version>5.6.3</version>
+			<version>${security.version}</version>
 		</dependency>
     	<dependency>
     		<groupId>org.webjars</groupId>
     		<artifactId>bootstrap</artifactId>
-    		<version>4.5.3</version>
+    		<version>5.2.3</version>
     	</dependency>
         <!-- 隐藏webjars版本号 -->
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>webjars-locator</artifactId>
-            <version>0.44</version>
+            <version>0.46</version>
             <exclusions>
 		        <exclusion>
 			        <groupId>com.fasterxml.jackson.core</groupId>
@@ -166,7 +153,7 @@
         <dependency>
 		     <groupId>nz.net.ultraq.thymeleaf</groupId>
 		     <artifactId>thymeleaf-layout-dialect</artifactId>
-            <version>2.5.3</version>
+            <version>3.2.1</version>
             <exclusions>
 		        <exclusion>
 			      <groupId>org.thymeleaf</groupId>
@@ -175,11 +162,10 @@
 		    </exclusions>
 		</dependency>
 		<!--swagger-->
-		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-swagger2</artifactId>
-			<version>${swagger.version}</version>
-			<scope>compile</scope>
-		</dependency>
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+                <version>4.1.0</version>
+        </dependency>
 	</dependencies>
 </project>

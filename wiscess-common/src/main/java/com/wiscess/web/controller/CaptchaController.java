@@ -8,17 +8,19 @@ import java.io.IOException;
 import java.util.Date;
 
 import javax.imageio.ImageIO;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import com.wiscess.common.R;
 import com.wiscess.utils.StringUtils;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,7 +35,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  *
  */
 @Controller
-@Api(value = "CaptchaControll")
+@Tag(name = "验证码控制类")
 public class CaptchaController {
 	@Autowired
 	private Producer kaptchaProducer = null;
@@ -89,9 +91,9 @@ public class CaptchaController {
 	 * @throws IOException
 	 */
 	@ResponseBody
-	@ApiOperation(value = "校验验证码")
-	@ApiImplicitParams({
-			@ApiImplicitParam(name = "code",value = "验证码",paramType = "query")
+	@Operation(summary = "校验验证码")
+	@Parameters({
+		@Parameter(name = "code",description = "验证码")
 	})
 	@RequestMapping(value = "${app.captcha.checkurl:/js/validateCode}", method = RequestMethod.GET)
 	public R validateCode(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

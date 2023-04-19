@@ -1,6 +1,6 @@
 package com.wiscess.common;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.util.HashMap;
@@ -10,16 +10,16 @@ import java.util.Map;
 @Data
 public class R {
 
-    @ApiModelProperty(value = "是否成功")
+    @Schema(description = "是否成功")
     private Boolean success;
 
-    @ApiModelProperty(value = "返回码")
+    @Schema(description = "返回码")
     private Integer code;
 
-    @ApiModelProperty(value = "返回消息")
+    @Schema(description = "返回消息")
     private String message;
 
-    @ApiModelProperty(value = "返回数据")
+    @Schema(description = "返回数据")
     private Object data = null;
 
     //把构造方法私有
@@ -64,13 +64,14 @@ public class R {
         return this;
     }
 
-    public R data(String key, Object value){
+	@SuppressWarnings("unchecked")
+	public R data(String key, Object value){
         if(this.data==null){
             Map<String,Object> map=new HashMap<String,Object>();
             map.put(key, value);
             this.data=map;
         }else if(this.data instanceof Map){
-            ((Map)this.data).put(key, value);
+            ((Map<String, Object>)this.data).put(key, value);
         }else{
             //设置失败
         }

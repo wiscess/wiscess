@@ -2,13 +2,14 @@ package com.wiscess.web.controller;
 
 import com.wiscess.common.R;
 import com.wiscess.utils.RSA_Encrypt;
-import io.swagger.annotations.Api;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.InputStream;
 
 /**
@@ -18,8 +19,8 @@ import java.io.InputStream;
  */
 @RequestMapping("/")
 @RestController
-@Api(value = "PublicApiControll",tags = "框架公用接口")
-public class PublicApiControll {
+@Tag(name = "框架公用接口")
+public class PublicApiController {
 
 	public static String publicKey=getPublicKey();
 	

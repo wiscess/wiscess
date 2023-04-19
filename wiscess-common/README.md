@@ -1,15 +1,28 @@
 # wiscess-common:
 
-## 版本：v2.0
+## 版本：v3.0.5
 
 pom.xml
-```xml
+
+```
     <dependency>
         <groupId>com.wiscess</groupId>
-        <artifactId>wiscess-filter</artifactId>
-        <version>2.0</version>
+        <artifactId>wiscess-common</artifactId>
+        <version>3.0.5</version>
     </dependency>
 ```
+#####更新时间：2023-04-19
+
+#####更新内容：
+
+1.适配springboot 3.0.5；<br/>
+2.java版本升级到17.0.7；<br/>
+3.替换javax.servlet.\*，改为jakarta.servlet.\*;<br/>
+4.集成knife4j 4.1.0。<br/>
+5.META-INF/spring.factories废弃，改为META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports，每行一个配置类<br/>
+
+
+
 #####更新时间：2018-12-29
 
 #####更新内容：

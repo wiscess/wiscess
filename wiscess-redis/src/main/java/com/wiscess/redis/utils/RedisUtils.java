@@ -9,7 +9,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import javax.annotation.Priority;
+import jakarta.annotation.Priority;
 
 import com.alibaba.fastjson2.JSON;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -191,7 +191,6 @@ public class RedisUtils {
 	 * @param key
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public static <T> T getObject(String key,Class<T> clazz) {
 		try {
 			String jsonStr=(String)redisTemplate.opsForValue().get(key);

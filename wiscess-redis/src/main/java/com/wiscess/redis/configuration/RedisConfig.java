@@ -22,10 +22,10 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
 
-import javax.annotation.Priority;
+import jakarta.annotation.Priority;
 
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CachingConfigurerSupport;
+import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,7 +50,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @EnableCaching
 @Slf4j
 @Priority(-1000)
-public class RedisConfig extends CachingConfigurerSupport {
+public class RedisConfig implements CachingConfigurer {
     @Bean(name = "stringRedisTemplate")
     public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory factory) {
         StringRedisTemplate stringRedisTemplate = new StringRedisTemplate(factory);
@@ -68,14 +68,13 @@ public class RedisConfig extends CachingConfigurerSupport {
          //redisTemplate.setConnectionFactory(new JedisConnectionFactory());
  
          //下面代码解决LocalDateTime序列化与反序列化不一致问题
-         Jackson2JsonRedisSerializer<Object> j2jrs = new Jackson2JsonRedisSerializer<>(Object.class);
          ObjectMapper om = new ObjectMapper();
          om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
          // 解决jackson2无法反序列化LocalDateTime的问题
          om.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
          om.registerModule(new JavaTimeModule());
-        om.activateDefaultTyping(om.getPolymorphicTypeValidator(), ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
-         j2jrs.setObjectMapper(om);
+         om.activateDefaultTyping(om.getPolymorphicTypeValidator(), ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+         Jackson2JsonRedisSerializer<Object> j2jrs = new Jackson2JsonRedisSerializer<>(om,Object.class);
          // 序列化 value 时使用此序列化方法
          redisTemplate.setValueSerializer(j2jrs);
          redisTemplate.setHashValueSerializer(j2jrs);
@@ -99,15 +98,14 @@ public class RedisConfig extends CachingConfigurerSupport {
     @Primary
     public CacheManager cacheManager(RedisConnectionFactory factory) {
         RedisSerializer<String> redisSerializer = new StringRedisSerializer();
-        Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<Object>(Object.class);
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper om = new ObjectMapper();
         // 此项必须配置，否则会报java.lang.ClassCastException: java.util.LinkedHashMap cannot be cast to XXXX
-        objectMapper.activateDefaultTyping(objectMapper.getPolymorphicTypeValidator(), ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
-        jackson2JsonRedisSerializer.setObjectMapper(objectMapper);
+        om.activateDefaultTyping(om.getPolymorphicTypeValidator(), ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+        Jackson2JsonRedisSerializer<Object> j2jrs = new Jackson2JsonRedisSerializer<>(om,Object.class);
         // 配置序列化
         RedisCacheConfiguration defaultCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(redisSerializer))
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(jackson2JsonRedisSerializer))
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(j2jrs))
                 .computePrefixWith(cacheName -> "basic:" + cacheName + ":");//设置key的前缀生成规则
 //				.computePrefixWith(new CacheKey());
         RedisCacheManager cacheManager = new RedisCacheManager(RedisCacheWriter.nonLockingRedisCacheWriter(factory), defaultCacheConfiguration);

@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.reflect.MethodSignature;
 import org.redisson.RedissonRedLock;
 import org.redisson.api.RLock;
 import org.redisson.api.RReadWriteLock;
@@ -103,6 +102,8 @@ public class LockAspect {
                 RReadWriteLock rwlock1 = redissonClient.getReadWriteLock(key);
                 rLock = rwlock1.writeLock();
                 break;
+		default:
+			break;
         }
         //执行aop
         if(rLock!=null) {

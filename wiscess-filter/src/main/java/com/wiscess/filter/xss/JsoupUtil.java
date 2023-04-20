@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.safety.Whitelist;
+import org.jsoup.safety.Safelist;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
@@ -25,14 +25,14 @@ public class JsoupUtil {
 	   *  h5, h6, i, img, li, ol, p, pre, q, small, strike, strong, sub, sup, table, tbody, td, tfoot, th, thead, tr, u, ul。
 	   *  结果不包含标签rel=nofollow ，如果需要可以手动添加。
 	   */
-	private static final Whitelist whitelist = Whitelist.relaxed();
+	private static final Safelist whitelist = Safelist.relaxed();
 	/**
 	 * * 使用自带的basicWithImages 白名单 *
 	 * 允许的便签有a,b,blockquote,br,cite,code,dd,dl,dt,em,i,li,ol,p,pre,q,small,span, *
 	 * strike,strong,sub,sup,u,ul,img *
 	 * 以及a标签的href,img标签的src,align,alt,height,width,title属性
 	 */
-	private static final Whitelist whitelistWithImages = Whitelist.basicWithImages();
+	private static final Safelist whitelistWithImages = Safelist.basicWithImages();
 	/** 配置过滤化参数,不对代码进行格式化 */
 	private static final Document.OutputSettings outputSettings = new Document.OutputSettings().prettyPrint(false);
 	static {		
@@ -50,7 +50,7 @@ public class JsoupUtil {
 		whitelistWithImages.preserveRelativeLinks(true);
 	} 	
 	
-	private static String clean(String content,Whitelist whitelist,Boolean isHtml) {
+	private static String clean(String content,Safelist whitelist,Boolean isHtml) {
 		if(StringUtils.isNotEmpty(content)){
 			content = content.trim();       
 		}
@@ -82,7 +82,7 @@ public class JsoupUtil {
 	public static String cleanName(String name) {	    
 		//不允许任何标签出现
 		//替换已知的不允许出现的所有字符
-		return clean(name,Whitelist.none(),true);
+		return clean(name,Safelist.none(),true);
 	}		
 	/**
 	 * 对文本框内容也进行判断，只保留基本标签，允许有单引号和双引号
@@ -105,7 +105,7 @@ public class JsoupUtil {
 	 */
 	public static String cleanValue(String content) {	  
 		//只保留允许的标签，不替换特殊字符
-		return clean(content,Whitelist.none(),true);    
+		return clean(content,Safelist.none(),true);    
 	}	
 	/**
 	 * 格式化HTML文本

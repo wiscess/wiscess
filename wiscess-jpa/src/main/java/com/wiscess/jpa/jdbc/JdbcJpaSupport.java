@@ -14,8 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpSession;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -33,7 +31,9 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.jdbc.support.KeyHolder;
 
+import com.google.common.cache.Cache;
 import com.wiscess.jpa.util.DynamicSqlUtil;
+import com.wiscess.jpa.util.GoogleCacheUtils;
 import com.wiscess.jpa.util.ISqlElement;
 import com.wiscess.query.config.Query;
 import com.wiscess.utils.StringUtils;
@@ -346,32 +346,37 @@ public class JdbcJpaSupport {
 	}
 
 	/**
+	 * 记录导入的进度，1分钟销毁
+	 */
+	private static Cache<String, String> progressCache = GoogleCacheUtils.createManualCache(1L);
+	
+	/**
 	 * 公用的导入方法
 	 * @param titleRow
 	 * @param rowList
 	 * @return
 	 */
-	public void importBaseData(HttpSession session,String importStatus,final String[] titleRow, 
+	public void importBaseData(String importStatus,final String[] titleRow, 
 			List<String[]> rowList,List<String> preExcuteSqlList,IFillStataData<String[]> fill){
-		this.importBaseData(session, importStatus, titleRow, null, rowList, preExcuteSqlList, fill);
+		this.importBaseData(importStatus, titleRow, null, rowList, preExcuteSqlList, fill);
 	}
 	@SuppressWarnings("unchecked")
-	public List<String>  importBaseData(HttpSession session,String importStatus,final String[] titleRow,	final Map<String,Integer> fieldMap,	
+	public List<String>  importBaseData(String importStatus,final String[] titleRow,	final Map<String,Integer> fieldMap,	
 			List<String[]> rowList,List<String> preExcuteSqlList,IFillStataData<String[]> fill){
-		return this.importBaseDataByTemplate(jdbcTemplate, session, importStatus, titleRow, fieldMap, rowList, preExcuteSqlList, new IFillStataData[]{fill});
+		return this.importBaseDataByTemplate(jdbcTemplate, importStatus, titleRow, fieldMap, rowList, preExcuteSqlList, new IFillStataData[]{fill});
 	}
-	public List<String>  importBaseData(HttpSession session,String importStatus,final String[] titleRow,	final Map<String,Integer> fieldMap,	
+	public List<String>  importBaseData(String importStatus,final String[] titleRow,	final Map<String,Integer> fieldMap,	
 			List<String[]> rowList,List<String> preExcuteSqlList,IFillStataData<String[]>[] fillDatas){
-		return this.importBaseDataByTemplate(jdbcTemplate, session, importStatus, titleRow, fieldMap, rowList, preExcuteSqlList, fillDatas);
+		return this.importBaseDataByTemplate(jdbcTemplate, importStatus, titleRow, fieldMap, rowList, preExcuteSqlList, fillDatas);
 	}
-	protected List<String> importBaseDataByTemplate(JdbcTemplate template,HttpSession session,String importStatus,final String[] titleRow,	Map<String,Integer> fieldMap,	
+	protected List<String> importBaseDataByTemplate(JdbcTemplate template,String importStatus,final String[] titleRow,	Map<String,Integer> fieldMap,	
 			List<String[]> rowList,List<String> preExcuteSqlList,IFillStataData<String[]>[] fillDatas){
 		//错误列表
 		List<String> errorList=new ArrayList<String>();
 		//当前行
 		int rownum=0;
 		String[] rows=rowList.get(rownum);
-		session.setAttribute(importStatus, "正在校验字段名称");
+		progressCache.put(importStatus, "正在校验字段名称");
 		if(fieldMap==null){
 			fieldMap=fillFieldMap(fieldMap, rows);
 		}
@@ -387,13 +392,13 @@ public class JdbcJpaSupport {
 			errorList.add("缺少列："+missCol.substring(1)+";");
 		}
 		if(errorList.size()>0){
-			checkResult(session, importStatus, "字段名称不正确。");
+			progressCache.put(importStatus, "字段名称不正确。");
 			return errorList;
 		}
 		//总记录数
 		int totalCount=rowList.size()-1;
 		//校验每行数据是否合法
-		session.setAttribute(importStatus, "正在校验数据，共有数据"+totalCount+"条。");
+		progressCache.put(importStatus, "正在校验数据，共有数据"+totalCount+"条。");
 		int dataCount=0;
 		for(String[] row: rowList) {
 			rownum++;
@@ -416,7 +421,7 @@ public class JdbcJpaSupport {
 				}
 			}
 		}
-		session.setAttribute(importStatus, "正在校验数据，共有数据"+totalCount+"条，有效数据"+dataCount+"条。");
+		progressCache.put(importStatus, "正在校验数据，共有数据"+totalCount+"条，有效数据"+dataCount+"条。");
 
 		if(errorList.size()==0){
 			rownum=0;
@@ -442,7 +447,7 @@ public class JdbcJpaSupport {
 				}
 				//已处理记录
 				int dealCount=0;
-				session.setAttribute(importStatus, "开始导入数据，共有数据"+totalCount+"条，有效数据"+dataCount+"条。");
+				progressCache.put(importStatus, "开始导入数据，共有数据"+totalCount+"条，有效数据"+dataCount+"条。");
 				Thread.sleep(1000);
 				//开始处理数据
 				for(String[] row: rowList) {
@@ -459,7 +464,7 @@ public class JdbcJpaSupport {
 					dealCount++;
 					if(dealCount>=totalCount)
 						dealCount=totalCount;
-					session.setAttribute(importStatus, "已处理"+Math.round(dealCount*100.0/totalCount)+"%，"+dealCount+"/"+totalCount+"条。");
+					progressCache.put(importStatus, "已处理"+Math.round(dealCount*100.0/totalCount)+"%，"+dealCount+"/"+totalCount+"条。");
 					Thread.sleep(5);
 				}
 				//处理剩余的数据
@@ -467,11 +472,9 @@ public class JdbcJpaSupport {
 					fill.closeStat();
 				}
 	
-				session.setAttribute(importStatus, "已处理"+Math.round(dealCount*100.0/totalCount)+"%，"+dealCount+"/"+totalCount+"条。");
+				progressCache.put(importStatus, "已处理"+Math.round(dealCount*100.0/totalCount)+"%，"+dealCount+"/"+totalCount+"条。");
 				con.commit();
-				session.setAttribute(importStatus, "导入成功");
-				Thread.sleep(1000);
-				session.removeAttribute(importStatus);
+				progressCache.put(importStatus, "导入成功");
 			} catch (Exception e) {
 				if (con != null) {
 					try {
@@ -480,12 +483,12 @@ public class JdbcJpaSupport {
 					}
 				}
 				e.printStackTrace();
-				checkResult(session,importStatus, "导入失败，请联系管理员");
+				progressCache.put(importStatus, "导入失败，请联系管理员");
 			} finally {
 				JdbcUtils.closeConnection(con);
 			}
 		}else{
-			checkResult(session, importStatus, "数据校验失败，请检查后重新导入。");
+			progressCache.put(importStatus, "数据校验失败，请检查后重新导入。");
 			return errorList;
 		}
 		return null;
@@ -501,17 +504,9 @@ public class JdbcJpaSupport {
 		}
 		return fieldMap;
 	}
-	private void checkResult(HttpSession session,String importStatus,Object result){
-		if(result!=null){
-			log.debug("get:"+session.getId()+":"+(String)session.getAttribute(importStatus));
-			session.setAttribute(importStatus, result.toString());
-			try {
-				Thread.sleep(3000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-		session.removeAttribute(importStatus);
+	
+	public String getProressMessage(String importStatus) {
+		return progressCache.getIfPresent(importStatus);
 	}
 
 	/**
@@ -533,10 +528,10 @@ public class JdbcJpaSupport {
 	 * @param list
 	 * @throws Exception 
 	 */
-	public void batchSqlByList(HttpSession session,String importStatus,List<Map<String, Object>> list,List<String> preExcuteSqlList,IFillStataData<Map<String, Object>>[] fillDatas) throws Exception{
-		this.batchSqlByListByTemplate(jdbcTemplate,session,importStatus, list,preExcuteSqlList,fillDatas);
+	public void batchSqlByList(String importStatus,List<Map<String, Object>> list,List<String> preExcuteSqlList,IFillStataData<Map<String, Object>>[] fillDatas) throws Exception{
+		this.batchSqlByListByTemplate(jdbcTemplate,importStatus, list,preExcuteSqlList,fillDatas);
 	}
-	public void batchSqlByListByTemplate(JdbcTemplate template,HttpSession session,String importStatus,List<Map<String, Object>> list,
+	public void batchSqlByListByTemplate(JdbcTemplate template, String importStatus,List<Map<String, Object>> list,
 			List<String> preExcuteSqlList,IFillStataData<Map<String, Object>>[] fillDatas) throws Exception{
 		//批量处理数据
 		Connection con = null;// 本地库连接
@@ -561,7 +556,7 @@ public class JdbcJpaSupport {
 			int totalCount=list.size();
 			//已处理记录
 			int dealCount=0;
-			session.setAttribute(importStatus, "开始导入数据，共有数据"+totalCount+"条。");
+			progressCache.put(importStatus, "开始导入数据，共有数据"+totalCount+"条。");
 			Thread.sleep(100);
 			//开始处理数据
 			int rownum=0;
@@ -571,12 +566,12 @@ public class JdbcJpaSupport {
 					fill.fillData(map, rownum);
 				}
 				dealCount++;
-				session.setAttribute(importStatus, "已处理"+Math.round(dealCount*100.0/totalCount)+"%，"+dealCount+"/"+totalCount+"条。");
+				progressCache.put(importStatus, "已处理"+Math.round(dealCount*100.0/totalCount)+"%，"+dealCount+"/"+totalCount+"条。");
 			}
 			for(IFillStataData<Map<String, Object>> fill:fillDatas){
 				fill.closeStat();
 			}
-			session.setAttribute(importStatus, "已处理"+Math.round(dealCount*100.0/totalCount)+"%，"+dealCount+"/"+totalCount+"条。");
+			progressCache.put(importStatus, "已处理"+Math.round(dealCount*100.0/totalCount)+"%，"+dealCount+"/"+totalCount+"条。");
 			con.commit();
 		} catch (Exception e) {
 			if (con != null) {
@@ -601,10 +596,10 @@ public class JdbcJpaSupport {
 		}
 		switch (type) {
 			case Types.INTEGER:
-				ps.setInt(order , new Integer(obj.toString()));
+				ps.setInt(order , Integer.parseInt(obj.toString()));
 				break;
 			case Types.NUMERIC:
-				ps.setLong(order , new Long(obj.toString()));
+				ps.setLong(order , Long.parseLong(obj.toString()));
 				break;
 			case Types.VARCHAR:
 				ps.setString(order, obj.toString());
@@ -624,16 +619,16 @@ public class JdbcJpaSupport {
 				}
 				break;
 			case Types.DOUBLE:
-				ps.setDouble(order, new Double(obj.toString()));
+				ps.setDouble(order, Double.parseDouble(obj.toString()));
 				break;
 			case Types.FLOAT:
-				ps.setFloat(order, new Float(obj.toString()));
+				ps.setFloat(order, Float.parseFloat(obj.toString()));
 				break;
 			case Types.SMALLINT:
-				ps.setShort(order, new Short(obj.toString()));
+				ps.setShort(order, Short.parseShort(obj.toString()));
 				break;
 			case Types.BOOLEAN:
-				ps.setBoolean(order, new Boolean(obj.toString()));
+				ps.setBoolean(order, Boolean.parseBoolean(obj.toString()));
 				break;
 			case Types.DECIMAL:
 				ps.setBigDecimal(order, new BigDecimal(obj.toString()));

@@ -83,10 +83,10 @@ public abstract class IFillStataData<T> {
 		}
 		switch (type) {
 		case Types.INTEGER:
-			insertState.setInt(order , new Integer(obj.toString()));
+			insertState.setInt(order , Integer.parseInt(obj.toString()));
 			break;
 		case Types.NUMERIC:
-			insertState.setLong(order , new Long(obj.toString()));
+			insertState.setLong(order , Long.parseLong(obj.toString()));
 			break;
 		case Types.VARCHAR:
 			insertState.setString(order, obj.toString());
@@ -95,16 +95,16 @@ public abstract class IFillStataData<T> {
 			insertState.setTimestamp(order,((Timestamp)obj));
 			break;
 		case Types.DOUBLE:
-			insertState.setDouble(order, new Double(obj.toString()));
+			insertState.setDouble(order, Double.parseDouble(obj.toString()));
 			break;
 		case Types.FLOAT:
-			insertState.setFloat(order, new Float(obj.toString()));
+			insertState.setFloat(order, Float.parseFloat(obj.toString()));
 			break;
 		case Types.SMALLINT:
-			insertState.setShort(order, new Short(obj.toString()));
+			insertState.setShort(order, Short.parseShort(obj.toString()));
 			break;
 		case Types.BOOLEAN:
-			insertState.setBoolean(order, new Boolean(obj.toString()));
+			insertState.setBoolean(order, Boolean.parseBoolean(obj.toString()));
 			break;
 		case Types.DECIMAL:
 			insertState.setBigDecimal(order, new BigDecimal(obj.toString()));

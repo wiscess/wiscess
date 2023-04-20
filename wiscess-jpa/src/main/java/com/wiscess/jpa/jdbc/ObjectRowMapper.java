@@ -4,6 +4,7 @@
 package com.wiscess.jpa.jdbc;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -60,7 +61,7 @@ public class ObjectRowMapper<T> implements RowMapper<T> {
 	@Override
 	public T mapRow(ResultSet rs, int rowNum) throws SQLException {
 		try {
-			Object obj = clazz.newInstance();
+			Object obj = clazz.getDeclaredConstructors()[0].newInstance();
 			initProps(rs.getMetaData());
 			for (int i = 1; i <= columnCount; i++) {
 				String propertyName = propertyNames[i];
@@ -71,7 +72,7 @@ public class ObjectRowMapper<T> implements RowMapper<T> {
 					// invoke
 					Class<?>[] parameterTypes = setter.getParameterTypes();
 					if (parameterTypes.length == 1) { // 只处理一个参数的setter
-						if (! setter.isAccessible()) {
+						if (! setter.trySetAccessible()) {
 							setter.setAccessible(true);
 						}
 						Object value = JdbcUtils.getResultSetValue(rs, i, parameterTypes[0]);
@@ -82,7 +83,7 @@ public class ObjectRowMapper<T> implements RowMapper<T> {
 				if (! set) { // 没有set方法，则直接操作属性
 					Field field = ReflectionUtils.findField(clazz, propertyName);
 					if (field != null) {
-						if (! field.isAccessible()) {
+						if (! field.trySetAccessible()) {
 							field.setAccessible(true);
 						}
 						Object value = JdbcUtils.getResultSetValue(rs, i, field.getType());
@@ -99,6 +100,8 @@ public class ObjectRowMapper<T> implements RowMapper<T> {
 			throw new SQLException("安全异常", e);
 		} catch (IllegalArgumentException e) {
 			throw new SQLException("非法参数异常", e);
+		} catch (InvocationTargetException e) {
+			throw new SQLException("类初始化异常", e);
 		}
 	}
 

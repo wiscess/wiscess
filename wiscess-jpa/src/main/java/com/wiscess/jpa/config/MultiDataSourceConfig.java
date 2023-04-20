@@ -1,6 +1,6 @@
 package com.wiscess.jpa.config;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import javax.sql.DataSource;
 
 import lombok.extern.slf4j.Slf4j;

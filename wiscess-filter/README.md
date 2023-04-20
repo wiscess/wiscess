@@ -1,22 +1,30 @@
-wiscess-filter:
-==
-版本：v2.0
---
+# wiscess-filter:
+
+## 版本：v3.0.5
 
 pom.xml
+
 ```pom
     <dependency>
         <groupId>com.wiscess</groupId>
         <artifactId>wiscess-filter</artifactId>
-        <version>2.0</version>
+        <version>3.0.5</version>
     </dependency>
 ```
+
 application.yml
-```
 
 ```
 
-#####更新时间：2020-03-19
+```
+
+#####更新时间：2023-04-19
+
+#####更新内容：
+
+1.适配springboot 3.0.5；<br/>
+2.java版本升级到17.0.7；<br/>
+3.替换javax.servlet.\*为jakarta.servlet.\*;<br/>
 
 #####更新时间：2019-01-04
 

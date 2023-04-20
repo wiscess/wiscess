@@ -2,14 +2,14 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.wiscess</groupId>
   <artifactId>wiscess-jpa</artifactId>
-  <version>2.6.7</version>
+  <version>3.0.5</version>
   <url>http://www.wiscess.com.cn</url>
 	<properties>
 		<!-- <maven.dir>D:/GitHome/mvn-repo</maven.dir>-->
 		<distribution.url>http://42.96.168.102:8081/repository/wiscess/</distribution.url>
-		<spring-boot.version>2.6.7</spring-boot.version>
-		<wiscess.version>2.6.6</wiscess.version>
-		<java.version>1.8</java.version>
+		<spring-boot.version>3.0.5</spring-boot.version>
+		<wiscess.version>3.0.5</wiscess.version>
+		<java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
     <build>
@@ -87,7 +87,14 @@
 		<dependency>
 			<groupId>com.wiscess</groupId>
 			<artifactId>wiscess-common</artifactId>
-			<version>[${wiscess.version},)</version>
+			<version>${wiscess.version}</version>
+			<scope>provided</scope>
 		</dependency>
+		<!-- google缓存查询 -->
+		<dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>31.0.1-jre</version>
+        </dependency>
 	</dependencies>
 </project>

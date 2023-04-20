@@ -57,11 +57,13 @@ public class AssignedSheet implements Serializable {
 	/**
 	 * 数据行所占行数，默认为1
 	 */
+	@Builder.Default
 	private int dataRowSpan=1;
 	
 	/**
 	 * 新数据按新建或copy模板的方式
 	 */
+	@Builder.Default
 	private boolean needCopyTemplateRow=false;
 	
 	/**
@@ -72,11 +74,13 @@ public class AssignedSheet implements Serializable {
 	/**
 	 * 是否隐藏
 	 */
+	@Builder.Default
 	private boolean hidden=false;
 	
 	/**
 	 * 设置是否自动调整行高，默认为false，使用模板中指定的行高
 	 */
+	@Builder.Default
 	private boolean autoHeight = false;
 	/**
 	 * 每列宽度

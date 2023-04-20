@@ -17,8 +17,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
+
+import com.wiscess.common.utils.FileUtils;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.poi.hssf.usermodel.HSSFClientAnchor;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -35,7 +37,6 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFClientAnchor;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import com.wiscess.utils.FileUtils;
 import com.wiscess.exporter.dto.AssignedCell;
 import com.wiscess.exporter.dto.AssignedSheet;
 import com.wiscess.exporter.dto.ExportExcelParameter;
@@ -719,8 +720,8 @@ public class ExcelExportUtil {
 	/**
 	 * 将sheet中的所有行复制到目标sheet中，并删除原sheet
 	 * 
-	 * @param oriSheet
-	 * @param descSheet
+	 * @param sourceSheet
+	 * @param targetSheet
 	 */
 	protected static void copySheet(Sheet sourceSheet, Sheet targetSheet) {
 		// 首先获取sourceSheet的最后一行行数

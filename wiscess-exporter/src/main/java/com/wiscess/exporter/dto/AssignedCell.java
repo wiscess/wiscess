@@ -33,6 +33,7 @@ public class AssignedCell implements Serializable {
 	 * 1.使用模板中相应位置的样式
 	 * 2.使用模板中特殊显示的样式
 	 */
+	@Builder.Default
 	private int dataStyle = 0; 
 	/**
 	 * 使用指定的单元格样式，根据excle中的顺序
@@ -41,6 +42,7 @@ public class AssignedCell implements Serializable {
 	/**
 	 * 默认锁定单元格
 	 */
+	@Builder.Default
 	private boolean locked = true;
 	public AssignedCell(String cellStr,Object value){
 		this(new CellAddress(cellStr),value);

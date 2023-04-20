@@ -2,14 +2,14 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.wiscess</groupId>
   <artifactId>wiscess-importer</artifactId>
-  <version>2.6.6</version>
+  <version>3.0.5</version>
   <name>wiscess importer</name>
   <url>http://www.wiscess.com.cn</url>
 	<properties>
 		<distribution.url>http://42.96.168.102:8081/repository/wiscess/</distribution.url>
-		<wiscess.version>2.6.6</wiscess.version>
-		<spring-boot.version>2.6.6</spring-boot.version>
-		<java.version>1.8</java.version>
+		<wiscess.version>3.0.5</wiscess.version>
+		<spring-boot.version>3.0.5</spring-boot.version>
+		<java.version>17</java.version>
 	</properties>
     <build>
         <plugins>
@@ -72,12 +72,12 @@
     <dependency>
     	<groupId>org.apache.poi</groupId>
     	<artifactId>poi-ooxml</artifactId>
-    	<version>4.0.1</version>
+    	<version>4.1.2</version>
     </dependency>
     <dependency>
     	<groupId>com.wiscess</groupId>
     	<artifactId>wiscess-common</artifactId>
-    	<version>[${wiscess.version},)</version>
+    	<version>${wiscess.version}</version>
     </dependency>
     </dependencies>
 </project>

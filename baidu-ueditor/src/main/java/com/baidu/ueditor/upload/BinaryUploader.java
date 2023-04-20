@@ -13,16 +13,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
-import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.RequestContext;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
-import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
 public class BinaryUploader {
 
@@ -42,7 +42,7 @@ public class BinaryUploader {
 			String originFileName = "";
 			if(multipartEnabled) {
 				//默认为true时
-				CommonsMultipartResolver multipartResolver=new CommonsMultipartResolver(request.getSession().getServletContext());
+				StandardServletMultipartResolver multipartResolver=new StandardServletMultipartResolver();
 
 				//检查form中是否有enctype="multipart/form-data"
 				if(!multipartResolver.isMultipart(request)) {
@@ -72,8 +72,9 @@ public class BinaryUploader {
 				FileItemStream fileStream = null;
 				
 				boolean isAjaxUpload = request.getHeader( "X_Requested_With" ) != null;
-
-				if (!ServletFileUpload.isMultipartContent(request)) {
+				RequestContext rc =new Rc(request);
+				
+				if (!ServletFileUpload.isMultipartContent(rc)) {
 					return new BaseState(false, AppInfo.NOT_MULTIPART_CONTENT);
 				}
 				ServletFileUpload upload = new ServletFileUpload(
@@ -83,7 +84,7 @@ public class BinaryUploader {
 		            upload.setHeaderEncoding( "UTF-8" );
 		        }
 
-				FileItemIterator iterator = upload.getItemIterator(request);
+				FileItemIterator iterator = upload.getItemIterator(rc);
 	
 				while (iterator.hasNext()) {
 					fileStream = iterator.next();
@@ -132,9 +133,9 @@ public class BinaryUploader {
 			}
 
 			return storageState;
-		} catch (FileUploadException e) {
-			return new BaseState(false, AppInfo.PARSE_REQUEST_ERROR);
 		} catch (IOException e) {
+		} catch (Exception e) {
+			return new BaseState(false, AppInfo.PARSE_REQUEST_ERROR);
 		}
 		return new BaseState(false, AppInfo.IO_ERROR);
 	}

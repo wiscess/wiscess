@@ -7,6 +7,7 @@ public class FileType {
 
 	public static final String JPG = "JPG";
 	
+	@SuppressWarnings("serial")
 	private static final Map<String, String> types = new HashMap<String, String>(){{
 		
 		put( FileType.JPG, ".jpg" );

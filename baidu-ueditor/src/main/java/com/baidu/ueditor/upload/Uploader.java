@@ -2,7 +2,7 @@ package com.baidu.ueditor.upload;
 
 import com.baidu.ueditor.define.State;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 public class Uploader {
 	private HttpServletRequest request = null;

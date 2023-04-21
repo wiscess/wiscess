@@ -1,0 +1,5 @@
+com.wiscess.filter.autoconfig.HttpMethodAutoConfiguration
+com.wiscess.filter.autoconfig.FileTypeAutoConfiguration
+com.wiscess.filter.autoconfig.HeaderWriterAutoConfiguration
+com.wiscess.filter.autoconfig.XForwardAutoConfiguration
+com.wiscess.filter.autoconfig.XssAutoConfiguration

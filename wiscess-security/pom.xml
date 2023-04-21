@@ -3,17 +3,17 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.wiscess</groupId>
   <artifactId>wiscess-security</artifactId>
-  <version>2.6.7</version>
+  <version>3.0.5</version>
   <description>wiscess security package</description>
   <name>wiscess security</name>
   <url>http://www.wiscess.com.cn</url>
 	<properties>
 		<!-- <maven.dir>D:/GitHome/mvn-repo</maven.dir> -->
 		<distribution.url>http://42.96.168.102:8081/repository/wiscess/</distribution.url>
-		<spring-boot.version>2.6.7</spring-boot.version>
-		<wiscess.version>2.6.6</wiscess.version>
+		<spring-boot.version>3.0.5</spring-boot.version>
+		<wiscess.version>3.0.5</wiscess.version>
 		<swagger.version>2.7.0</swagger.version>
-		<java.version>1.8</java.version>
+		<java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <build>
@@ -54,10 +54,6 @@
 			<plugin>
 		        <artifactId>maven-deploy-plugin</artifactId>
 		        <version>2.8.2</version>
-		        <!-- 发布到本地
-		        <configuration>
-		            <altDeploymentRepository>internal.repo::default::file://${maven.dir}</altDeploymentRepository>
-		        </configuration>-->
 		        <!-- 发布到远程仓库-->
 		        <configuration>
 		            <altDeploymentRepository>wiscess::default::${distribution.url}</altDeploymentRepository>
@@ -86,35 +82,25 @@
     		<artifactId>spring-boot-starter-security</artifactId>
     		<version>${spring-boot.version}</version>
     	</dependency>
-    	<dependency>
-    		<groupId>org.springframework.boot</groupId>
-    		<artifactId>spring-boot-starter-jdbc</artifactId>
-    		<version>${spring-boot.version}</version>
-    	</dependency>
 		<dependency>
 			<groupId>com.wiscess</groupId>
-			<artifactId>wiscess-jpa</artifactId>
-			<version>2.6.7</version>
-		</dependency>
-    	<dependency>
-    		<groupId>org.springframework.security</groupId>
-    		<artifactId>spring-security-core</artifactId>
-    		<version>5.6.3</version>
-    	</dependency>
-    	<dependency>
-    		<groupId>org.springframework</groupId>
-    		<artifactId>spring-webmvc</artifactId>
-    		<version>5.3.18</version>
-    	</dependency>
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt</artifactId>
-			<version>0.9.1</version>
+			<artifactId>wiscess-common</artifactId>
+			<version>3.0.5</version>
 		</dependency>
 		<dependency>
 			<groupId>com.wiscess</groupId>
 			<artifactId>wiscess-filter</artifactId>
-			<version>2.6.7</version>
+			<version>3.0.5</version>
+		</dependency>
+		<dependency>
+			<groupId>com.wiscess</groupId>
+			<artifactId>wiscess-jpa</artifactId>
+			<version>3.0.5</version>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt</artifactId>
+			<version>0.9.1</version>
 		</dependency>
     </dependencies>
 </project>

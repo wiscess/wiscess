@@ -1,11 +1,9 @@
 package com.wiscess.security.jwt;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 import com.wiscess.common.R;
-import com.wiscess.security.jwt.JwtTokenUtils;
-import com.wiscess.security.jwt.UserRepository;
 import com.wiscess.security.vue.AbstractVueLoginSuccessHandler;
 
 import org.springframework.beans.factory.annotation.Autowired;

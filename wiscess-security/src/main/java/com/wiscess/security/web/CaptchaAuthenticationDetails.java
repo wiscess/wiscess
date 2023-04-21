@@ -5,7 +5,7 @@ package com.wiscess.security.web;
 
 import java.io.Serializable;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * 验证码对象

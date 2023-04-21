@@ -1,6 +1,6 @@
 package com.wiscess.security.vue;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.wiscess.common.R;
 

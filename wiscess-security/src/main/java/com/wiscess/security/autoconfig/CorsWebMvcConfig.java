@@ -5,15 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
-import org.springframework.context.annotation.Bean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.wiscess.security.WiscessSecurityProperties;
-import com.wiscess.security.web.controller.LoginController;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,20 +19,16 @@ import lombok.extern.slf4j.Slf4j;
  * @author wh
  */
 @Configuration
-@ConditionalOnClass
-@ConditionalOnWebApplication
 @Slf4j
-public class SecurityWebMvcConfig implements WebMvcConfigurer   {
+@ConditionalOnProperty(prefix = "security.vue", value = "enabled", matchIfMissing = true)
+public class CorsWebMvcConfig implements WebMvcConfigurer   {
 	
 	@Autowired
 	protected WiscessSecurityProperties wiscessSecurityProperties;
 
-	@Bean
-	public LoginController loginController() {
-		return new LoginController();
-	}
 	@Override
     public void addCorsMappings(CorsRegistry registry) {
+		log.info("CorsWebMvcConfig");
 		//配置跨域访问的设置
 		if(wiscessSecurityProperties.isVueMode()) {
 			List<String> allowedOrigins=wiscessSecurityProperties.getVue().getAllowedOrigins();
@@ -46,7 +39,7 @@ public class SecurityWebMvcConfig implements WebMvcConfigurer   {
 	        registry.addMapping("/**")
 	        		.allowedOrigins(allowedOrigins.toArray(new String[allowedOrigins.size()]))
 	                .allowedMethods("GET","POST")
-	                .allowedHeaders("*")
+	                .allowedHeaders("Access-Control-Allow-Origin", "X-Requested-With", "Origin", "Content-Type", "Accept", "Authorization")
 	                //启用cookie，确保请求是同一个session
 	        		.allowCredentials(true);
 	        log.info("跨域拦截器注册成功！");     

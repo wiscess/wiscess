@@ -1,6 +1,6 @@
 package com.wiscess.security.web.controller;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.wiscess.security.exception.LoginFailNumException;
 import com.wiscess.utils.StringUtils;
@@ -30,6 +30,10 @@ public class LoginController {
 	@Autowired
 	public WiscessSecurityProperties wiscessSecurityProperties;
 
+	@Autowired
+	public void init() {
+		log.info("LoginController");
+	}
 	/**
 	 * 登录入口页面，跳转到首页
 	 */

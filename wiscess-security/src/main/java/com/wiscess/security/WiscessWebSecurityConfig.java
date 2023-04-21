@@ -12,28 +12,27 @@ import com.wiscess.security.jwt.DefaultJwtLogoutSuccessHandler;
 import com.wiscess.security.jwt.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.access.AccessDecisionManager;
-import org.springframework.security.access.AccessDecisionVoter;
-import org.springframework.security.access.vote.AuthenticatedVoter;
-import org.springframework.security.access.vote.UnanimousBased;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
@@ -52,7 +51,6 @@ import com.wiscess.security.sso.SSOAuthenticationProvider;
 import com.wiscess.security.sso.SSOLoginConfigurer;
 import com.wiscess.security.sso.SSOLogoutJsSuccessHandler;
 import com.wiscess.security.sso.SSOLogoutSuccessHandler;
-import com.wiscess.security.voter.CustomAuthorityVoter;
 import com.wiscess.security.vue.DefaultVueAccessDeniedHandler;
 import com.wiscess.security.vue.DefaultVueAuthenticationEntryPoint;
 import com.wiscess.security.vue.DefaultVueLoginFilureHandler;
@@ -65,19 +63,27 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 权限认证配置
+ * spring boot3.0废弃了extends WebSecurityConfigurerAdapter 的方式，改为采用添加@Bean新方式
+ * @since 3.0
  * @author wh
  */
-@Configuration
-@ConditionalOnWebApplication
-@ConditionalOnProperty(prefix = "security", value = "enabled", matchIfMissing = true)
 @Slf4j
+@AutoConfiguration
+@ConditionalOnProperty(prefix = "security", value = "enabled", matchIfMissing = true)
 @EnableConfigurationProperties(WiscessSecurityProperties.class)
-public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
+@EnableWebSecurity
+public class WiscessWebSecurityConfig {
 	/**
 	 * 默认静态资源文件
 	 */
 	public static String[] DEFAULT_IGNORES="/css/**,/less/**,/plugin/**,/bower_components/**,/js/**,/images/**,/webjars/**,/**/favicon.ico,/captcha.jpg".split(",");
 	
+	/**
+	 * @since 3.0
+	 */
+	@Autowired
+	protected AuthenticationConfiguration authenticationConfiguration;
+
 	@Autowired
 	protected WiscessSecurityProperties wiscessSecurityProperties;
 	//登录成功
@@ -97,58 +103,12 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	protected UserDetailsServiceImpl userDetailsService;
 	
-    @Override
-	public void configure(AuthenticationManagerBuilder auth) throws Exception {
-    	//添加多个Provider,针对不同的Token进行不同的认证方式
-
-		DaoAuthenticationProvider authProvider;
-		if(wiscessSecurityProperties.isSsoMode()){
-			log.info("WebSecurityConfig configured SSOAuthenticationProvider with {}",wiscessSecurityProperties.getSso().getAuthUrl());
-			authProvider=new SSOAuthenticationProvider();
-		}else{
-			log.info("WebSecurityConfig configured DaoAuthenticationProvider {} {} {} captcha.",
-					(wiscessSecurityProperties.isVueMode()?"for VueMode":""),
-					(wiscessSecurityProperties.isJwtMode()?"with JwtToken":""),
-					(wiscessSecurityProperties.isCaptcha()?"with":"without"));
-			//从2.0开始，不再使用jdbc的方式来完成权限验证
-			authProvider = new CaptchaDaoAuthenticationProvider(wiscessSecurityProperties);
-		}
-		//设置密码加密方式,RSA为避免私钥泄露，验证方式用sign/verify
-		authProvider.setPasswordEncoder(passwordEncoder());
-		//设置查询用户的service
-		authProvider.setUserDetailsService(userDetailsService);
-		configure(authProvider);
-        auth.authenticationProvider(authProvider);
-    }
 	/**
-	 * 配置provider
-	 * @param authProvider
-	 */
-	protected void configure(DaoAuthenticationProvider authProvider){
-	}
-	/**
-	 * 配置不需要进行权限认证的资源
-	 */
-    @Override
-	public void configure(WebSecurity web) throws Exception { 
-    	List<String> ignores=new ArrayList<String>(Arrays.asList(DEFAULT_IGNORES));
-		if(wiscessSecurityProperties.getErrorPage()!=null){
-			ignores.add(wiscessSecurityProperties.getErrorPage());
-		}
-		if(wiscessSecurityProperties.getIgnored()!=null && wiscessSecurityProperties.getIgnored().size()>0){
-			ignores.addAll(wiscessSecurityProperties.getIgnored());
-		}
-		Set<String> set = new  HashSet<>(); 
-        set.addAll(ignores);
-        set.forEach((item)->log.info("ignored resource:{}",item.trim()));
-		web.ignoring().antMatchers(set.toArray(new String[0]));
-    }  
-
-    /**
-     * 配置权限认证
+     * 配置权限认证，主控制器
+     * @since 3.0
      */
-    @Override
-	protected void configure(HttpSecurity http) throws Exception {
+	@Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     	//处理Header的内容
 		http.headers()
 			.xssProtection()
@@ -157,7 +117,7 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.disable();
 		//排除Csrf路径
 		if(this.wiscessSecurityProperties.getExecludeUrls()!=null && this.wiscessSecurityProperties.getExecludeUrls().size()>0){
-			http.csrf().ignoringAntMatchers(this.wiscessSecurityProperties.getExecludeUrls().toArray(new String[0]));
+			http.csrf().ignoringRequestMatchers(this.wiscessSecurityProperties.getExecludeUrls().toArray(new String[0]));
 		}
 		//认证模式只能选一种
 		//SSO认证模式
@@ -272,37 +232,95 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
 					.expiredUrl("/login?expired")
 			;
 		}
+		//允许自定义配置权限
 		myConfigure(http);
+		
+		return http.build();
 	}
-    
-	@Bean
-	public AccessDecisionManager accessDecisionManager() {
-	    List<AccessDecisionVoter<? extends Object>> decisionVoters 
-	      = Arrays.asList(
-	        new WebExpressionVoter(),
-//	        new RoleVoter(),
-	        new AuthenticatedVoter(),
-	        //自定义投票器，只对authenticated进行数据库判断，其他已定义的权限均弃权
-	        new CustomAuthorityVoter());
-//	    AffirmativeBased – 任何一个AccessDecisionVoter返回同意则允许访问
-//	    ConsensusBased – 同意投票多于拒绝投票（忽略弃权回答）则允许访问
-//	    UnanimousBased – 每个投票者选择弃权或同意则允许访问
-	    return new UnanimousBased(decisionVoters);
-	}
+	
+	/**
+     * 认证管理器，登录的时候参数会传给 authenticationManager
+     * @since 3.0
+     */
+//    @Bean
+//    protected AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+//    	log.debug("authenticationManager with AuthenticationConfiguration");
+//        return authenticationConfiguration.getAuthenticationManager();
+//    }
+    @Bean
+    protected AuthenticationManager authenticationManager() throws Exception {
+    	log.debug("authenticationManager with authenticationProvider");
+        return new ProviderManager(Arrays.asList(authenticationProvider()));
+    }
 
-    
+    @Bean
+    public SessionRegistry sessionRegistry() {
+        SessionRegistry sessionRegistry = new SessionRegistryImpl();
+        return sessionRegistry;
+    }
+ 
+    /**
+     * 创建认证器
+     * @return
+     */
+    @Bean
+    protected AuthenticationProvider authenticationProvider() {
+    	//添加多个Provider,针对不同的Token进行不同的认证方式
+		DaoAuthenticationProvider authProvider;
+		if(wiscessSecurityProperties.isSsoMode()){
+			log.info("WebSecurityConfig configured SSOAuthenticationProvider with {}",wiscessSecurityProperties.getSso().getAuthUrl());
+			authProvider=new SSOAuthenticationProvider();
+		}else{
+			log.info("WebSecurityConfig configured DaoAuthenticationProvider {} {} {} captcha.",
+					(wiscessSecurityProperties.isVueMode()?"for VueMode":""),
+					(wiscessSecurityProperties.isJwtMode()?"with JwtToken":""),
+					(wiscessSecurityProperties.isCaptcha()?"with":"without"));
+			//从2.0开始，不再使用jdbc的方式来完成权限验证
+			authProvider = new CaptchaDaoAuthenticationProvider(wiscessSecurityProperties);
+		}
+		//设置密码加密方式,RSA为避免私钥泄露，验证方式用sign/verify
+		authProvider.setPasswordEncoder(passwordEncoder());
+		//设置查询用户的service
+		authProvider.setUserDetailsService(userDetailsService);
+		customProvider(authProvider);
+        return authProvider;
+    }
+	/**
+	 * 配置provider
+	 * @param authProvider
+	 */
+	protected void customProvider(DaoAuthenticationProvider authProvider){
+		
+	}
+	/**
+	 * 配置不需要进行权限认证的资源
+	 */
+	public void configure(WebSecurity web) throws Exception { 
+    	List<String> ignores=new ArrayList<String>(Arrays.asList(DEFAULT_IGNORES));
+		if(wiscessSecurityProperties.getErrorPage()!=null){
+			ignores.add(wiscessSecurityProperties.getErrorPage());
+		}
+		if(wiscessSecurityProperties.getIgnored()!=null && wiscessSecurityProperties.getIgnored().size()>0){
+			ignores.addAll(wiscessSecurityProperties.getIgnored());
+		}
+		Set<String> set = new  HashSet<>(); 
+        set.addAll(ignores);
+        set.forEach((item)->log.info("ignored resource:{}",item.trim()));
+		web.ignoring().requestMatchers(set.toArray(new String[0]));
+    }  
+
     /**
      * session监听器，监听session的创建和销毁的代码
      * @return
      */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Bean
     public static ServletListenerRegistrationBean httpSessionEventPublisher() {
         return new ServletListenerRegistrationBean(new HttpSessionEventPublisher());
     }
 	protected void myConfigure(HttpSecurity http)throws Exception{
 		// 允许所有用户访问”/”和”/home”
-		http.authorizeRequests()
+		http.authorizeHttpRequests()
 				//不需要受权限限制的地址
 				//.antMatchers("/install","/admin/**").permitAll()
 				//受权限限制的地址
@@ -335,11 +353,7 @@ public class WiscessWebSecurityConfig extends WebSecurityConfigurerAdapter {
 		}
 		return null;
 	}
-    @Override
-	@Bean
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
-    }
+	
 
     @Bean
 	@ConditionalOnMissingBean

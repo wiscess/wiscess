@@ -25,15 +25,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-
-
 @Slf4j
 @ConditionalOnProperty(prefix = "security.jwt", value = "enabled", matchIfMissing = true)
 @Configuration
 public class JwtTokenUtils {
     private static final String CLAIM_KEY_USERNAME = "sub";
-
-    private static final String CLAIM_KEY_ID = "id";
 
     private static final String CLAIM_KEY_CREATED = "created";
 
@@ -54,6 +50,7 @@ public class JwtTokenUtils {
         } catch (Exception e) {
             username = null;
         }
+    	log.debug("getUsernameFromToken - token:{},username:{}",token,username);
         return username;
     }
 
@@ -127,7 +124,6 @@ public class JwtTokenUtils {
         Map<String, Object> claims = new HashMap<>();
         claims.put(CLAIM_KEY_USERNAME, userDetails.getUsername());
         claims.put(CLAIM_KEY_CREATED, new Date());
-        //claims.put(CLAIM_KEY_ID, userDetails.getId());
         claims.put(CLAIM_KEY_ROLES, userDetails.getAuthorities());
         return generateToken(claims);
     }
@@ -166,7 +162,6 @@ public class JwtTokenUtils {
     public Boolean validateToken(String token, UserDetails userDetails) {
         User user = (User) userDetails;
         final String username = getUsernameFromToken(token);
-        final Date created = getCreatedDateFromToken(token);
         return (
                 username.equals(user.getUsername())
                         && isTokenExpired(token)==false);

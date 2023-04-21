@@ -2,7 +2,7 @@ package com.wiscess.security.vue;
 
 import java.io.IOException;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 import com.wiscess.common.R;
 import org.springframework.security.core.AuthenticationException;

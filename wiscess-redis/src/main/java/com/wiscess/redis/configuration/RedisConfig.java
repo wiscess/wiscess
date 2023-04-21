@@ -20,26 +20,16 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.wiscess.redis.utils.RedisUtils;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.Serializable;
 
 import jakarta.annotation.Priority;
 
-import org.springframework.cache.CacheManager;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-import org.springframework.data.redis.cache.RedisCacheConfiguration;
-import org.springframework.data.redis.cache.RedisCacheManager;
-import org.springframework.data.redis.cache.RedisCacheWriter;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
-import org.springframework.data.redis.serializer.RedisSerializationContext;
-import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 /**
@@ -50,22 +40,13 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @EnableCaching
 @Slf4j
 @Priority(-1000)
+@ConfigurationProperties(prefix = "spring.data.redis")
 public class RedisConfig implements CachingConfigurer {
-    @Bean(name = "stringRedisTemplate")
-    public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory factory) {
-        StringRedisTemplate stringRedisTemplate = new StringRedisTemplate(factory);
-        stringRedisTemplate.setDefaultSerializer(new Jackson2JsonRedisSerializer<String>(String.class));
-        return new StringRedisTemplate(factory);
-    }
-    @Primary
-	@Bean(name = "redisTemplate")
-    public RedisTemplate<String, Serializable> redisTemplate(RedisConnectionFactory factory) {
-    	log.info("Redis配置完成。");
-    	RedisTemplate<String, Serializable> redisTemplate = new RedisTemplate<>();
+
+    @Bean(name = "redisUtils")
+    public RedisUtils redisUtils(RedisTemplate<?, ?> redisTemplate){
+    	//key使用String序列化
     	redisTemplate.setKeySerializer(new StringRedisSerializer());
-         //redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
-         redisTemplate.setConnectionFactory(factory);
-         //redisTemplate.setConnectionFactory(new JedisConnectionFactory());
  
          //下面代码解决LocalDateTime序列化与反序列化不一致问题
          ObjectMapper om = new ObjectMapper();
@@ -80,56 +61,8 @@ public class RedisConfig implements CachingConfigurer {
          redisTemplate.setHashValueSerializer(j2jrs);
 
          redisTemplate.afterPropertiesSet();
-        return redisTemplate;
-    }
-
-    @Bean(name = "redisUtils")
-    public RedisUtils redisUtils(RedisTemplate<?, ?> redisTemplate){
-        log.info("RedisUtils配置完成。");
+    	log.info("RedisUtils配置完成。");
         return new RedisUtils(redisTemplate);
-    }
-    /**
-     * 解决持久化乱码问题，在redistemlate中指定了持久化的策略
-     *
-     * @param factory
-     * @return
-     */
-	@Bean
-    @Primary
-    public CacheManager cacheManager(RedisConnectionFactory factory) {
-        RedisSerializer<String> redisSerializer = new StringRedisSerializer();
-        ObjectMapper om = new ObjectMapper();
-        // 此项必须配置，否则会报java.lang.ClassCastException: java.util.LinkedHashMap cannot be cast to XXXX
-        om.activateDefaultTyping(om.getPolymorphicTypeValidator(), ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
-        Jackson2JsonRedisSerializer<Object> j2jrs = new Jackson2JsonRedisSerializer<>(om,Object.class);
-        // 配置序列化
-        RedisCacheConfiguration defaultCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
-                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(redisSerializer))
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(j2jrs))
-                .computePrefixWith(cacheName -> "basic:" + cacheName + ":");//设置key的前缀生成规则
-//				.computePrefixWith(new CacheKey());
-        RedisCacheManager cacheManager = new RedisCacheManager(RedisCacheWriter.nonLockingRedisCacheWriter(factory), defaultCacheConfiguration);
-        return cacheManager;
-    }
-
-    /**
-     * 分页的时候使用jackson无法反序列化
-     *
-     * @param factory
-     * @return
-     */
-    @Bean("pageCacheManager")
-    public CacheManager pageCacheManager(RedisConnectionFactory factory) {
-        RedisSerializer<String> redisSerializer = new StringRedisSerializer();
-        JdkSerializationRedisSerializer jdkSerializationRedisSerializer = new JdkSerializationRedisSerializer();
-        // 配置序列化
-        RedisCacheConfiguration defaultCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
-                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(redisSerializer))
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(jdkSerializationRedisSerializer))
-                .computePrefixWith(cacheName -> "basic:" + cacheName + ":");//设置key的前缀生成规则
-//				.computePrefixWith(new CacheKey());
-//        RedisCacheManager cacheManager =
-        return new RedisCacheManager(RedisCacheWriter.nonLockingRedisCacheWriter(factory), defaultCacheConfiguration);
     }
 
 }

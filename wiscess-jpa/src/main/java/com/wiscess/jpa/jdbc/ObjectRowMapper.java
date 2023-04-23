@@ -61,7 +61,7 @@ public class ObjectRowMapper<T> implements RowMapper<T> {
 	@Override
 	public T mapRow(ResultSet rs, int rowNum) throws SQLException {
 		try {
-			Object obj = clazz.getDeclaredConstructors()[0].newInstance();
+			Object obj = clazz.getDeclaredConstructor().newInstance();
 			initProps(rs.getMetaData());
 			for (int i = 1; i <= columnCount; i++) {
 				String propertyName = propertyNames[i];
@@ -102,6 +102,8 @@ public class ObjectRowMapper<T> implements RowMapper<T> {
 			throw new SQLException("非法参数异常", e);
 		} catch (InvocationTargetException e) {
 			throw new SQLException("类初始化异常", e);
+		} catch (NoSuchMethodException e) {
+			throw new RuntimeException(e);
 		}
 	}
 

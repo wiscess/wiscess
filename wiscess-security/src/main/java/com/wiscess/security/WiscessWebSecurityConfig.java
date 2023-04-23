@@ -2,9 +2,7 @@ package com.wiscess.security;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import com.wiscess.security.jwt.DefaultUserMapRepository;
 import com.wiscess.security.jwt.DefaultJwtLoginSuccessHandler;
@@ -24,7 +22,6 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.session.SessionRegistry;
@@ -76,7 +73,7 @@ public class WiscessWebSecurityConfig {
 	/**
 	 * 默认静态资源文件
 	 */
-	public static String[] DEFAULT_IGNORES="/css/**,/less/**,/plugin/**,/bower_components/**,/js/**,/images/**,/webjars/**,/**/favicon.ico,/captcha.jpg".split(",");
+	public static String[] DEFAULT_IGNORES="/css/**,/less/**,/plugin/**,/bower_components/**,/js/**,/images/**,/webjars/**,/*/favicon.ico,/captcha.jpg".split(",");
 	
 	/**
 	 * @since 3.0
@@ -193,12 +190,11 @@ public class WiscessWebSecurityConfig {
 	        	.loginPage("/login")
 				//用于将页面中的验证码保存起来进行比较
 		        .authenticationDetailsSource(captchaAuthenticationDetailsSource())
-//		        .usernameParameter("username")
 		        .successHandler(loginSuccessHandler())
 		        .permitAll();
 			//增加过滤器，处理用户名的加密
 			if(wiscessSecurityProperties.isEncryptUsername() || wiscessSecurityProperties.isEncryptPassword()) {
-				http.addFilterBefore(encryptUsernamePasswordAuthenticationFilter(wiscessSecurityProperties.isEncryptUsername() , wiscessSecurityProperties.isEncryptPassword()),UsernamePasswordAuthenticationFilter.class);
+				http.addFilterAt(encryptUsernamePasswordAuthenticationFilter(wiscessSecurityProperties.isEncryptUsername() , wiscessSecurityProperties.isEncryptPassword()),UsernamePasswordAuthenticationFilter.class);
 			}
 			
 			http.logout()
@@ -232,6 +228,8 @@ public class WiscessWebSecurityConfig {
 					.expiredUrl("/login?expired")
 			;
 		}
+		//配置不须限制的资源
+		ignoreResources(http);
 		//允许自定义配置权限
 		myConfigure(http);
 		
@@ -242,11 +240,6 @@ public class WiscessWebSecurityConfig {
      * 认证管理器，登录的时候参数会传给 authenticationManager
      * @since 3.0
      */
-//    @Bean
-//    protected AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-//    	log.debug("authenticationManager with AuthenticationConfiguration");
-//        return authenticationConfiguration.getAuthenticationManager();
-//    }
     @Bean
     protected AuthenticationManager authenticationManager() throws Exception {
     	log.debug("authenticationManager with authenticationProvider");
@@ -285,7 +278,8 @@ public class WiscessWebSecurityConfig {
 		customProvider(authProvider);
         return authProvider;
     }
-	/**
+	
+    /**
 	 * 配置provider
 	 * @param authProvider
 	 */
@@ -295,7 +289,7 @@ public class WiscessWebSecurityConfig {
 	/**
 	 * 配置不需要进行权限认证的资源
 	 */
-	public void configure(WebSecurity web) throws Exception { 
+	private void ignoreResources(HttpSecurity http) throws Exception { 
     	List<String> ignores=new ArrayList<String>(Arrays.asList(DEFAULT_IGNORES));
 		if(wiscessSecurityProperties.getErrorPage()!=null){
 			ignores.add(wiscessSecurityProperties.getErrorPage());
@@ -303,10 +297,15 @@ public class WiscessWebSecurityConfig {
 		if(wiscessSecurityProperties.getIgnored()!=null && wiscessSecurityProperties.getIgnored().size()>0){
 			ignores.addAll(wiscessSecurityProperties.getIgnored());
 		}
-		Set<String> set = new  HashSet<>(); 
-        set.addAll(ignores);
-        set.forEach((item)->log.info("ignored resource:{}",item.trim()));
-		web.ignoring().requestMatchers(set.toArray(new String[0]));
+        ignores.stream().distinct().forEach((item)->{
+        	log.info("ignored resource:{}",item.trim());	
+    		try {
+				http.authorizeHttpRequests()
+					.requestMatchers(item.trim()).permitAll();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+        });
     }  
 
     /**

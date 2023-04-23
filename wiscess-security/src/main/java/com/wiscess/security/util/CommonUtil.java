@@ -30,8 +30,8 @@ public class CommonUtil {
             cal.setTime(date2);
             long millisOfDate2 = cal.getTimeInMillis();
 
-            float intervalOfTime = new Float(millisOfDate2 - millisOfdate1);
-            float baseTime = new Float(60 * 1000);
+            float intervalOfTime = Float.valueOf(millisOfDate2 - millisOfdate1);
+            float baseTime = Float.valueOf(60 * 1000);
 
             ret = intervalOfTime/baseTime;
             return Integer.parseInt(round(Float.toString(ret), 0));

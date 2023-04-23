@@ -24,16 +24,12 @@ import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @Slf4j
-@ConditionalOnProperty(name = "security.defaultLoginController", havingValue = "true")
+@ConditionalOnProperty(prefix = "security.login", value = "enabled", havingValue = "true",matchIfMissing = true)
 public class LoginController {
 
 	@Autowired
 	public WiscessSecurityProperties wiscessSecurityProperties;
 
-	@Autowired
-	public void init() {
-		log.info("LoginController");
-	}
 	/**
 	 * 登录入口页面，跳转到首页
 	 */

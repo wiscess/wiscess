@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConditionalOnWebApplication
 @ConditionalOnClass(JwtAuthenticationTokenFilter.class)
-@ConditionalOnProperty(prefix = "security.jwt", value = "enabled", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "security.jwt", value = "enabled", havingValue = "true")
 public class JwtAuthenticationTokenAutoConfiguration {
 
 	/**

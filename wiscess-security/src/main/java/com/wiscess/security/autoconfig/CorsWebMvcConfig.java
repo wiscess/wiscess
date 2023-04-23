@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Configuration
 @Slf4j
-@ConditionalOnProperty(prefix = "security.vue", value = "enabled", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "security.vue", value = "enabled", havingValue = "true")
 public class CorsWebMvcConfig implements WebMvcConfigurer   {
 	
 	@Autowired

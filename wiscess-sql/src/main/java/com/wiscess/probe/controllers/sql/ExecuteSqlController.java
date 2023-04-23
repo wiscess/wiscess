@@ -20,159 +20,118 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.HtmlUtils;
 
 import com.wiscess.probe.dto.DataSourceTestInfo;
-import com.wiscess.utils.RSA_Encrypt;
 
 /**
- * Executes an SQL query through a given datasource to test database connectivity. Displays results
- * returned by the query.
+ * Executes an SQL query through a given datasource to test database
+ * connectivity. Displays results returned by the query.
  */
 @Controller
-public class ExecuteSqlController{
+public class ExecuteSqlController {
 
 	String viewName = "probe/ajax/sql/recordset";
 	@Autowired
-	private DataSource dataSource;
-	
-  @RequestMapping(path = "/sql/recordset.ajax")
-  protected ModelAndView handleContext(
-      HttpServletRequest request, HttpServletResponse response) throws Exception {
+	private ApplicationContext context;
 
-    int maxRows = ServletRequestUtils.getIntParameter(request, "maxRows", 0);
-    int rowsPerPage = ServletRequestUtils.getIntParameter(request, "rowsPerPage", 0);
-    int historySize = ServletRequestUtils.getIntParameter(request, "historySize", 0);
-    int isEncrypt = ServletRequestUtils.getIntParameter(request, "isEncrypt", 1);
-    
-    String sql = ServletRequestUtils.getStringParameter(request, isEncrypt==1?"sql":"sqlWithHtml", null);
-    try {
-    	if(isEncrypt==1) {
-	    	sql=RSA_Encrypt.decrypt(sql,true);
-    	}
-	} catch (Exception e) {
-		//e.printStackTrace();
-		sql=null;
-	}  
-    if (sql == null || sql.isEmpty() || sql.trim().isEmpty()) {
-      request.setAttribute("errorMessage","需要 SQL 查询文本");
+	@RequestMapping(path = "/sql/recordset.ajax")
+	protected ModelAndView handleContext(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-      return new ModelAndView(getViewName());
-    }
+		// 刷新session数据
+		DataSourceTestInfo sessData = DataSourceTestInfo.refreshSession(request);
 
+		if (sessData.getSql() == null || sessData.getSql().trim().isEmpty()) {
+			request.setAttribute("errorMessage", "需要 SQL 查询文本");
 
-    // store current option values and query history in a session attribute
+			return new ModelAndView(getViewName());
+		}
 
-    HttpSession sess = request.getSession(false);
-    DataSourceTestInfo sessData =
-        (DataSourceTestInfo) sess.getAttribute(DataSourceTestInfo.DS_TEST_SESS_ATTR);
+		DataSource dataSource = context.getBean(sessData.getDataSourceName(), DataSource.class);
 
-    synchronized (sess) {
-      if (sessData == null) {
-        sessData = new DataSourceTestInfo();
-        sess.setAttribute(DataSourceTestInfo.DS_TEST_SESS_ATTR, sessData);
-      }
+		if (dataSource == null) {
+			request.setAttribute("errorMessage", "数据源不存在");
+		} else {
+			List<Map<String, String>> results = null;
+			int rowsAffected = 0;
 
-      sessData.setMaxRows(maxRows);
-      sessData.setRowsPerPage(rowsPerPage);
-      sessData.setHistorySize(historySize);
-      sessData.setEncrypt(isEncrypt);
-      sessData.addQueryToHistory(sql);
-    }
+			try {
+				try (Connection conn = dataSource.getConnection()) {
+					conn.setAutoCommit(true);
 
-    if (dataSource == null) {
-      request.setAttribute("errorMessage", "数据源不存在");
-    } else {
-      List<Map<String, String>> results = null;
-      int rowsAffected = 0;
+					try (PreparedStatement stmt = conn.prepareStatement(sessData.getSql())) {
+						boolean hasResultSet = stmt.execute();
 
-      try {
-        // TODO: use Spring's jdbc template?
-        try (Connection conn = dataSource.getConnection()) {
-          conn.setAutoCommit(true);
+						if (!hasResultSet) {
+							rowsAffected = stmt.getUpdateCount();
+						} else {
+							results = new ArrayList<>();
 
-          try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            boolean hasResultSet = stmt.execute();
+							try (ResultSet rs = stmt.getResultSet()) {
+								ResultSetMetaData metaData = rs.getMetaData();
 
-            if (!hasResultSet) {
-              rowsAffected = stmt.getUpdateCount();
-            } else {
-              results = new ArrayList<>();
+								while (rs.next() && (sessData.getMaxRows() < 0 || results.size() < sessData.getMaxRows())) {
+									Map<String, String> record = new LinkedHashMap<>();
 
-              try (ResultSet rs = stmt.getResultSet()) {
-                ResultSetMetaData metaData = rs.getMetaData();
+									for (int i = 1; i <= metaData.getColumnCount(); i++) {
+										String value = rs.getString(i);
 
-                while (rs.next() && (maxRows < 0 || results.size() < maxRows)) {
-                  Map<String, String> record = new LinkedHashMap<>();
+										if (rs.wasNull()) {
+											value = "NULL";
+										} else {
+											value = HtmlUtils.htmlEscape(value);
+										}
 
-                  for (int i = 1; i <= metaData.getColumnCount(); i++) {
-                    String value = rs.getString(i);
+										// a work around for IE browsers bug of not displaying
+										// a border around an empty table column
 
-                    if (rs.wasNull()) {
-                      value = "NULL";
-                    } else {
-                      value = HtmlUtils.htmlEscape(value);
-                    }
+										if (value.isEmpty()) {
+											value = "&nbsp;";
+										}
 
-                    // a work around for IE browsers bug of not displaying
-                    // a border around an empty table column
+										// Pad the keys of columns with existing labels so they are distinct
+										StringBuilder key = new StringBuilder(metaData.getColumnLabel(i));
+										while (record.containsKey(key.toString())) {
+											key.append(" ");
+										}
+										record.put(HtmlUtils.htmlEscape(key.toString()), value);
+									}
 
-                    if (value.isEmpty()) {
-                      value = "&nbsp;";
-                    }
+									results.add(record);
+								}
+							}
 
-                    // Pad the keys of columns with existing labels so they are distinct
-                    StringBuilder key = new StringBuilder(metaData.getColumnLabel(i));
-                    while (record.containsKey(key.toString())) {
-                      key.append(" ");
-                    }
-                    record.put(HtmlUtils.htmlEscape(key.toString()), value);
-                  }
+							rowsAffected = results.size();
+						}
+					}
+				}
 
-                  results.add(record);
-                }
-              }
+				ModelAndView mv = new ModelAndView(getViewName(), "results", results);
+				mv.addObject("rowsAffected", String.valueOf(rowsAffected));
+				mv.addObject("rowsPerPage", String.valueOf(sessData.getRowsPerPage()));
+				int totalPages = sessData.getRowsPerPage() == 0 ? 1 : (int) Math.ceil((double) rowsAffected / (double) sessData.getRowsPerPage());
+				mv.addObject("pageNumber", 1);
+				mv.addObject("totalCount", rowsAffected);
+				mv.addObject("totalPage", totalPages);
+				mv.addObject("pageRecord", sessData.getRowsPerPage());
+				return mv;
+			} catch (SQLException e) {
+				String message = "执行查询时出错. " + e.getMessage();
+				request.setAttribute("errorMessage", message);
+			}
+		}
 
-              rowsAffected = results.size();
-            }
-          }
-        }
-
-        // store the query results in the session attribute in order
-        // to support a result set pagination feature without re-executing the query
-
-        synchronized (sess) {
-          sessData.setResults(results);
-          sess.setAttribute(DataSourceTestInfo.DS_TEST_SESS_ATTR, sessData);
-        }
-
-        ModelAndView mv = new ModelAndView(getViewName(), "results", results);
-        mv.addObject("rowsAffected", String.valueOf(rowsAffected));
-        mv.addObject("rowsPerPage", String.valueOf(rowsPerPage));
-        int totalPages = rowsPerPage == 0 ? 1 : (int) Math.ceil((double) rowsAffected / (double) rowsPerPage);
-        mv.addObject("pageNumber",1);
-        mv.addObject("totalCount",rowsAffected);
-        mv.addObject("totalPage",totalPages);
-        mv.addObject("pageRecord",rowsPerPage);
-        return mv;
-      } catch (SQLException e) {
-        String message = "执行查询时出错. "+e.getMessage();
-        request.setAttribute("errorMessage", message);
-      }
-    }
-
-    return new ModelAndView(getViewName());
-  }
+		return new ModelAndView(getViewName());
+	}
 
 	public String getViewName() {
 		return viewName;

@@ -1,16 +1,19 @@
 package com.wiscess.probe.controllers;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import javax.sql.DataSource;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.wiscess.probe.dto.DataSourceTestInfo;
-import com.wiscess.utils.StringUtils;
+import com.wiscess.probe.webapp.util.NoServiceUtil;
 
 /**
  * 数据源管理
@@ -31,74 +34,41 @@ public class ProbeControll {
 	  
 	  /**是否加密传输*/
 	  private int isEncrypt;
-		/**
-		 * 指定允许查看审计记录的用户
-		 */
-		@Value("${probe.username:admin}")
-		private String probeUsernames;
+	  
+	@Autowired
+	private ApplicationContext context;
 	/**
 	 * 页面入口
 	 * @return
 	 */
 	@RequestMapping({"/probe"})
-	public String list(HttpServletRequest request,Model model) {
-		if(!isProbeUser(request)) {
-			//获取不到userName，未登录或者未设置当前登录用户信息，跳到登录页
-			//未发现
-			return "redirect:/login";
-		}
+	public String list(HttpServletRequest request, HttpServletResponse response, Model model) {
+		
 		HttpSession sess = request.getSession(false);
 
 		DataSourceTestInfo sessData = null;
 
+		//自动获取datasource
+		String[] dataSourceNames = context.getBeanNamesForType(DataSource.class);
+		
+		
 		if (sess != null) {
 			sessData = (DataSourceTestInfo) sess.getAttribute(DataSourceTestInfo.DS_TEST_SESS_ATTR);
 		}
+		String ip= NoServiceUtil.getIpAddress(request);
+		
 		model
-			.addAttribute(probeUsernames, sessData)
-			.addAttribute("maxRows", sessData == null ? getMaxRows() : sessData.getMaxRows())
-			.addAttribute("rowsPerPage",	sessData == null ? getRowsPerPage() : sessData.getRowsPerPage())
-			.addAttribute("historySize",	sessData == null ? getHistorySize() : sessData.getHistorySize())
-			.addAttribute("isEncrypt",	sessData == null ? isEncrypt() : sessData.isEncrypt())
-			;
+				.addAttribute("ip", ip)
+				.addAttribute("maxRows", sessData == null ? getMaxRows() : sessData.getMaxRows())
+				.addAttribute("rowsPerPage",	sessData == null ? getRowsPerPage() : sessData.getRowsPerPage())
+				.addAttribute("historySize",	sessData == null ? getHistorySize() : sessData.getHistorySize())
+				.addAttribute("isEncrypt",	sessData == null ? isEncrypt() : sessData.isEncrypt())
+				.addAttribute("dataSourceName",	sessData == null ? "dataSource" : sessData.getDataSourceName())
+				.addAttribute("dataSourceNames",dataSourceNames)
+				;
 		return "probe/index";
-//		return new ModelAndView("probe/datasourcetest")
-//				.addObject("username","admin")
-//				.addObject("ip",request.getRemoteAddr())
-//				.addObject("maxRows", sessData == null ? getMaxRows() : sessData.getMaxRows())
-//				.addObject("rowsPerPage",	sessData == null ? getRowsPerPage() : sessData.getRowsPerPage())
-//				.addObject("historySize",	sessData == null ? getHistorySize() : sessData.getHistorySize())
-//				.addObject("isEncrypt",	sessData == null ? isEncrypt() : sessData.isEncrypt())
-//				;
 	}
-	/**
-	 * 检查是否是允许的查看用户
-	 * @param request
-	 * @return
-	 */
-	private boolean isProbeUser(HttpServletRequest request) {
-		HttpSession session=request.getSession();
- 		//从session中读取指定参数
-		String userName=getCurrentUser(session, "NOT_LOGIN_USER");
-		return probeUsernames.indexOf(userName)!=-1;
-	}
-	/**
-	 * 获取当前登录用户
-	 * @param session
-	 * @param defaultValue
-	 * @return
-	 */
-	private String getCurrentUser(HttpSession session,String defaultValue) {
-		String userName=(String)session.getAttribute("userName");
-		if(StringUtils.isEmpty(userName)) {
-			//从已登录的信息中查询
-			SecurityContextImpl security=(SecurityContextImpl)session.getAttribute("SPRING_SECURITY_CONTEXT");
-			if(security!=null) {
-				userName=security.getAuthentication().getName();
-			}
-		}
-		return StringUtils.isNotEmpty(userName)?userName:defaultValue;
-	}
+
 	  /**
 	   * Gets the max rows.
 	   *
@@ -157,18 +127,14 @@ public class ProbeControll {
 	  }
 
 	  /**
-	   * Gets the replace pattern.
-	   *
-	   * @return the replace pattern
+	   * @return isEncrypt
 	   */
 	  public int isEncrypt() {
 	    return isEncrypt;
 	  }
 
 	  /**
-	   * Sets the replace pattern.
-	   *
-	   * @param replacePattern the new replace pattern
+	   * @param isEncrypt
 	   */
 	  @Value("1")
 	  public void setEncrypt(int isEncrypt) {

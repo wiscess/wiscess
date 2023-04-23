@@ -15,134 +15,205 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+
+import org.springframework.web.bind.ServletRequestUtils;
+
+import com.wiscess.utils.RSA_Encrypt;
+
 /**
  * A class to store data source test tool related data in a session attribute.
  */
 public class DataSourceTestInfo implements Serializable {
 
-  /** The Constant serialVersionUID. */
-  private static final long serialVersionUID = 1L;
+	/** The Constant serialVersionUID. */
+	private static final long serialVersionUID = 1L;
 
-  /** The Constant DS_TEST_SESS_ATTR. */
-  public static final String DS_TEST_SESS_ATTR = "dataSourceTestData";
+	/** The Constant DS_TEST_SESS_ATTR. */
+	public static final String DS_TEST_SESS_ATTR = "dataSourceTestData";
 
-  /** The results. */
-  private List<Map<String, String>> results;
+	/** The results. */
+	private List<Map<String, String>> results;
 
-  /** The query history. */
-  private LinkedList<String> queryHistory = new LinkedList<>();
+	/** The query history. */
+	private LinkedList<String> queryHistory = new LinkedList<>();
 
-  /** The max rows. */
-  private int maxRows;
+	/** The max rows. */
+	private int maxRows;
 
-  /** The rows per page. */
-  private int rowsPerPage;
+	/** The rows per page. */
+	private int rowsPerPage;
 
-  /** The history size. */
-  private int historySize;
-  
-  /** isEncrypt */
-  private int isEncrypt;
+	/** The history size. */
+	private int historySize;
 
-  /**
-   * Adds the query to history.
-   *
-   * @param sql the sql
-   */
-  public void addQueryToHistory(String sql) {
-    queryHistory.remove(sql);
-    queryHistory.addFirst(sql);
+	/** isEncrypt */
+	private int isEncrypt;
 
-    while (historySize >= 0 && queryHistory.size() > historySize) {
-      queryHistory.removeLast();
-    }
-  }
+	/**
+	 * 当前的数据源
+	 */
+	private String dataSourceName;
+	
+	/**
+	 * 当前执行的sql语句
+	 */
+	private String sql;
 
-  /**
-   * Gets the results.
-   *
-   * @return the results
-   */
-  public List<Map<String, String>> getResults() {
-    return results;
-  }
+	public static DataSourceTestInfo refreshSession(HttpServletRequest request) {
+		HttpSession sess = request.getSession(false);
+		DataSourceTestInfo sessData = (DataSourceTestInfo) sess.getAttribute(DataSourceTestInfo.DS_TEST_SESS_ATTR);
 
-  /**
-   * Sets the results.
-   *
-   * @param results the results
-   */
-  public void setResults(List<Map<String, String>> results) {
-    this.results = results;
-  }
+		synchronized (sess) {
+			if (sessData == null) {
+				sessData = new DataSourceTestInfo();
+				sess.setAttribute(DataSourceTestInfo.DS_TEST_SESS_ATTR, sessData);
+			}
+			int maxRows = ServletRequestUtils.getIntParameter(request, "maxRows", 0);
+			int rowsPerPage = ServletRequestUtils.getIntParameter(request, "rowsPerPage", 0);
+			int historySize = ServletRequestUtils.getIntParameter(request, "historySize", 0);
+			int isEncrypt = ServletRequestUtils.getIntParameter(request, "isEncrypt", 1);
+			String dataSourceName = ServletRequestUtils.getStringParameter(request, "dataSourceName", "dataSource");
+			
+			String sql = ServletRequestUtils.getStringParameter(request, isEncrypt == 1 ? "sql" : "sqlWithHtml", null);
+			try {
+				if (isEncrypt == 1) {
+					sql = RSA_Encrypt.decrypt(sql, true);
+				}
 
-  /**
-   * Gets the query history.
-   *
-   * @return the query history
-   */
-  public List<String> getQueryHistory() {
-    return queryHistory;
-  }
+			    sessData.addQueryToHistory(sql);
+			} catch (Exception e) {
+				// e.printStackTrace();
+				sql = null;
+			}
+			sessData.setMaxRows(maxRows);
+			sessData.setRowsPerPage(rowsPerPage);
+			sessData.setHistorySize(historySize);
+			sessData.setEncrypt(isEncrypt);
+			sessData.setDataSourceName(dataSourceName);
+			sessData.setSql(sql);
+			sess.setAttribute(DataSourceTestInfo.DS_TEST_SESS_ATTR, sessData);
+		}
+		return sessData;
+	}
+	
+	/**
+	 * Adds the query to history.
+	 *
+	 * @param sql the sql
+	 */
+	public void addQueryToHistory(String sql) {
+		queryHistory.remove(sql);
+		queryHistory.addFirst(sql);
 
-  /**
-   * Gets the max rows.
-   *
-   * @return the max rows
-   */
-  public int getMaxRows() {
-    return maxRows;
-  }
+		while (historySize >= 0 && queryHistory.size() > historySize) {
+			queryHistory.removeLast();
+		}
+	}
 
-  /**
-   * Sets the max rows.
-   *
-   * @param maxRows the new max rows
-   */
-  public void setMaxRows(int maxRows) {
-    this.maxRows = maxRows;
-  }
+	/**
+	 * Gets the results.
+	 *
+	 * @return the results
+	 */
+	public List<Map<String, String>> getResults() {
+		return results;
+	}
 
-  /**
-   * Gets the rows per page.
-   *
-   * @return the rows per page
-   */
-  public int getRowsPerPage() {
-    return rowsPerPage;
-  }
+	/**
+	 * Sets the results.
+	 *
+	 * @param results the results
+	 */
+	public void setResults(List<Map<String, String>> results) {
+		this.results = results;
+	}
 
-  /**
-   * Sets the rows per page.
-   *
-   * @param rowsPerPage the new rows per page
-   */
-  public void setRowsPerPage(int rowsPerPage) {
-    this.rowsPerPage = rowsPerPage;
-  }
+	/**
+	 * Gets the query history.
+	 *
+	 * @return the query history
+	 */
+	public List<String> getQueryHistory() {
+		return queryHistory;
+	}
 
-  /**
-   * Gets the history size.
-   *
-   * @return the history size
-   */
-  public int getHistorySize() {
-    return historySize;
-  }
+	/**
+	 * Gets the max rows.
+	 *
+	 * @return the max rows
+	 */
+	public int getMaxRows() {
+		return maxRows;
+	}
 
-  /**
-   * Sets the history size.
-   *
-   * @param historySize the new history size
-   */
-  public void setHistorySize(int historySize) {
-    this.historySize = historySize;
-  }
+	/**
+	 * Sets the max rows.
+	 *
+	 * @param maxRows the new max rows
+	 */
+	public void setMaxRows(int maxRows) {
+		this.maxRows = maxRows;
+	}
 
-  public int isEncrypt() {
-    return isEncrypt;
-  }
-  public void setEncrypt(int isEncrypt) {
-	    this.isEncrypt = isEncrypt;
-	  }
+	/**
+	 * Gets the rows per page.
+	 *
+	 * @return the rows per page
+	 */
+	public int getRowsPerPage() {
+		return rowsPerPage;
+	}
+
+	/**
+	 * Sets the rows per page.
+	 *
+	 * @param rowsPerPage the new rows per page
+	 */
+	public void setRowsPerPage(int rowsPerPage) {
+		this.rowsPerPage = rowsPerPage;
+	}
+
+	/**
+	 * Gets the history size.
+	 *
+	 * @return the history size
+	 */
+	public int getHistorySize() {
+		return historySize;
+	}
+
+	/**
+	 * Sets the history size.
+	 *
+	 * @param historySize the new history size
+	 */
+	public void setHistorySize(int historySize) {
+		this.historySize = historySize;
+	}
+
+	public int isEncrypt() {
+		return isEncrypt;
+	}
+
+	public void setEncrypt(int isEncrypt) {
+		this.isEncrypt = isEncrypt;
+	}
+
+	public String getDataSourceName() {
+		return dataSourceName;
+	}
+
+	public void setDataSourceName(String dataSourceName) {
+		this.dataSourceName = dataSourceName;
+	}
+
+	public String getSql() {
+		return sql;
+	}
+
+	public void setSql(String sql) {
+		this.sql = sql;
+	}
 }

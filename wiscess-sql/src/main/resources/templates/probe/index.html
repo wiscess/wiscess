@@ -79,6 +79,10 @@
 					</dd>
 				</dl>
 				<dl id="optionsDL" style="display: none;">
+					<dt><label for="curDataSource">当前数据源</label></dt>
+					<dd><select name="dataSourceName" id="curDataSource">
+						<option th:each="dsname:${dataSourceNames}" th:value="${dsname}" th:text="${dsname}" th:selected="${dsname eq dataSourceName}"></option>
+					</select></dd>
 					<dt><label for="maxRows">查询最大记录数</label></dt>
 					<dd><input type="text" id="maxRows" name="maxRows" class="txtInput" th:value="${maxRows}" value="100" size="6"></dd>
 					<dt><label for="rowsPerPage">每页记录数</label></dt>

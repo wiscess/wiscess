@@ -4,23 +4,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.wiscess.security.jwt.DefaultUserMapRepository;
 import com.wiscess.security.jwt.DefaultJwtLoginSuccessHandler;
 import com.wiscess.security.jwt.DefaultJwtLogoutSuccessHandler;
-import com.wiscess.security.jwt.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -32,7 +27,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
@@ -65,11 +59,11 @@ import lombok.extern.slf4j.Slf4j;
  * @author wh
  */
 @Slf4j
-@AutoConfiguration
-@ConditionalOnProperty(prefix = "security", value = "enabled", matchIfMissing = true)
+@Configuration
 @EnableConfigurationProperties(WiscessSecurityProperties.class)
 @EnableWebSecurity
-public class WiscessWebSecurityConfig {
+@EnableMethodSecurity()  //开启Action上@PreAuthorize的权限控制
+public abstract class WiscessWebSecurityConfig {
 	/**
 	 * 默认静态资源文件
 	 */
@@ -101,11 +95,12 @@ public class WiscessWebSecurityConfig {
 	protected UserDetailsServiceImpl userDetailsService;
 	
 	/**
-     * 配置权限认证，主控制器
+     * 1.配置权限认证，主控制器
      * @since 3.0
      */
 	@Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		log.info("**********Config Security Filter Chain***************************");
     	//处理Header的内容
 		http.headers()
 			.xssProtection()
@@ -123,7 +118,7 @@ public class WiscessWebSecurityConfig {
 				//认证失败后的跳转地址
 				.failureUrl(wiscessSecurityProperties.getSso().getFailureUrl())
 				//成功后的处理，必须放在defaultSuccessUrl后面，可以在Session中保存用户信息
-				.successHandler(loginSuccessHandler())
+				.successHandler(loginSuccessHandler)
 				.permitAll();
 		
 			//自定义登录入口，当权限认证失败时，跳转到统一认证中心去进行验证
@@ -190,7 +185,7 @@ public class WiscessWebSecurityConfig {
 	        	.loginPage("/login")
 				//用于将页面中的验证码保存起来进行比较
 		        .authenticationDetailsSource(captchaAuthenticationDetailsSource())
-		        .successHandler(loginSuccessHandler())
+		        .successHandler(loginSuccessHandler)
 		        .permitAll();
 			//增加过滤器，处理用户名的加密
 			if(wiscessSecurityProperties.isEncryptUsername() || wiscessSecurityProperties.isEncryptPassword()) {
@@ -237,29 +232,29 @@ public class WiscessWebSecurityConfig {
 	}
 	
 	/**
+	 * 自定义权限控制
+	 * @param http
+	 * @throws Exception
+	 */
+	protected abstract void myConfigure(HttpSecurity http)throws Exception;
+	
+	/**
+     * 2.认证管理器，登录的时候参数会传给 authenticationManager
+     * @since 3.0
+     */
+
+	/**
      * 认证管理器，登录的时候参数会传给 authenticationManager
      * @since 3.0
      */
     @Bean
-    protected AuthenticationManager authenticationManager() throws Exception {
-    	log.debug("authenticationManager with authenticationProvider");
-        return new ProviderManager(Arrays.asList(authenticationProvider()));
+    protected AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    	log.debug("authenticationManager with AuthenticationConfiguration");
+        return authenticationConfiguration.getAuthenticationManager();
     }
-
     @Bean
-    public SessionRegistry sessionRegistry() {
-        SessionRegistry sessionRegistry = new SessionRegistryImpl();
-        return sessionRegistry;
-    }
- 
-    /**
-     * 创建认证器
-     * @return
-     */
-    @Bean
-    protected AuthenticationProvider authenticationProvider() {
-    	//添加多个Provider,针对不同的Token进行不同的认证方式
-		DaoAuthenticationProvider authProvider;
+    public DaoAuthenticationProvider daoAuthenticationProvider() {
+        DaoAuthenticationProvider authProvider;
 		if(wiscessSecurityProperties.isSsoMode()){
 			log.info("WebSecurityConfig configured SSOAuthenticationProvider with {}",wiscessSecurityProperties.getSso().getAuthUrl());
 			authProvider=new SSOAuthenticationProvider();
@@ -275,19 +270,11 @@ public class WiscessWebSecurityConfig {
 		authProvider.setPasswordEncoder(passwordEncoder());
 		//设置查询用户的service
 		authProvider.setUserDetailsService(userDetailsService);
-		customProvider(authProvider);
         return authProvider;
     }
-	
-    /**
-	 * 配置provider
-	 * @param authProvider
-	 */
-	protected void customProvider(DaoAuthenticationProvider authProvider){
-		
-	}
+
 	/**
-	 * 配置不需要进行权限认证的资源
+	 * 3.配置不需要进行权限认证的资源
 	 */
 	private void ignoreResources(HttpSecurity http) throws Exception { 
     	List<String> ignores=new ArrayList<String>(Arrays.asList(DEFAULT_IGNORES));
@@ -308,6 +295,12 @@ public class WiscessWebSecurityConfig {
         });
     }  
 
+    @Bean
+    public SessionRegistry sessionRegistry() {
+        SessionRegistry sessionRegistry = new SessionRegistryImpl();
+        return sessionRegistry;
+    }
+ 
     /**
      * session监听器，监听session的创建和销毁的代码
      * @return
@@ -317,19 +310,7 @@ public class WiscessWebSecurityConfig {
     public static ServletListenerRegistrationBean httpSessionEventPublisher() {
         return new ServletListenerRegistrationBean(new HttpSessionEventPublisher());
     }
-	protected void myConfigure(HttpSecurity http)throws Exception{
-		// 允许所有用户访问”/”和”/home”
-		http.authorizeHttpRequests()
-				//不需要受权限限制的地址
-				//.antMatchers("/install","/admin/**").permitAll()
-				//受权限限制的地址
-				//.antMatchers("/csrf/**").hasAnyRole("1","2")
-				// 其他地址的访问均需验证权限
-				.anyRequest()
-				.authenticated();
-	}
-
-	@Bean
+	
 	public CaptchaAuthenticationDetailsSource captchaAuthenticationDetailsSource() {
 		return new CaptchaAuthenticationDetailsSource();
 	}
@@ -353,17 +334,6 @@ public class WiscessWebSecurityConfig {
 		return null;
 	}
 	
-
-    @Bean
-	@ConditionalOnMissingBean
-	public UserRepository userRepository(){
-    	return new DefaultUserMapRepository();
-	}
-    @Bean
-	@ConditionalOnMissingBean
-	public AuthenticationSuccessHandler loginSuccessHandler(){
-    	return new SavedRequestAwareAuthenticationSuccessHandler();
-	}
     /**
      * 加密的用户名和密码
      * @return
@@ -382,7 +352,7 @@ public class WiscessWebSecurityConfig {
 			.userDetailsService(userDetailsService)
 			.key(key)
 			.tokenValiditySeconds(1209600)
-			.authenticationSuccessHandler(loginSuccessHandler());
+			.authenticationSuccessHandler(loginSuccessHandler);
 	}
 
     /**
@@ -390,20 +360,14 @@ public class WiscessWebSecurityConfig {
      * @return
      */
     public AuthenticationSuccessHandler jwtLoginSuccessHandler() {
-    	if(loginSuccessHandler==null) {
-    		loginSuccessHandler=new DefaultJwtLoginSuccessHandler();
-    	}
-    	return loginSuccessHandler;
+    	return new DefaultJwtLoginSuccessHandler();
     }
     /**
      * 配置Vue方式默认的登录成功的处理
      * @return
      */
     public AuthenticationSuccessHandler vueLoginSuccessHandler() {
-    	if(loginSuccessHandler==null) {
-    		loginSuccessHandler=new DefaultVueLoginSuccessHandler();
-    	}
-    	return loginSuccessHandler;
+    	return new DefaultVueLoginSuccessHandler();
     }
     /**
      * 配置Vue方式默认的登录失败的处理

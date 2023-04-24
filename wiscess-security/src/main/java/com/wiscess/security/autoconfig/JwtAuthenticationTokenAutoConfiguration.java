@@ -1,6 +1,9 @@
 package com.wiscess.security.autoconfig;
 
+import com.wiscess.security.jwt.DefaultUserMapRepository;
 import com.wiscess.security.jwt.JwtAuthenticationTokenFilter;
+import com.wiscess.security.jwt.UserRepository;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -30,5 +33,11 @@ public class JwtAuthenticationTokenAutoConfiguration {
 	public JwtAuthenticationTokenFilter authenticationTokenFilterBean() throws Exception {
 		log.info("JwtAuthenticationTokenFilter inited.");
 		return new JwtAuthenticationTokenFilter();
+	}
+	
+    @Bean
+	@ConditionalOnMissingBean
+	public UserRepository userRepository(){
+    	return new DefaultUserMapRepository();
 	}
 }

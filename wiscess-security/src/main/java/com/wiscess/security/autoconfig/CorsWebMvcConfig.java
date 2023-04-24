@@ -15,7 +15,7 @@ import com.wiscess.security.WiscessSecurityProperties;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 项目启动配置
+ * 启动跨域配置
  * @author wh
  */
 @Configuration

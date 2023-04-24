@@ -1,9 +1,10 @@
 package com.wiscess.security;
 
 import java.util.List;
+import java.util.ArrayList;
 
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,9 +20,13 @@ import lombok.extern.slf4j.Slf4j;
  * @author wh
  */
 @Slf4j
+@Configuration
 @ConfigurationProperties(prefix = "security")
-public class WiscessSecurityProperties implements InitializingBean{
+public class WiscessSecurityProperties{
 
+	public WiscessSecurityProperties() {
+		log.debug("加载WiscessSecurityProperties");
+	}
 	/**
 	 * 登录页面是否含验证码
 	 */
@@ -81,11 +86,11 @@ public class WiscessSecurityProperties implements InitializingBean{
   	/**
   	 * 不进行权限认证的url
   	 */
-  	private List<String> execludeUrls;
+  	private List<String> execludeUrls = new ArrayList<String>();
   	/**
   	 * 忽略的资源
   	 */
-  	private List<String> ignored;
+  	private List<String> ignored = new ArrayList<String>();
   	/**
   	 * 是否SSO认证
   	 */
@@ -102,6 +107,7 @@ public class WiscessSecurityProperties implements InitializingBean{
 	public Boolean isJwtMode() { 
 		return jwt.getEnabled()!=null && jwt.getEnabled(); 
 	}
+	
   	private Sso sso = new Sso();
   	
   	private Vue vue = new Vue();
@@ -247,10 +253,6 @@ public class WiscessSecurityProperties implements InitializingBean{
 	}
 	public void setSso(Sso sso) {
 		this.sso = sso;
-	}
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		log.info("WiscessSecurityProperties loaded.");
 	}
 	public List<String> getIgnored() {
 		return ignored;

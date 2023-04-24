@@ -1,5 +1,6 @@
 com.wiscess.security.autoconfig.CorsWebMvcConfig
 com.wiscess.security.autoconfig.JwtAuthenticationTokenAutoConfiguration
+com.wiscess.security.handler.DefaultLoginSuccessHandler
 com.wiscess.security.jdbc.UserDetailsServiceImpl
 com.wiscess.security.jwt.JwtTokenUtils
 com.wiscess.security.web.controller.LoginController

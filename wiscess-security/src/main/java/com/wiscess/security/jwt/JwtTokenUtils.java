@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-@ConditionalOnProperty(prefix = "security.jwt", value = "enabled", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "security.jwt", value = "enabled", havingValue = "true")
 @Configuration
 public class JwtTokenUtils {
     private static final String CLAIM_KEY_USERNAME = "sub";

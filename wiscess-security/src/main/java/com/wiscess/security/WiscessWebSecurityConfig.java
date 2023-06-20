@@ -107,13 +107,19 @@ public abstract class WiscessWebSecurityConfig {
 			.and()
 			.frameOptions()
 				.disable();
-		//排除Csrf路径
-		if(this.wiscessSecurityProperties.getExecludeUrls()!=null && this.wiscessSecurityProperties.getExecludeUrls().size()>0){
-			http.csrf().ignoringRequestMatchers(this.wiscessSecurityProperties.getExecludeUrls().toArray(new String[0]));
+		if(wiscessSecurityProperties.isCsrf()) {
+			//排除Csrf路径
+			if(this.wiscessSecurityProperties.getExecludeUrls()!=null && this.wiscessSecurityProperties.getExecludeUrls().size()>0){
+				http.csrf().ignoringRequestMatchers(this.wiscessSecurityProperties.getExecludeUrls().toArray(new String[0]));
+			}
+		}else {
+			//不使用csrf
+			http.csrf().disable();
 		}
 		//认证模式只能选一种
 		//SSO认证模式
 		if(wiscessSecurityProperties.isSsoMode()){
+    		log.info("使用SSO模式");
 			http.apply(new SSOLoginConfigurer<HttpSecurity>())
 				//认证失败后的跳转地址
 				.failureUrl(wiscessSecurityProperties.getSso().getFailureUrl())
@@ -147,6 +153,7 @@ public abstract class WiscessWebSecurityConfig {
 		}
 		else if(wiscessSecurityProperties.isVueMode()) {
 			//Vue认证模式
+    		log.info("使用Vue模式");
 			//启用跨域模式
 			http.cors();
 			//定义error页面
@@ -176,7 +183,27 @@ public abstract class WiscessWebSecurityConfig {
 	        	.invalidateHttpSession(true)
 	            .permitAll();
 		}
+		else if(wiscessSecurityProperties.isOauth2()) {
+			//OAuth2
+    		log.info("使用oauth2登录");
+    		//处理Header的内容
+            http.csrf().disable();
+
+			http
+				.logout()//提供注销的支持。这是在使用WebSecurityConfigurerAdapter时自动应用的。
+		    		//自定义退出链接
+	        		.logoutUrl("/logout")//触发注销发生的URL(默认为 /logout)。如果启用了CSRF保护(默认)，那么请求也必须是POST。
+	        	.and()
+	        	.oauth2Login()
+	        		.successHandler(loginSuccessHandler)
+	        	;
+
+    		myConfigure(http);
+    		
+			
+		}
 		else{
+    		log.info("使用本地账号登录");
 			//普通表单提交模式
 			//定义错误页面
 			http.exceptionHandling().

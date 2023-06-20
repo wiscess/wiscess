@@ -42,6 +42,14 @@ public class WiscessSecurityProperties{
   	 */
   	private boolean singleLoginPage = true;
 
+	/**
+	 * 是否使用oauth2登录
+	 */
+  	private boolean oauth2= false;
+	/**
+	 * 是否使用csrf
+	 */
+  	private boolean csrf= true;
   	/**
   	 * 是否包含LoginController
   	 */
@@ -324,5 +332,17 @@ public class WiscessSecurityProperties{
 	}
 	public void setDefaultLoginController(boolean defaultLoginController) {
 		this.defaultLoginController = defaultLoginController;
+	}
+	public boolean isOauth2() {
+		return oauth2;
+	}
+	public void setOauth2(boolean oauth2) {
+		this.oauth2 = oauth2;
+	}
+	public boolean isCsrf() {
+		return csrf;
+	}
+	public void setCsrf(boolean csrf) {
+		this.csrf = csrf;
 	}
 }

@@ -97,6 +97,13 @@
 			<artifactId>wiscess-jpa</artifactId>
 			<version>3.0.5</version>
 		</dependency>
+		<!-- oauth2登录 -->
+    	<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-oauth2-client</artifactId>
+    		<version>${spring-boot.version}</version>
+		    <scope>compile</scope>
+		</dependency>   
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt</artifactId>

@@ -197,10 +197,6 @@ public abstract class WiscessWebSecurityConfig {
 	        	.oauth2Login()
 	        		.successHandler(loginSuccessHandler)
 	        	;
-
-    		myConfigure(http);
-    		
-			
 		}
 		else{
     		log.info("使用本地账号登录");

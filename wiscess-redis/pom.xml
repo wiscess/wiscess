@@ -87,11 +87,18 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
             <version>3.0.5</version>
+            <exclusions>
+                <!-- 过滤lettuce，使用jedis作为redis客户端 -->
+                <exclusion>
+                    <groupId>io.lettuce</groupId>
+                    <artifactId>lettuce-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
-            <version>3.6.0</version>
+            <version>4.3.2</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.session</groupId>

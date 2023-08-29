@@ -162,12 +162,11 @@ public class RedisUtils {
 	 * @param key
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
-	public static List<?> getList(String key,@SuppressWarnings("rawtypes") Class clazz) {
+	public static <E> List<E> getList(String key,Class<E> clazz) {
 		try {
 			Object obj=redisTemplate.opsForValue().get(key);
 			if(obj!=null) {
-				return (List<?>) JSON.parseArray((String)obj, clazz);
+				return (List<E>) JSON.parseArray((String)obj, clazz);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

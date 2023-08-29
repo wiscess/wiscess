@@ -49,6 +49,7 @@ import com.wiscess.security.vue.DefaultVueLoginSuccessHandler;
 import com.wiscess.security.web.CaptchaAuthenticationDetailsSource;
 import com.wiscess.security.web.CaptchaDaoAuthenticationProvider;
 import com.wiscess.security.web.EncryptUsernamePasswordAuthenticationFilter;
+import com.wiscess.security.web.SwitchRoleAuthenticationFilter;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -364,6 +365,18 @@ public abstract class WiscessWebSecurityConfig {
     public UsernamePasswordAuthenticationFilter encryptUsernamePasswordAuthenticationFilter(boolean encryptUsername,boolean encryptPassword) throws Exception {
     	return new EncryptUsernamePasswordAuthenticationFilter(encryptUsername,encryptPassword);
     }
+    
+
+    /**
+     * 切换用户角色
+     * @return
+     */
+    public SwitchRoleAuthenticationFilter switchRoleAuthenticationFilter() throws Exception {
+    	SwitchRoleAuthenticationFilter filter = new SwitchRoleAuthenticationFilter();
+    	filter.setAuthenticationSuccessHandler(loginSuccessHandler);
+    	return filter;
+    }
+
     /**
      * 配置记住密码
      * @param http

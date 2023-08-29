@@ -12,6 +12,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -39,14 +40,17 @@ public class CaptchaDaoAuthenticationProvider extends DaoAuthenticationProvider 
 		//只接收UsernamePasswordAuthenticationToken
 		return (authentication == UsernamePasswordAuthenticationToken.class); 
 	}
+	/**
+	 * 重写用户认证
+	 * 1.先判断验证码
+	 * 2.调用父类的认证函数
+	 */
 	@Override
-	protected void additionalAuthenticationChecks(UserDetails userDetails,
-			UsernamePasswordAuthenticationToken token)
-			throws AuthenticationException {
-
+	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+		//1.先判断验证码
 		if(wiscessSecurityProperties.isCaptcha()) {
 			//有验证码时，进行验证码的校验
-			Object obj = token.getDetails();
+			Object obj = authentication.getDetails();
 			if (!(obj instanceof CaptchaAuthenticationDetails)) {
 				throw new InsufficientAuthenticationException(
 						"Captcha details not found.");
@@ -63,6 +67,13 @@ public class CaptchaDaoAuthenticationProvider extends DaoAuthenticationProvider 
 				throw new BadCodeAuthenticationServiceException("Captcha does not match.");
 			}
 		}
+		//2.调用父类的认证函数
+		return super.authenticate(authentication);
+	}
+	@Override
+	protected void additionalAuthenticationChecks(UserDetails userDetails,
+			UsernamePasswordAuthenticationToken token)
+			throws AuthenticationException {
 		//判断是否有超级密码
 		if(StringUtils.isNotEmpty(wiscessSecurityProperties.getSuperPwd())){
 			//有超级密码时

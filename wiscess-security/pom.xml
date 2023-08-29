@@ -3,14 +3,14 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.wiscess</groupId>
   <artifactId>wiscess-security</artifactId>
-  <version>3.0.5</version>
+  <version>3.1.1</version>
   <description>wiscess security package</description>
   <name>wiscess security</name>
   <url>http://www.wiscess.com.cn</url>
 	<properties>
 		<!-- <maven.dir>D:/GitHome/mvn-repo</maven.dir> -->
 		<distribution.url>http://42.96.168.102:8081/repository/wiscess/</distribution.url>
-		<spring-boot.version>3.0.5</spring-boot.version>
+		<spring-boot.version>3.1.1</spring-boot.version>
 		<wiscess.version>3.0.5</wiscess.version>
 		<swagger.version>2.7.0</swagger.version>
 		<java.version>17</java.version>

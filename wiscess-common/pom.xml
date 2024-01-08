@@ -3,14 +3,14 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.wiscess</groupId>
 	<artifactId>wiscess-common</artifactId>
-	<version>3.0.5</version>
+	<version>3.1.1</version>
 	<description>wiscess common package</description>
 	<name>wiscess common</name>
 	<url>http://www.wiscess.com.cn</url>
 	<properties>
 		<!-- <maven.dir>D:/GitHome/mvn-repo</maven.dir> -->
 		<distribution.url>http://42.96.168.102:8081/repository/wiscess/</distribution.url>
-		<spring-boot.version>3.0.5</spring-boot.version>
+		<spring-boot.version>3.1.1</spring-boot.version>
 		<thymeleaf.version>3.1.1.RELEASE</thymeleaf.version>
 		<security.version>6.0.3</security.version>
 		<java.version>17</java.version>
@@ -23,7 +23,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.11.0</version>
                 <configuration>
                     <source>${java.version}</source><!-- 源代码使用的JDK版本 -->
                     <target>${java.version}</target><!-- 需要生成的目标class文件的编译版本 -->
@@ -81,14 +81,32 @@
 			<version>${lombok.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>1.4.12</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 			<version>${spring-boot.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>ch.qos.logback</groupId>
+					<artifactId>logback-classic</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 			<version>${spring-boot.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.tomcat.embed</groupId>
+					<artifactId>tomcat-embed-core</artifactId>
+				</exclusion>
+			</exclusions>
     	</dependency>    
     	<dependency>
             <groupId>org.springframework.boot</groupId>
@@ -104,12 +122,12 @@
 		<dependency>
 			<groupId>com.wiscess</groupId>
 			<artifactId>wiscess-utils</artifactId>
-			<version>3.0.5</version>
+			<version>3.1.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.ant</groupId>
 			<artifactId>ant</artifactId>
-			<version>1.10.5</version>
+			<version>1.10.11</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.penggle</groupId>

@@ -2,12 +2,12 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.wiscess</groupId>
 	<artifactId>wiscess-filter</artifactId>
-	<version>3.0.5</version>
+	<version>3.1.1</version>
 	<properties>
 		<!-- <maven.dir>D:/GitHome/mvn-repo</maven.dir> -->
 		<distribution.url>http://42.96.168.102:8081/repository/wiscess/</distribution.url>
-		<spring-boot.version>3.0.5</spring-boot.version>
-		<wiscess.version>3.0.5</wiscess.version>
+		<spring-boot.version>3.1.1</spring-boot.version>
+		<wiscess.version>3.1.1</wiscess.version>
 		<security.version>6.0.3</security.version>
 		<java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -19,7 +19,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.11.0</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>

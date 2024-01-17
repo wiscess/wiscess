@@ -1,6 +1,6 @@
 # wiscess-filter:
 
-## 版本：v3.0.5
+## 版本：v3.2.1
 
 pom.xml
 
@@ -8,31 +8,37 @@ pom.xml
     <dependency>
         <groupId>com.wiscess</groupId>
         <artifactId>wiscess-filter</artifactId>
-        <version>3.0.5</version>
+        <version>3.2.1</version>
     </dependency>
 ```
 
 application.yml
 
 ```
-
+filter:
+  filetype:
+    errorPage: /error
+    urlPatterns:
+    
 ```
 
-#####更新时间：2023-04-19
+### 更新时间：2024-01-17
 
-#####更新内容：
+1. 适配springboot 3.2.1；
+2. 废弃META-INF\spring.factories，用spring\org.springframework.boot.autoconfigure.AutoConfiguration.imports代替；
 
-1.适配springboot 3.0.5；<br/>
-2.java版本升级到17.0.7；<br/>
-3.替换javax.servlet.\*为jakarta.servlet.\*;<br/>
+### 更新时间：2023-04-19
 
-#####更新时间：2019-01-04
+1. 适配springboot 3.0.5；
+2. java版本升级到17.0.7；
+3. 替换javax.servlet.\*为jakarta.servlet.\*;<br/>
 
-#####更新内容：
+### 更新时间：2019-01-04
+
+1. 调整xss过滤拦截器的顺序为-9999，确保该过滤器在security的filter之前执行，使得登录请求中获取用户名和密码时，也能受到过滤器影响，因此，security在获取用户名和密码时，需获取原始的request中的参数，否则xss过滤器会将加密后的username和password的字符串进行处理，导致解密失败。
+2. 调整HeaderWriterFilter的顺序为-9990，确保在security的所有处理结束之后再添加自定义的header，而不会被security默认的headerWriterFilter替换掉header中的内容。
+3. JsoupUtil提供了几种清理字符串内容的方法，如：
 <pre>
-1.调整xss过滤拦截器的顺序为-9999，确保该过滤器在security的filter之前执行，使得登录请求中获取用户名和密码时，也能受到过滤器影响，因此，security在获取用户名和密码时，需获取原始的request中的参数，否则xss过滤器会将加密后的username和password的字符串进行处理，导致解密失败。<br/>
-2.调整HeaderWriterFilter的顺序为-9990，确保在security的所有处理结束之后再添加自定义的header，而不会被security默认的headerWriterFilter替换掉header中的内容。<br/>
-3.JsoupUtil提供了几种清理字符串内容的方法，如：<br/>
   html(String)：替换所有不允许的字符，会将下列字符进行转义：<br/>
             &amp;amp;    -->  &amp;  -->  ＆<br/>
             &amp;apos;   -->  &apos;  -->  ’<br/>
@@ -52,11 +58,9 @@ application.yml
    cleanJson(String):处理Json类型的Html标签,进行xss过滤<br/>
 </pre>
 
-#####更新时间：2018-08-08
+### 更新时间：2018-08-08
 
-#####更新内容：
-
-1.适配springboot 2.0.4；
+1. 适配springboot 2.0.4；
 
 
 

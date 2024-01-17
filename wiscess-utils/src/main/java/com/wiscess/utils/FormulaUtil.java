@@ -5,9 +5,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.math.Fraction;
-
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.math.Fraction;
 
 /**
  * 计算表达式
@@ -232,8 +231,6 @@ public class FormulaUtil {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		//log.setLevel(Level.DEBUG);
-		log.info("asdf");
 		Number a=FormulaUtil.calc("(21+3)/(4\\frac{1}{2}+5*2)");
 		System.out.println(a.toString());
 		Number result=FormulaUtil.calc("14/6");

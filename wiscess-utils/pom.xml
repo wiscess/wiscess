@@ -3,12 +3,14 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.wiscess</groupId>
 	<artifactId>wiscess-utils</artifactId>
-	<version>3.1.1</version>
+	<version>${project.version}</version>
 	
 	<properties>
 		<!-- <maven.dir>D:/GitHome/mvn-repo</maven.dir> -->
 		<distribution.url>http://42.96.168.102:8081/repository/wiscess/</distribution.url>
 		<java.version>17</java.version>
+		<project.version>3.2.1</project.version>
+		<springboot.version>3.2.1</springboot.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
     <!-- 远程发布 -->
@@ -74,36 +76,36 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.26</version>
+			<version>1.18.30</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-			<version>3.11</version>
+			<version>3.14.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.alibaba.fastjson2</groupId>
 			<artifactId>fastjson2</artifactId>
-			<version>2.0.28</version>
+			<version>2.0.45</version>
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<version>1.4.12</version>
+			<version>1.4.14</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-logging</artifactId>
-			<version>3.1.1</version>
+			<version>${springboot.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<!-- 工具类集合 -->
 		<dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
-            <version>5.8.24</version>
+            <version>5.8.25</version>
         </dependency>
 	</dependencies>
 </project>

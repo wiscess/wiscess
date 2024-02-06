@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import jakarta.annotation.Priority;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
@@ -43,8 +44,11 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @ConfigurationProperties(prefix = "spring.data.redis")
 public class RedisConfig implements CachingConfigurer {
 
+	@Autowired
+	public RedisTemplate<?, ?> redisTemplate;
+	
     @Bean(name = "redisUtils")
-    public RedisUtils redisUtils(RedisTemplate<?, ?> redisTemplate){
+    public RedisUtils redisUtils(){
     	//key使用String序列化
     	redisTemplate.setKeySerializer(new StringRedisSerializer());
  

@@ -186,7 +186,7 @@ public class PdfExportUtil {
 			//获取Pdf的表单域
 			PdfAcroForm form = PdfAcroForm.getAcroForm(pdfDoc, true);
 			//获取所有的表单
-			Map<String,PdfFormField> fields = form.getFormFields();
+			Map<String,PdfFormField> fields = form.getAllFormFields();
 			for(String param:dataMap.keySet()) {
 				PdfFormField formField = fields.get(param);
 				if(formField != null) {

@@ -37,7 +37,7 @@ public class ExcelCheckUtils {
 			for(ExcelFieldDto dto:fieldList) {
 				if(title.trim().equals(dto.getTitle())) {
 					//标题匹配，记录col
-					if(dto.getIsShow()==false) {
+					if(!dto.getIsShow()) {
 						//第一次出现该字段
 						dto.setColIndex(col);
 						dto.setIsShow(true);
@@ -57,7 +57,7 @@ public class ExcelCheckUtils {
 		}
 
 		for(ExcelFieldDto dto:fieldList) {
-			if(dto.getIsShow()==false) {
+			if(!dto.getIsShow()) {
 				//System.out.println(dto.getTitle());
 			}
 		}

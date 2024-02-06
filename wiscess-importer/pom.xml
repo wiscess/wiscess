@@ -2,13 +2,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.wiscess</groupId>
   <artifactId>wiscess-importer</artifactId>
-  <version>3.0.5</version>
+  <version>3.2.1</version>
   <name>wiscess importer</name>
   <url>http://www.wiscess.com.cn</url>
 	<properties>
 		<distribution.url>http://42.96.168.102:8081/repository/wiscess/</distribution.url>
-		<wiscess.version>3.0.5</wiscess.version>
-		<spring-boot.version>3.0.5</spring-boot.version>
+		<wiscess.version>3.2.1</wiscess.version>
+		<spring-boot.version>3.2.1</spring-boot.version>
 		<java.version>17</java.version>
 	</properties>
     <build>
@@ -44,6 +44,7 @@
 			</plugin>
 			<!-- 发布插件-->
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 		        <artifactId>maven-deploy-plugin</artifactId>
 		        <version>2.8.2</version>
 		        <!-- 发布到远程仓库-->

@@ -10,8 +10,6 @@ import org.springframework.util.ReflectionUtils;
 
 public class ReflectionUserSource {
 
-	private String userPropertyToUse = "user";
-	
 	public Object getUser(UserDetails user) {
 		Method userMethod = findUserMethod(user);
 
@@ -24,6 +22,7 @@ public class ReflectionUserSource {
 	}
 	
 	private Method findUserMethod(UserDetails user) {
+		String userPropertyToUse = "user";
 		Method userMethod = ReflectionUtils.findMethod(user.getClass(),
 				userPropertyToUse, new Class[0]);
 

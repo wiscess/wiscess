@@ -98,8 +98,6 @@ public abstract class WiscessWebSecurityConfig {
 	protected LogoutSuccessHandler logoutSuccessHandler;
 	@Autowired
 	protected UserDetailsServiceImpl userDetailsService;
-	@Autowired
-	protected PasswordEncoder passwordEncoder;
 	/**
      * 1.配置权限认证，主控制器
      * @since 3.0
@@ -310,7 +308,7 @@ public abstract class WiscessWebSecurityConfig {
 		}
 		//设置密码加密方式,RSA为避免私钥泄露，验证方式用sign/verify
 
-		authProvider.setPasswordEncoder(passwordEncoder);
+		authProvider.setPasswordEncoder(passwordEncoder());
 		//设置查询用户的service
 		authProvider.setUserDetailsService(userDetailsService);
         return authProvider;

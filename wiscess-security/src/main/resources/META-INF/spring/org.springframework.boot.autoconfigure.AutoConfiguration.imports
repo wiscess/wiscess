@@ -1,4 +1,3 @@
-com.wiscess.security.WiscessSecurityProperties
 com.wiscess.security.autoconfig.CorsWebMvcConfig
 com.wiscess.security.autoconfig.JwtAuthenticationTokenAutoConfiguration
 com.wiscess.security.handler.DefaultLoginSuccessHandler

@@ -241,6 +241,7 @@ public class ExcelExportUtil {
 					wb.removeSheetAt(i);
 				}
 			}
+            wb.setForceFormulaRecalculation(true);
 			wb.write(os);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -318,6 +319,7 @@ public class ExcelExportUtil {
 					para.getDataRowSpan(), para.getTotalCol(), cellStyleList);
 
 			//单页模式不处理合并sheet操作
+            wb.setForceFormulaRecalculation(true);
 			wb.write(os);
 		} catch (Exception e) {
 			throw new ManagerException("导出出错。", e);
@@ -618,7 +620,7 @@ public class ExcelExportUtil {
 			lockedStyle=(assignedCs[cellStyle]);
 		}
 		
-		if(!locked) {
+		if(!locked && lockedStyle!=null) {
 			CellStyle lastStyle=wb.createCellStyle();
 			lastStyle.cloneStyleFrom(lockedStyle);
 			lastStyle.setLocked(false);

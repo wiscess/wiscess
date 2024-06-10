@@ -1,13 +1,10 @@
 package com.wiscess.writer;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.math.BigDecimal;
 
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.IoUtil;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.util.CellAddress;
@@ -87,17 +84,39 @@ public abstract class ExcelWriter extends ExcelReader{
 			throw e;
 		}
 	}
-	public void write(File f) throws IOException {
+	public ExcelWriter write(File f) throws IOException {
 		try {
 			FileOutputStream excelFileOutPutStream = new FileOutputStream(f);
-			// 将最新的 Excel 文件写入到文件输出流中，更新文件信息！
-			wb.write(excelFileOutPutStream);
-			 // 执行 flush 操作， 将缓存区内的信息更新到文件上
-			excelFileOutPutStream.flush();
-			// 使用后，及时关闭这个输出流对象， 好习惯，再强调一遍！
-			excelFileOutPutStream.close();
+			return flush(excelFileOutPutStream,true);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
+		return this;
 	}
+
+	public ExcelWriter flush(File f) throws IOException {
+		return flush(FileUtil.getOutputStream(f),true);
+	}
+	public ExcelWriter flush(OutputStream out) throws IOException {
+		return flush(out,false);
+	}
+	public ExcelWriter flush(OutputStream out, boolean isCloseOut) throws IOException {
+		try {
+			wb.setForceFormulaRecalculation(true);
+			// 将最新的 Excel 文件写入到文件输出流中，更新文件信息！
+			wb.write(out);
+			// 执行 flush 操作， 将缓存区内的信息更新到文件上
+			out.flush();
+			// 使用后，及时关闭这个输出流对象， 好习惯，再强调一遍！
+			out.close();
+		} catch (IOException e) {
+			throw e;
+		} finally {
+			if (isCloseOut) {
+				IoUtil.close(out);
+			}
+		}
+		return this;
+	}
+
 }

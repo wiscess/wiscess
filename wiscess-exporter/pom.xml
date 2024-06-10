@@ -2,14 +2,14 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.wiscess</groupId>
   <artifactId>wiscess-exporter</artifactId>
-  <version>3.0.5</version>
+  <version>3.2.1</version>
   <name>wiscess exporter</name>
   <url>http://www.wiscess.com.cn</url>
 	<properties>
 		<!-- <maven.dir>D:/GitHome/mvn-repo</maven.dir> -->
 		<distribution.url>http://42.96.168.102:8081/repository/wiscess/</distribution.url>
-		<wiscess-common.version>3.0.5</wiscess-common.version>
-		<spring-boot.version>3.0.5</spring-boot.version>
+		<wiscess-common.version>3.2.1</wiscess-common.version>
+		<spring-boot.version>3.2.1</spring-boot.version>
 		<java.version>17</java.version>
 	</properties>
     <build>

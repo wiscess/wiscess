@@ -1,0 +1,85 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:app="http://www.thymeleaf.org" >
+<head>
+    <title>模拟CMD界面</title>
+	<link type="image/gif" rel="shortcut icon" th:href="@{/css/favicon.gif}"/>
+	<link type="text/css" rel="stylesheet" th:href="@{/css/classic/tables.css}"/>
+	<link type="text/css" rel="stylesheet" th:href="@{/css/classic/main.css}"/>
+	<link type="text/css" rel="stylesheet" th:href="@{/css/classic/messages.css}"/>
+	<link type="text/css" rel="stylesheet" th:href="@{/css/classic/tooltip.css}"/>
+	
+	<link type="text/css" rel="stylesheet" th:href="@{/css/classic/executecmd.css}"/>
+	<link type="text/css" rel="stylesheet" th:href="@{/css/classic/scroller.css}"/>
+
+	<script type="text/javascript" th:src="@{/js/prototype.js}"></script>
+	<script type="text/javascript" th:src="@{/js/behaviour.js}"></script>
+	<script type="text/javascript" th:src="@{/js/scriptaculous/scriptaculous.js}"></script>
+	<script type="text/javascript" th:src="@{/js/jsencrypt.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/cmd.js}"></script>
+	<script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+		
+</head>
+<body>
+<div class="executeCmdMenu">
+	<ul class="options">
+		<li id="executeCmd">
+			<a href="#">
+				Execute cmd (Ctrl+Enter)
+			</a>
+		</li>
+		</li>
+		<li id="showOptions">
+			<a href="#">
+				Show options (Ctrl+Up)
+			</a>
+		</li>
+		<li id="hideOptions" style="display: none;">
+			<a href="#">
+				Hide options (Ctrl+Up)
+			</a>
+		</li>
+	</ul>
+</div>
+<div class="executeCmdContent">
+	<div id="help" class="helpMessage" style="display: none;">
+		<div class="ajax_activity"></div>
+	</div>
+	<form id="cmdForm" th:action="@{/cmd}" method="post">
+		<dl id="optionsDL" style="display: none;">
+			<dt><label for="accessKey">accessKey</label></dt>
+			<dd><input type="text" id="accessKey" name="accessKey"  class="txtInput" value="accessKey" size="10"/></dd>
+			<dt><label for="isEncrypt">是否加密传输</label></dt>
+			<dd>
+			<input type="radio" id="isEncrypt0" name="isEncrypt" th:value="0" th:checked="${isEncrypt==0}" >否
+			<input type="radio" id="isEncrypt1" name="isEncrypt" th:value="1" th:checked="${isEncrypt==1}" >是</dd>
+		</dl>
+		<dl id="cmdDL">
+			<dt><label for="cmd">命令行</label></dt>
+			<input type="hidden" id="cmdEncrypt" name="cmd"/>
+			<input type="text" id="cmd-input" placeholder="输入命令" />
+			<dd id="cmdContainer">
+				<textarea id="cmd-output" style="height:300px" ></textarea>
+				<div id="cmdDragHandle">&#160;</div>
+			</dd>
+		</dl> 
+		
+	</form>
+</div>
+
+
+ 
+    <script type="text/javascript" th:inline="javascript" >
+    var $j = jQuery.noConflict();
+	setupAjaxActions(
+			[[@{/ajax/executecmd.ajax}]]);
+	setupShortcuts();
+    new Draggable('cmdDragHandle', {
+		constraint: 'vertical',
+		change: resizeTextArea,
+		revert: revertDragHandle
+	});
+
+	</script>
+</body>
+</html>

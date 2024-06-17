@@ -1,0 +1,3 @@
+com.wiscess.cmd.autoconfig.CmdAutoConfiguration
+com.wiscess.cmd.controllers.CmdControll
+com.wiscess.cmd.controllers.ajax.ExecuteCmdController

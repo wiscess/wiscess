@@ -2,6 +2,7 @@ package com.wiscess.exporter.dto;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.function.BiFunction;
 
 import com.wiscess.utils.StringUtils;
 
@@ -19,16 +20,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AssignedSheet implements Serializable {
+public class AssignedSheet<K> implements Serializable {
 	/**
 	 * Sheet名称
 	 */
-	@Builder.Default
 	private String sheetName="Sheet1";
 	/**
 	 * 使用模板Sheet名称
 	 */
-	@Builder.Default
 	private String templateSheetName="Sheet1";
 	
 	/**
@@ -57,13 +56,11 @@ public class AssignedSheet implements Serializable {
 	/**
 	 * 数据行所占行数，默认为1
 	 */
-	@Builder.Default
 	private int dataRowSpan=1;
 	
 	/**
 	 * 新数据按新建或copy模板的方式
 	 */
-	@Builder.Default
 	private boolean needCopyTemplateRow=false;
 	
 	/**
@@ -74,13 +71,11 @@ public class AssignedSheet implements Serializable {
 	/**
 	 * 是否隐藏
 	 */
-	@Builder.Default
 	private boolean hidden=false;
 	
 	/**
 	 * 设置是否自动调整行高，默认为false，使用模板中指定的行高
 	 */
-	@Builder.Default
 	private boolean autoHeight = false;
 	/**
 	 * 每列宽度
@@ -94,11 +89,26 @@ public class AssignedSheet implements Serializable {
 //	/**
 //	 * 表头内容
 //	 */
-//	private List<AssignedCell[]> titleData;
+	private List<String[]> titleData;
 	/**
 	 * 数据内容
 	 */
-	private List<AssignedCell[]> data;
+	private List<K> data;
+	/**
+	 * 线程数量和线程内数据数量
+	 */
+	private List<ThreadDto> threadCntList;
+	/**
+	 * 动态数据获取
+	 */
+	private BiFunction<Object,Integer,List<K>> threadListAction;
+
+	private BiFunction<K,Integer,AssignedCell[]> action;
+
+	/**
+	 * 使用多线程
+	 */
+	private boolean userMultiThread=false;
 	
 	public AssignedSheet(String sheetName,String templateSheetName){
 		this.sheetName=sheetName;
@@ -110,5 +120,12 @@ public class AssignedSheet implements Serializable {
 			sheetName=sheetName.replaceAll("/", "|");
 		}
 		this.sheetName = sheetName;
+	}
+	public void setData(List<K> _data) {
+		data = _data;
+	}
+	public void setDataAction(List<K> _data,BiFunction<K,Integer,AssignedCell[]> _action) {
+		data = _data;
+		action = _action;
 	}
 }

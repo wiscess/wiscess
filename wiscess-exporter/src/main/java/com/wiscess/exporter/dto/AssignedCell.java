@@ -42,7 +42,6 @@ public class AssignedCell implements Serializable {
 	/**
 	 * 默认锁定单元格
 	 */
-	@Builder.Default
 	private boolean locked = true;
 	public AssignedCell(String cellStr,Object value){
 		this(new CellAddress(cellStr),value);

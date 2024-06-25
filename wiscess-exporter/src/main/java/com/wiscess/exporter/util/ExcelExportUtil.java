@@ -13,12 +13,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 
 import com.wiscess.common.utils.FileUtils;
+import com.wiscess.exporter.dto.ThreadDto;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -34,6 +39,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFClientAnchor;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -49,8 +55,32 @@ public class ExcelExportUtil {
 	/**
 	 * 根据模板导出文件
 	 */
-	public static String exportExcelByTemplate(ExportExcelParameter para,String filename, HttpServletResponse res,
-			List<AssignedCell[]> data){
+	public static <K> String exportExcelByTemplate(ExportExcelParameter<K> para,String filename, HttpServletResponse res,
+			List<K> data) {
+		para.setData(data);
+		return exportExcelByTemplate(para, filename, res);
+	}
+
+
+	/**
+	 * 分段查询数据和导出数据
+	 * @param <K>
+	 * @param para
+	 * @param filename
+	 * @param data
+	 * @param action
+	 * @return
+	 */
+	public static <K> void exportSXSSFExcel(ExportExcelParameter<K> para, String filename,
+											List<K> data, BiFunction<K,Integer,AssignedCell[]> action){
+
+	}
+
+
+	/**
+	 * 根据模板导出文件,支持多个sheet的导出文件
+	 */
+	public static <K> String exportExcelByTemplate(ExportExcelParameter<K> para,String filename, HttpServletResponse res){
 		try {
 			if(res!=null){
 				//输出到浏览器
@@ -61,42 +91,22 @@ public class ExcelExportUtil {
 				res.setHeader("FileName", FileUtils.encodingFileName(filename));
 				res.setHeader("Access-Control-Expose-Headers", "FileName");
 				ServletOutputStream os = res.getOutputStream();
-				ExcelExportUtil.export(para,os, data);
+				if(para.getSheets()==null) {
+					ExcelExportUtil.exportSingleExcel(para, os);
+				}else {
+					ExcelExportUtil.exportMultiExcel(para, os);
+				}
 				os.flush();
 				os.close();
 				return null;
 			}else{
 				//输出到目录
 				FileOutputStream fos = new FileOutputStream(filename);
-				ExcelExportUtil.export(para, fos,data);
-				fos.flush();
-				fos.close();	
-				return filename;
-			}
-		} catch (Exception e) {
-			throw new ManagerException("导出出错。", e);
-		}
-	}
-
-	/**
-	 * 根据模板导出文件,支持多个sheet的导出文件
-	 */
-	public static Object exportExcelByTemplate(ExportExcelParameter para,String filename, HttpServletResponse res){
-		try {
-			if(res!=null){
-				//输出到浏览器
-				res.setContentType("APPLICATION/ms-excel");
-				res.setHeader("Content-Disposition", "attachment; filename* = UTF-8''"
-						+ FileUtils.encodingFileName(filename));
-				ServletOutputStream os = res.getOutputStream();
-				ExcelExportUtil.export(para,os);
-				os.flush();
-				os.close();
-				return null;
-			}else{
-				//输出到目录
-				FileOutputStream fos = new FileOutputStream(filename);
-				ExcelExportUtil.export(para, fos);
+				if(para.getSheets()==null) {
+					ExcelExportUtil.exportSingleExcel(para, fos);
+				}else {
+					ExcelExportUtil.exportMultiExcel(para, fos);
+				}
 				fos.flush();
 				fos.close();	
 				return filename;
@@ -112,7 +122,7 @@ public class ExcelExportUtil {
 	 * @param para
 	 * @param os
 	 */
-	public static void export(ExportExcelParameter para, OutputStream os) {
+	public static <K> void exportMultiExcel(ExportExcelParameter<K> para, OutputStream os) {
 		InputStream ins = null;
 		try {
 			// 读模版文件
@@ -121,7 +131,7 @@ public class ExcelExportUtil {
 			if(para.getTemplateName().endsWith(".xls")){
 				wb=new HSSFWorkbook(ins);
 			}else{
-				wb=new XSSFWorkbook(ins);
+				wb = new SXSSFWorkbook(new XSSFWorkbook(ins),1000);
 			}
 			List<String> sheetNames = new ArrayList<String>();
 			
@@ -130,7 +140,7 @@ public class ExcelExportUtil {
 			
 			//先去掉不存在的Sheet页，只保留使用的Sheet
 			List<String> usedSheetNameList=new ArrayList<String>();
-			for (AssignedSheet aSheet : para.getSheets()) {
+			for (AssignedSheet<K> aSheet : para.getSheets()) {
 				if(!usedSheetNameList.contains(aSheet.getTemplateSheetName()))
 					usedSheetNameList.add(aSheet.getTemplateSheetName());
 			}
@@ -145,18 +155,18 @@ public class ExcelExportUtil {
 				}
 			}
 			// 创建sheet，并复制模板页中的所有行
-			for (AssignedSheet aSheet : para.getSheets()) {
+			for (AssignedSheet<K> aSheet : para.getSheets()) {
 				//
 				Sheet sheet = null;
 				String newSheetName="";
 				if(aSheet.getTemplateSheetName()
 						.equals(aSheet.getSheetName())){
 					//导出SheetName和模板Sheet名一致
-					sheet = wb.getSheet(aSheet.getTemplateSheetName());
+					sheet = getSheet(wb,aSheet.getTemplateSheetName());
 					sheetNames.add(aSheet.getSheetName());
 					newSheetName=aSheet.getSheetName();
 				}else{
-					sheet = wb.cloneSheet(wb.getSheetIndex(aSheet
+					sheet = cloneSheet(wb,wb.getSheetIndex(aSheet
 						.getTemplateSheetName()));
 					String sName=aSheet.getSheetName();
 					//System.out.println(sName+":"+sName.length());
@@ -189,15 +199,28 @@ public class ExcelExportUtil {
 				if(cellStyleList==null)
 					cellStyleList=new ArrayList<>();
 				// 输出数据
-				outputData(wb, sheet, templateDataRow, templateHlDataRow, aSheet.getDataRow(),
-						aSheet.getColumnWidths(),
-						aSheet.getData(), 
-						aSheet.getAssignedCells(), 
-						aSheet.isNeedCopyTemplateRow(),
-						aSheet.isAutoHeight(),
-						aSheet.getDataRowSpan(), aSheet.getTotalCol(),
-						cellStyleList);
-				
+				if(aSheet.isUserMultiThread()) {
+					//使用多线程导出
+					outputDataThread(wb, sheet, templateDataRow, templateHlDataRow, para.getDataRow(),
+							aSheet.getColumnWidths(),
+							aSheet.getThreadCntList(),
+							aSheet.getThreadListAction(),
+							aSheet.getAction(),
+							aSheet.getAssignedCells(),
+							cellStyleList);
+				}else {
+					outputData(wb, sheet, templateDataRow, templateHlDataRow, aSheet.getDataRow(),
+							aSheet.getColumnWidths(),
+							aSheet.getData(),
+							aSheet.getThreadListAction(),
+							aSheet.getAction(),
+							aSheet.getAssignedCells(),
+							aSheet.isNeedCopyTemplateRow(),
+							aSheet.isAutoHeight(),
+							aSheet.getDataRowSpan(), aSheet.getTotalCol(),
+							cellStyleList);
+				}
+
 				//处理合并sheet的记录
 				if(StringUtils.isEmpty(aSheet.getAppendToSheet()) || 
 						!mergedSheets.containsKey(aSheet.getAppendToSheet())){
@@ -248,6 +271,18 @@ public class ExcelExportUtil {
 			throw new ManagerException("导出出错。", e);
 		}
 	}
+	private static Sheet getSheet(Workbook wb,String sheetName) {
+		if(wb instanceof SXSSFWorkbook) {
+			return ((SXSSFWorkbook) wb).getXSSFWorkbook().getSheet(sheetName);
+		}
+		return wb.getSheet(sheetName);
+	}
+	private static Sheet cloneSheet(Workbook wb,Integer sheetIndex) {
+		if(wb instanceof SXSSFWorkbook) {
+			return ((SXSSFWorkbook) wb).getXSSFWorkbook().cloneSheet(sheetIndex);
+		}
+		return wb.cloneSheet(sheetIndex);
+	}
 	private static String subSheetName(List<String> sheetNames, String sName){
 		String result=sName;
 		if((result.length()<=31 && !sheetNames.contains(result))){
@@ -280,20 +315,22 @@ public class ExcelExportUtil {
 	/**
 	 * 单sheet页的导出处理
 	 */
-	public static void export(ExportExcelParameter para, OutputStream os,
-			List<AssignedCell[]> data) {
+	public static <K> void exportSingleExcel(ExportExcelParameter<K> para, OutputStream os) {
 		InputStream ins = null;
 		try {
 			// 读模版文件
 			// 模版文件的绝对路径
 			Workbook wb = null;
+			Sheet sheet = null;
 			ins=ExcelExportUtil.class.getResourceAsStream(para.getTemplateName());
 			if(para.getTemplateName().endsWith(".xls")){
 				wb=new HSSFWorkbook(ins);
+				sheet = wb.getSheetAt(0);
 			}else{
-				wb=new XSSFWorkbook(ins);
+				wb = new SXSSFWorkbook(new XSSFWorkbook(ins),100);
+				XSSFWorkbook xssfWorkbook = ((SXSSFWorkbook)wb).getXSSFWorkbook();
+				sheet = xssfWorkbook.getSheetAt(0);
 			}
-			Sheet sheet = wb.getSheetAt(0);
 			// 开始处理
 			Row templateDataRow = sheet.getRow(para.getDataRow().getRow());
 
@@ -311,13 +348,21 @@ public class ExcelExportUtil {
 			
 			// 输出数据
 			if(templateDataRow!=null)
-				outputData(wb, sheet, templateDataRow, templateHlDataRow, para.getDataRow(), 
-					para.getColumnWidths(),
-					data,
-					para.getAssignedCells(), para.isNeedCopyTemplateRow(), 
-					para.isAutoHeight(),
-					para.getDataRowSpan(), para.getTotalCol(), cellStyleList);
-
+				if(para.isUserMultiThread()) {
+					//使用多线程导出
+					outputDataThread(wb, sheet, templateDataRow, templateHlDataRow, para.getDataRow(),
+							para.getColumnWidths(),
+							para.getThreadCntList(),para.getThreadListAction(),para.getAction(),
+							para.getAssignedCells(),
+							cellStyleList);
+				}else {
+					outputData(wb, sheet, templateDataRow, templateHlDataRow, para.getDataRow(),
+							para.getColumnWidths(),
+							para.getData(),para.getThreadListAction(),para.getAction(),
+							para.getAssignedCells(), para.isNeedCopyTemplateRow(),
+							para.isAutoHeight(),
+							para.getDataRowSpan(), para.getTotalCol(), cellStyleList);
+				}
 			//单页模式不处理合并sheet操作
             wb.setForceFormulaRecalculation(true);
 			wb.write(os);
@@ -340,14 +385,15 @@ public class ExcelExportUtil {
 	 * @param totalCol
 	 * @param cellStyleList
 	 */
-	private static void outputData(Workbook wb, Sheet sheet, Row templateDataRow,
+	private static <K> void outputData(Workbook wb, Sheet sheet, Row templateDataRow,
 			Row templateHlDataRow, AssignedCell dataRow, 
 			Integer[] columnWidths,
-			List<AssignedCell[]> data,
+			List<K> data,
+		    BiFunction<Object,Integer,List<K>> threadListAction,
+		    BiFunction<K,Integer,AssignedCell[]> action,
 			List<AssignedCell> assignedCells, boolean isNeedCopyTemplateRow,
 			boolean autoHeight,
 			int dataRowSpan, int totalCol, List<AssignedCell> cellStyleList) {
-		Drawing<?> patriarch = sheet.createDrawingPatriarch();
 
 		int rowNumber = 0;
 		int rowNum = 0;
@@ -393,13 +439,25 @@ public class ExcelExportUtil {
 			}
 		}
 		// 输出数据
-		for (AssignedCell[] rowData : data) {
+		int index=0;
+		if(data==null && threadListAction!=null) {
+			//一次性获取数据
+			data = threadListAction.apply("", index);
+		}
+		//单线程方式
+		for (K oneData : data) {
+			index++;
+			AssignedCell[] rowData = null;
+			if(oneData instanceof AssignedCell[]) {
+				rowData = (AssignedCell[])oneData;
+			}else {
+				rowData = (AssignedCell[])action.apply(oneData,index);
+			}
 			if(totalCol==0)
 				totalCol=rowData.length;
 			// 如果是用复制行的模式，则调用copyRows复制出需要的内容行，否则，创建新行，并初始化每列数据
 			if (isNeedCopyTemplateRow) {
-				copySheetRows(sheet, rowNum, rowNum + dataRowSpan - 1, rowNumber,
-						totalCol);
+				copySheetRows(sheet, rowNum, rowNum + dataRowSpan - 1, rowNumber);
 			} else {
 				// 创建多行，把所有列都创建出来，并使用样式处理
 				for (int i = 0; i < dataRowSpan; i++) {
@@ -420,166 +478,306 @@ public class ExcelExportUtil {
 					}
 				}
 			}
+			//输出一行数据
+			singleOneRowData(wb,sheet,rowNumber,rowData,autoHeight,normalCs,highlightCs,assignedCs);
 
-			// 根据列总数处理所有列
-			for (int k = 0; k < rowData.length; k++) {
-				CellStyle lastStyle=null;
-				AssignedCell acell = rowData[k];
-				if (acell == null)
-					continue;
-				// 对特殊样式的处理
-				if (acell.getDataStyle() == AssignedCell.DATA_STYLE_PHOTO) {
-					// 写照片
-					// 处理照片
-					ClientAnchor anchor = null;
-					if(wb instanceof HSSFWorkbook){
-						anchor = new HSSFClientAnchor(0, 0, 0, 0,
-							(short) acell.getCol(), rowNumber + acell.getRow(),
-							(short) (acell.getColEnd() + 1), rowNumber
-									+ acell.getRowEnd() + 1);
-					}else{
-						anchor = new XSSFClientAnchor(0, 0, 0, 0,
-								(short) acell.getCol(), rowNumber + acell.getRow(),
-								(short) (acell.getColEnd() + 1), rowNumber
-										+ acell.getRowEnd() + 1);
-					}
-					anchor.setAnchorType(AnchorType.MOVE_DONT_RESIZE);
-					// 2008-09-19 
-					if (StringUtils.isNotEmpty((String) acell.getValue())) {
-						if (((String) acell.getValue()).startsWith("http")) {
-							try {
-								patriarch.createPicture(anchor, loadPicture(
-												new URL((String) acell.getValue()), wb));
-							} catch (MalformedURLException e) {
-							}
-						} else {
-							patriarch.createPicture(anchor, loadPicture(
-									(String) acell.getValue(), wb));
-						}
-					}
-					continue;
-				}
-				// 根据属性合并单元格
-				if (acell.getRow() != acell.getRowEnd()
-						|| acell.getCol() != acell.getColEnd())
-					sheet.addMergedRegion(new CellRangeAddress(rowNumber
-							+ acell.getRow(), rowNumber + acell.getRowEnd(),
-							acell.getCol(), acell.getColEnd()));
-
-				Row row = sheet.getRow(rowNumber + acell.getRow());
-				if (row == null)
-					row = sheet.createRow(rowNumber + acell.getRow());
-				Cell cell = row.getCell(acell.getCol());
-				if (cell == null)
-					cell = row.createCell(acell.getCol());
-				
-				//设置单元格样式
-				lastStyle=getLastStyle(wb,acell, normalCs, highlightCs, assignedCs);
-				if(lastStyle==null)
-					lastStyle=cell.getCellStyle();
-				//调整行高,变为自动换行
-				if(autoHeight){
-					lastStyle.setWrapText(true);
-				}
-				cell.setCellStyle(lastStyle);
-				// 根据类型设置
-				CellType cType = CellType.STRING;
-				
-				Object value = acell.getValue();
-				if (acell.getDataStyle() == AssignedCell.DATA_STYLE_FORMULA) {
-					//公式,根据当前行解析公式,如R[-2]C/R[-1]C
-					//Pattern p
-					try {
-						String cformula=value.toString();
-						if(cformula.startsWith("="))
-							cformula=cformula.substring(1);
-						if(StringUtils.isNotEmpty(cformula))
-							cell.setCellFormula(cformula);
-						else
-							cell.setCellFormula(cell.getCellFormula());
-					}catch(Exception e) {
-					}
-					continue;
-				}
-				
-				if (value == null) {
-					cell.setCellValue("");
-				} else {
-					if (value instanceof Integer || value instanceof Double) {
-						cType = CellType.NUMERIC;
-						try {
-							cell.setCellValue(new BigDecimal(value.toString())
-									.doubleValue());
-						} catch (Exception e) {
-							cell.setCellType(CellType.STRING);
-							cell.setCellValue(value.toString());
-						}
-					} else {
-						cType = CellType.STRING;
-						cell.setCellType(cType);
-						cell.setCellValue(value.toString());
-					}
-				}
-				
-			}
 			rowNumber += dataRowSpan;
 		}
 		// 输出指定位置的值
+		assignedCellsData(assignedCells,wb,sheet);
+
+		//重新计算公式
+		adjustformula(sheet);
+	}
+
+	private static void assignedCellsData(List<AssignedCell> assignedCells, Workbook wb, Sheet sheet) {
 		if (assignedCells != null && assignedCells.size() > 0) {
-			for (AssignedCell cell : assignedCells) {
-				if (cell.getValue() == null)
+			for (AssignedCell acell : assignedCells) {
+				if (acell.getValue() == null)
 					continue;
-				if (cell.getRow() > sheet.getLastRowNum()) {
-					currRow = sheet.createRow(cell.getRow());
-					for (int j = 0; j < totalCol; j++) {
-						currRow.createCell(j);
-					}
-				}
-				if (sheet.getRow(cell.getRow()) == null) {
-					sheet.createRow(cell.getRow());
+
+				if (sheet.getRow(acell.getRow()) == null) {
+					sheet.createRow(acell.getRow());
 				}
 				// 根据属性合并单元格
-				if (cell.getRow() != cell.getRowEnd()
-						|| cell.getCol() != cell.getColEnd()) {
-					sheet.addMergedRegion(new CellRangeAddress(cell.getRow(), cell.getRowEnd(),
-							cell.getCol(), cell.getColEnd()));
+				if (acell.getRow() != acell.getRowEnd()
+						|| acell.getCol() != acell.getColEnd()) {
+					sheet.addMergedRegion(new CellRangeAddress(acell.getRow(), acell.getRowEnd(),
+							acell.getCol(), acell.getColEnd()));
 				}
-				Cell assignCell = sheet.getRow(cell.getRow()).getCell(
-						cell.getCol());
-				if (assignCell == null) {
-					assignCell = sheet.getRow(cell.getRow()).createCell(
-							cell.getCol());
-				}
-				if(cell.isLocked()==false){
+				Cell assignCell = getCell(getRow(sheet,acell.getRow()), acell.getCol());
+
+				if(!acell.isLocked()){
 					CellStyle cs=wb.createCellStyle();
 					cs.cloneStyleFrom(assignCell.getCellStyle());
 					cs.setLocked(false);
 					assignCell.setCellStyle(cs);
 				}
-				Object value = cell.getValue();
-				CellType cType = CellType.STRING;
-				if (value == null) {
-					assignCell.setCellValue("");
-				} else {
-					if (value instanceof Integer || value instanceof Double) {
-						cType = CellType.NUMERIC;
-						try {
-							assignCell.setCellValue(new BigDecimal(value.toString())
-									.doubleValue());
-						} catch (Exception e) {
-							assignCell.setCellType(CellType.STRING);
-							assignCell.setCellValue(value.toString());
+				setCell(assignCell,acell);
+			}
+		}
+	}
+
+	/**
+	 * 多线程方式导出文件，只处理基础的表格数据，不含图片、公式等操作
+	 * @param <K>
+	 * @param wb
+	 * @param sheet
+	 * @param templateDataRow
+	 * @param templateHlDataRow
+	 * @param dataRow
+	 * @param columnWidths
+	 * @param action
+	 * @param assignedCells
+	 * @param cellStyleList
+	 */
+	private static <K> void outputDataThread(Workbook wb, Sheet sheet, Row templateDataRow,
+											 Row templateHlDataRow, AssignedCell dataRow,
+											 Integer[] columnWidths,
+											 List<ThreadDto> threadCntList,
+											 BiFunction<Object,Integer,List<K>> threadListAction,
+											 BiFunction<K,Integer,AssignedCell[]> action,
+											 List<AssignedCell> assignedCells,
+											 List<AssignedCell> cellStyleList) {
+		//带格式的模板行
+		int rowNum = templateDataRow.getRowNum();
+		int colNum = templateDataRow.getLastCellNum();
+		//设置列宽
+		if(columnWidths!=null){
+			for (int j = 0; j < columnWidths.length; j++) {
+				sheet.setColumnWidth(j, columnWidths[j]*40);
+			}
+		}
+		//设置样式
+		CellStyle[] normalCs=new CellStyle[templateDataRow.getPhysicalNumberOfCells()];
+		CellStyle[] highlightCs=new CellStyle[templateHlDataRow.getPhysicalNumberOfCells()];
+		//指定位置的样式
+		CellStyle[] assignedCs=new CellStyle[cellStyleList.size()];
+		for(int i=0;i<cellStyleList.size();i++) {
+			AssignedCell cs=cellStyleList.get(i);
+			Cell cell=sheet.getRow(cs.getRow()).getCell(cs.getCol());
+			CellStyle lastStyle=wb.createCellStyle();
+			if(cell!=null) {
+				lastStyle.cloneStyleFrom(cell.getCellStyle());
+			}
+			assignedCs[i]=lastStyle;
+		}
+		//记录各位置的样式
+		// 创建所有的列
+		for (int j = 0; j < templateDataRow.getPhysicalNumberOfCells(); j++) {
+			//记录样式
+			CellStyle lastStyle=wb.createCellStyle();
+			if(templateDataRow.getCell(j)!=null)
+				lastStyle.cloneStyleFrom(templateDataRow.getCell(j).getCellStyle());
+			normalCs[j]=lastStyle;
+			CellStyle lastHlStyle=wb.createCellStyle();
+			if(templateHlDataRow.getCell(j)!=null)
+				lastHlStyle.cloneStyleFrom(templateHlDataRow.getCell(j).getCellStyle());
+			highlightCs[j]=lastHlStyle;
+		}
+
+		//每个线程处理的最大的数量
+//		//采用多线程方式处理
+		int threadNum=threadCntList.size();
+		// 创建一个线程池
+		ExecutorService exec = Executors.newFixedThreadPool(threadNum);
+		// 定义一个任务集合
+		List<Callable<Integer>> tasks = new ArrayList<Callable<Integer>>();
+
+		int totalCnt=0;
+		// 确定每条线程的数据
+		for (int i = 0; i < threadNum; i++) {
+			//任务线程
+			//每个线程的数据量已经预置到threadCntList中，根据数据计算当前显示的起始行
+			final Integer threadIndex = i;
+			final String threadName = threadCntList.get(i).getThreadName();
+			final Integer threadStartIndex = totalCnt;
+			totalCnt+=threadCntList.get(i).getThreadSize();
+			tasks.add(new Callable<Integer>() {
+				@Override
+				public Integer call() throws Exception {
+					try {
+						//获取第i个线程的数据
+						final List<K> taskData = threadListAction.apply(threadName, threadIndex);
+						//如果没有数据，退出，停止后续线程的处理
+						if(taskData==null || taskData.size()==0) {
+							return 0;
 						}
-					} else {
-						cType = CellType.STRING;
-						assignCell.setCellType(cType);
-						assignCell.setCellValue(value.toString());
+
+						//计算当前线程的序号
+						int index = threadStartIndex;
+						//计算当前线程的处理行号
+						int rowNumber = rowNum+threadStartIndex;
+						//多线程方式下，SXSSFWorkbook不支持多线程写入同一个sheet,因此创建新的sheet保存数据
+						//rowNumber=0;
+						for (K oneData : taskData) {
+							index++;
+							AssignedCell[] rowData = null;
+							if(oneData instanceof AssignedCell[]) {
+								rowData = (AssignedCell[])oneData;
+							}else {
+								rowData = (AssignedCell[])action.apply(oneData,index);
+							}
+							//输出一行数据
+							singleOneRowData(wb,sheet,rowNumber,rowData,false,normalCs,highlightCs,assignedCs);
+							rowNumber ++;
+						}
+
+						return 0;
+					} catch (Exception e) {
+						e.printStackTrace();
+					} finally {
+					}
+					return null;
+				}
+			});
+		}
+		try {
+			exec.invokeAll(tasks);
+
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		// 关闭线程池
+		exec.shutdown();
+
+		// 输出指定位置的值
+		assignedCellsData(assignedCells,wb,sheet);
+		if (assignedCells != null && assignedCells.size() > 0) {
+			for (AssignedCell acell : assignedCells) {
+				if (acell.getValue() == null)
+					continue;
+				Row currRow = null;
+				if (acell.getRow() > sheet.getLastRowNum()) {
+					currRow = getRow(sheet,acell.getRow());
+					for (int j = 0; j < colNum; j++) {
+						getCell(currRow,j);
 					}
 				}
+				currRow = getRow(sheet,acell.getRow());
+				// 根据属性合并单元格
+				if (acell.getRow() != acell.getRowEnd()
+						|| acell.getCol() != acell.getColEnd()) {
+					sheet.addMergedRegion(new CellRangeAddress(acell.getRow(), acell.getRowEnd(),
+							acell.getCol(), acell.getColEnd()));
+				}
+				Cell cell = getCell(currRow, acell.getCol());
+
+				setCell(cell,acell);
 			}
 		}
 		//重新计算公式
 		adjustformula(sheet);
+	}
+	private static void singleOneRowData(Workbook wb,Sheet sheet,int rowNumber,AssignedCell[] rowData,boolean autoHeight,
+										 CellStyle[] normalCs,CellStyle[] highlightCs,CellStyle[] assignedCs){
+		// 根据列总数处理所有列
+		for (int k = 0; k < rowData.length; k++) {
+			CellStyle lastStyle=null;
+			AssignedCell acell = rowData[k];
+			if (acell == null)
+				continue;
+			// 对特殊样式的处理
+			if (acell.getDataStyle() == AssignedCell.DATA_STYLE_PHOTO) {
+				Drawing<?> patriarch = sheet.createDrawingPatriarch();
+				// 写照片
+				// 处理照片
+				ClientAnchor anchor = null;
+				if(wb instanceof HSSFWorkbook){
+					anchor = new HSSFClientAnchor(0, 0, 0, 0,
+							(short) acell.getCol(), rowNumber + acell.getRow(),
+							(short) (acell.getColEnd() + 1), rowNumber
+							+ acell.getRowEnd() + 1);
+				}else{
+					anchor = new XSSFClientAnchor(0, 0, 0, 0,
+							(short) acell.getCol(), rowNumber + acell.getRow(),
+							(short) (acell.getColEnd() + 1), rowNumber
+							+ acell.getRowEnd() + 1);
+				}
+				anchor.setAnchorType(AnchorType.MOVE_DONT_RESIZE);
+				// 2008-09-19
+				if (StringUtils.isNotEmpty((String) acell.getValue())) {
+					if (((String) acell.getValue()).startsWith("http")) {
+						try {
+							patriarch.createPicture(anchor, loadPicture(
+									new URL((String) acell.getValue()), wb));
+						} catch (MalformedURLException e) {
+						}
+					} else {
+						patriarch.createPicture(anchor, loadPicture(
+								(String) acell.getValue(), wb));
+					}
+				}
+				continue;
+			}
+
+			// 根据属性合并单元格
+			if (acell.getRow() != acell.getRowEnd()
+					|| acell.getCol() != acell.getColEnd())
+				sheet.addMergedRegion(new CellRangeAddress(rowNumber
+						+ acell.getRow(), rowNumber + acell.getRowEnd(),
+						acell.getCol(), acell.getColEnd()));
+
+			Row row = getRow(sheet,rowNumber + acell.getRow());
+
+			// 创建所有的列
+			Cell cell = getCell(row,acell.getCol());
+
+			//设置单元格样式
+			lastStyle=getLastStyle(wb,acell, normalCs, highlightCs, assignedCs);
+			if(lastStyle==null)
+				lastStyle=cell.getCellStyle();
+			//调整行高,变为自动换行
+			if(autoHeight){
+				lastStyle.setWrapText(true);
+			}
+			cell.setCellStyle(lastStyle);
+
+			setCell(cell, acell);
+		}
+	}
+	private static synchronized Row getRow(Sheet sheet, int rownum) {
+		Row currRow = sheet.getRow(rownum);
+		if(currRow==null)
+			currRow = sheet.createRow(rownum);
+		return currRow;
+	}
+	private static synchronized Cell getCell(Row row, int col) {
+		Cell cell = row.getCell(col);
+		if(cell==null)
+			cell = row.createCell(col);
+		return cell;
+	}
+	private static synchronized void setCell(Cell cell,AssignedCell acell) {
+		if (acell.getDataStyle() == AssignedCell.DATA_STYLE_FORMULA) {
+			//公式,根据当前行解析公式,如R[-2]C/R[-1]C
+			try {
+				String cformula=acell.getValue().toString();
+				if(cformula.startsWith("="))
+					cformula=cformula.substring(1);
+				if(StringUtils.isNotEmpty(cformula))
+					cell.setCellFormula(cformula);
+				else
+					cell.setCellFormula(cell.getCellFormula());
+			}catch(Exception e) {
+			}
+			return;
+		}
+		Object value=acell.getValue();
+		if (value == null) {
+			cell.setCellValue("");
+		} else {
+			if (value instanceof Integer || value instanceof Double) {
+				try {
+					cell.setCellValue(new BigDecimal(value.toString())
+							.doubleValue());
+				} catch (Exception e) {
+					cell.setCellValue(value.toString());
+				}
+			} else {
+				cell.setCellValue(value.toString());
+			}
+		}
 	}
 	/**
 	 * 
@@ -590,7 +788,8 @@ public class ExcelExportUtil {
 	 * @param assignedCs
 	 * @return
 	 */
-	private static CellStyle getLastStyle(Workbook wb,AssignedCell acell,CellStyle[] normalCs,CellStyle[] highlightCs,CellStyle[] assignedCs){
+	private static CellStyle getLastStyle(Workbook wb,AssignedCell acell,
+										  CellStyle[] normalCs,CellStyle[] highlightCs,CellStyle[] assignedCs){
 		// 使用样式
 		CellStyle lockedStyle=null;
 		Integer dataStyle=acell.getDataStyle();
@@ -710,7 +909,7 @@ public class ExcelExportUtil {
 	 * @param pPosition
 	 */
 	protected static void copySheetRows(Sheet sheet, int pStartRow, int pEndRow,
-			int pPosition, int colTotal) {
+			int pPosition) {
 		if ((pStartRow == -1) || (pEndRow == -1)) {
 			return;
 		}

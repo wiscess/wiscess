@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
  */
 @AllArgsConstructor
 @NoArgsConstructor
-public class ExportExcelParameter extends AssignedSheet{
+public class ExportExcelParameter<K> extends AssignedSheet<K>{
 
 	/**
 	 * 模板文件名称
@@ -22,7 +22,7 @@ public class ExportExcelParameter extends AssignedSheet{
 	/**
 	 * Sheet列表
 	 */
-	private List<AssignedSheet> sheets;
+	private List<AssignedSheet<K>> sheets;
 	
 	public String getTemplateName() {
 		return templateName;
@@ -32,11 +32,11 @@ public class ExportExcelParameter extends AssignedSheet{
 		this.templateName = templateName;
 	}
 
-	public List<AssignedSheet> getSheets() {
+	public List<AssignedSheet<K>> getSheets() {
 		return sheets;
 	}
 
-	public void setSheets(List<AssignedSheet> sheets) {
+	public void setSheets(List<AssignedSheet<K>> sheets) {
 		this.sheets = sheets;
 	}
 

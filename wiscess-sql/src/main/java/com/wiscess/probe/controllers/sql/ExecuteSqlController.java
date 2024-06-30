@@ -22,6 +22,8 @@ import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
+import jakarta.servlet.http.HttpSession;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +49,7 @@ public class ExecuteSqlController {
 	@RequestMapping(path = "/sql/recordset.ajax")
 	protected ModelAndView handleContext(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
+	    HttpSession sess = request.getSession(false);
 		// 刷新session数据
 		DataSourceTestInfo sessData = DataSourceTestInfo.refreshSession(request);
 
@@ -114,7 +117,11 @@ public class ExecuteSqlController {
 						}
 					}
 				}
-
+				
+				synchronized (sess) {
+		          sessData.setResults(results);
+		        }
+				
 				ModelAndView mv = new ModelAndView(getViewName(), "results", results);
 				mv.addObject("rowsAffected", String.valueOf(rowsAffected));
 				mv.addObject("rowsPerPage", String.valueOf(sessData.getRowsPerPage()));

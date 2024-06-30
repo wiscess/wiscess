@@ -126,9 +126,9 @@ function executeSql() {
 	Element.show(resultsH3Id);
 	//encode
 	if($('isEncrypt1').checked){
-		encrypt($("sql"),$("sqlEncrypt"));
+		$("sqlEncrypt").value=encryptLong($("sql").value);
 	}else{
-		$("sqlEncrypt").value=$("sql").value;
+		$("sqlEncrypt").value=encodeBase64($("sql").value);
 	}
 	$('kkpager').innerHTML = "";
 	var params = Form.serialize(formId);

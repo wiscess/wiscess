@@ -22,6 +22,8 @@ import org.springframework.web.bind.ServletRequestUtils;
 
 import com.wiscess.utils.RSA_Encrypt;
 
+import cn.hutool.core.codec.Base64;
+
 /**
  * A class to store data source test tool related data in a session attribute.
  */
@@ -76,10 +78,13 @@ public class DataSourceTestInfo implements Serializable {
 			int isEncrypt = ServletRequestUtils.getIntParameter(request, "isEncrypt", 1);
 			String dataSourceName = ServletRequestUtils.getStringParameter(request, "dataSourceName", "dataSource");
 			
-			String sql = ServletRequestUtils.getStringParameter(request, isEncrypt == 1 ? "sql" : "sqlWithHtml", null);
+			String 
+			sql = ServletRequestUtils.getStringParameter(request, isEncrypt == 1 ? "sql" : "sqlWithHtml", null);
 			try {
 				if (isEncrypt == 1) {
 					sql = RSA_Encrypt.decrypt(sql, true);
+				}else {
+					sql = Base64.decodeStr(sql);
 				}
 
 			    sessData.addQueryToHistory(sql);

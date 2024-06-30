@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 
@@ -30,6 +29,7 @@ import com.wiscess.cmd.util.CommandUtils;
 import com.wiscess.cmd.util.MyProcess;
 import com.wiscess.utils.RSA_Encrypt;
 
+import cn.hutool.core.codec.Base64;
 /**
  * Executes an SQL query through a given datasource to test database
  * connectivity. Displays results returned by the query.
@@ -69,7 +69,11 @@ public class ExecuteCmdController {
 			return null;
 		}
 		try {
-			commandLine=RSA_Encrypt.decrypt(commandLine,true);
+			if (isEncrypt == 1) {
+				commandLine = RSA_Encrypt.decrypt(commandLine, true);
+			}else {
+				commandLine = Base64.decodeStr(commandLine);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			wrongCommand(response,"commandLine is unused");
@@ -102,7 +106,7 @@ public class ExecuteCmdController {
 		try {
 			response.setCharacterEncoding("UTF-8");
 			response.setStatus(200);
-			response.getWriter().print(Base64.getEncoder().encodeToString(result.getBytes("UTF-8")));
+			response.getWriter().print(Base64.encode(result.getBytes("UTF-8")));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

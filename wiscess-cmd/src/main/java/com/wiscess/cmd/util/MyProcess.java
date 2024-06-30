@@ -35,6 +35,8 @@ public class MyProcess extends Thread{
 	 */
 	public long lastActionTime;
 	
+	public boolean isWindows;
+	
 	/**
 	 * 创建进程
 	 */
@@ -42,11 +44,14 @@ public class MyProcess extends Thread{
 		// 启动进程
 		try {
 	        String osName = System.getProperty("os.name");
-			process = new ProcessBuilder(osName.toLowerCase().contains("windows")?"cmd":"/bin/sh")
+	        isWindows = osName.toLowerCase().contains("windows");
+	        ProcessBuilder processBuilder=new ProcessBuilder(isWindows?"cmd":"/bin/sh");
+	        // 设置环境变量确保编码为UTF-8
+			process = processBuilder
 					.redirectErrorStream(true)
 					.start();
 			// 获取进程的输入流和输出流
-			writer = new PrintWriter(new OutputStreamWriter(process.getOutputStream(), "GBK"), true);
+			writer = new PrintWriter(new OutputStreamWriter(process.getOutputStream(),(isWindows?"GBK":"UTF-8")), true);
 			//记录最后一次操作时间
 			lastActionTime = System.currentTimeMillis();
 		} catch (Exception e) {
@@ -58,7 +63,7 @@ public class MyProcess extends Thread{
 		try {
 	        // 读取命令的输出和错误流
 	        InputStream inputStream = process.getInputStream();
-	        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream,"GBK"));
+	        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream,(isWindows?"GBK":"UTF-8")));
 	        String line;
 	        while ((line = reader.readLine()) != null) {
 	        	outList.add(line);

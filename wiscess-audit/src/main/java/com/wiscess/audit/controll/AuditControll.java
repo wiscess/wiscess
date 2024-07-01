@@ -1,5 +1,7 @@
 package com.wiscess.audit.controll;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,7 +32,8 @@ import com.wiscess.utils.StringUtils;
 public class AuditControll {
 	
 	private static final Integer DEFAULT_PAGESIZE = 10;
-	
+
+	protected static SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd");
 	@Autowired
 	private AuditService auditService;
 	/**
@@ -42,6 +45,7 @@ public class AuditControll {
 			"statusCode",
 			"method",
 			"url",
+			"orderBy",
 			"accessStartDate","accessEndDate",
 			"timeMin","timeMax"};
 	/**
@@ -72,12 +76,24 @@ public class AuditControll {
 		}
 		//获取页面上的参数
 		Map<String, Object> map=RequestUtils.parseParameters(request, pageParameters);
+		String orderBy=(String)RequestUtils.parseParameters(request, "orderBy", String.class);
+		if(map.get("accessStartDate")==null || map.get("accessStartDate").equals("")) {
+			//默认查当天的日志
+        	map.put("accessStartDate",getCurrDate());
+		}
+		if(StringUtils.isEmpty(orderBy)) {
+			//根据参数，查询账号数据
+			orderBy="create_time desc";
+		}
 				
 		//根据参数，查询账号数据
 		Page<Map<String, Object>> page=auditService.findAuditLogPage(map, getPageAble(request));
 		model.addAttribute("page",page);
 		model.addAllAttributes(map);
 		return "audit/list";
+	}
+	public String getCurrDate() {
+		return sd.format(new Date());
 	}
 	@RequestMapping(value="/report")
 	public String report(HttpServletRequest request,Model model) {

@@ -12,7 +12,6 @@ package com.wiscess.cmd.controllers.ajax;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -23,7 +22,6 @@ import java.util.List;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
 
 import com.wiscess.cmd.util.CommandUtils;
 import com.wiscess.cmd.util.MyProcess;
@@ -35,13 +33,10 @@ import cn.hutool.core.codec.Base64;
  * connectivity. Displays results returned by the query.
  */
 @Controller
-@Slf4j
 public class ExecuteCmdController {
 
 	@RequestMapping(path = "/ajax/executecmd.ajax")
-	protected ModelAndView handleContext(HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-		//SessCmdDto sessData = SessCmdDto.refreshSession(request);
+	protected void handleContext(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 		int isEncrypt = ServletRequestUtils.getIntParameter(request, "isEncrypt", 1);
 		String commandLine = ServletRequestUtils.getStringParameter(request, isEncrypt == 1 ? "cmd" : "cmdWithHtml", null);
@@ -49,24 +44,23 @@ public class ExecuteCmdController {
 		
 		if ((commandLine == null) || (commandLine.equals("")) || (commandLine.trim().equals(""))) {
 			wrongCommand(response,"commandLine is null");
-			return null;
+			return ;
 		}
 		if ((accessKey == null) || (accessKey.equals("")) || (accessKey.trim().equals(""))) {
 			wrongCommand(response,"accessKey is null");
-			return null;
+			return ;
 		}
 		try {
 			accessKey = RSA_Encrypt.decrypt(accessKey, true);
 		} catch (Exception e) {
 			e.printStackTrace();
 			wrongCommand(response,"accessKey is unused");
-			return null;
+			return ;
 		}
 		SimpleDateFormat sdf=new SimpleDateFormat("yyyyMMddHH");
 		if(!accessKey.equalsIgnoreCase("accessKey") && !accessKey.equalsIgnoreCase(sdf.format(new Date()))){
-			System.out.println("accessKey is wrong");
 			wrongCommand(response,"accessKey is wrong");
-			return null;
+			return ;
 		}
 		try {
 			if (isEncrypt == 1) {
@@ -77,7 +71,7 @@ public class ExecuteCmdController {
 		} catch (Exception e) {
 			e.printStackTrace();
 			wrongCommand(response,"commandLine is unused");
-			return null;
+			return ;
 		}
 		
 		//取进程
@@ -88,8 +82,6 @@ public class ExecuteCmdController {
 			sb.append(r+"\r\n");
 		});
 		resultCommand(response, sb.toString());
-		
-		return null;
 	}
 	
 	private void wrongCommand(HttpServletResponse response,String wrongdetail){

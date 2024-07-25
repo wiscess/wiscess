@@ -11,6 +11,10 @@ oracle.autoCreateDatabase:
 oracle.checkTableIsExist:
   SELECT COUNT(1) FROM ALL_TABLES WHERE OWNER = UPPER('${dbName}') 
   AND TABLE_NAME = UPPER('audit_log')
+#检查黑名单列表是否存在  
+oracle.checkBlacklistTableIsExist:
+  SELECT COUNT(1) FROM ALL_TABLES WHERE OWNER = UPPER('${dbName}') 
+  AND TABLE_NAME = UPPER('blacklist')
 #自动创建表和索引和序列
 oracle.autoCreateTable:
   create table ${dbName}.audit_log(
@@ -31,13 +35,26 @@ oracle.autoCreateTable:
   )TABLESPACE TBS_${dbName};
   CREATE INDEX idx_audit_username ON ${dbName}.audit_log (user_name ASC);
   create	sequence	${dbName}.seq_audit_log	start	with	1
-  
+
+#自动创建表和索引
+oracle.autoCreateBlacklistTable:
+  create table ${dbName}.blacklist(
+    ip varchar(255) NOT NULL,
+    create_time DATE,
+    KEY idx_ip (ip asc)
+  )TABLESPACE TBS_${dbName};
+  CREATE INDEX idx_ip ON ${dbName}.blacklist (ip ASC);
 #保存日志
 oracle.insertAuditLog:
   insert into ${dbName}.audit_log
   (log_id,application_name,user_id,user_name,method,url,remote_addr,session_id,parameters,create_time,status_code,return_time,time_cousuming)
   values(${dbName}.seq_audit_log.nextval,?,?,?,?,?,?,?,?,?,?,?,?)
   
+#插入黑名单
+oracle.insertBlacklist:
+  insert into ${dbName}.blacklist
+  (ip,create_time)
+  values(:ip,sysdate)
 #查询审计记录
 oracle.findAuditLogPage:
   select 
@@ -101,4 +118,7 @@ oracle.queryBlackIpList.in5Minutes:
   and user_name='未登录'
   group by remote_addr
   having COUNT(distinct session_id)>=10
+  UNION
+  SELECT ip FROM ${dbName}.blacklist
+  where floor(to_number(sysdate-create_time)*24*60)<=30
     

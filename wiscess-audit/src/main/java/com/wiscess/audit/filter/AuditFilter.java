@@ -62,6 +62,8 @@ public class AuditFilter extends OncePerRequestFilter implements OrderedFilter{
 	 * 是否启用黑名单功能
 	 */
 	private boolean blackIpEnabled = true;
+	private List<String> blackUrls = new ArrayList<>();
+	private RequestMatcher blacklistMatcher = null;
 	/**
 	 * 审计的method
 	 */
@@ -95,6 +97,14 @@ public class AuditFilter extends OncePerRequestFilter implements OrderedFilter{
 		});
 		if(!ignoreMatchers.isEmpty())
 			ignoreMatcher=new OrRequestMatcher(ignoreMatchers);
+		//黑名单url的资源
+		blackUrls.addAll(properties.getBlackUrls());
+		List<RequestMatcher> blacklistMatchers=new ArrayList<>();
+		blackUrls.forEach(url->{
+			blacklistMatchers.add(new AntPathRequestMatcher(url));
+		});
+		if(!blacklistMatchers.isEmpty())
+			blacklistMatcher=new OrRequestMatcher(blacklistMatchers);
 		
 		//审计哪些方法
 		String auditMethod=properties.getAuditMethod();
@@ -121,6 +131,13 @@ public class AuditFilter extends OncePerRequestFilter implements OrderedFilter{
 			throws ServletException, IOException {
 		AuditLog auditLog=null;
 		try {
+			if(isMatches(blacklistMatcher,request)) {
+				//该请求认定为攻击访问，直接加入黑名单
+				auditService.addBlacklist(request.getRemoteAddr());
+				//输出访问被拒绝的页面
+//				response.sendError(444, "error");
+//				return;
+			}
 			//初始化审计日志数据
 			if(enabled) {
 				//启用审计功能
@@ -141,8 +158,7 @@ public class AuditFilter extends OncePerRequestFilter implements OrderedFilter{
 			//判断是否在黑名单中
 			if(blackIpEnabled && auditService.isBlackip(request.getRemoteAddr())) {
 				//输出访问被拒绝的页面
-				response.sendError(999, "error");
-				//writeAccessDenied(request,response);
+				response.sendError(444, "error");
 				return;
 			}
 			//执行下一个过滤器

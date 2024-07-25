@@ -32,12 +32,17 @@ public class AuditProperties {
 	 * 排除审计的资源
 	 */
 	private List<String> excludes=new ArrayList<>();
-	
+
 	/**
 	 * 忽略参数的请求
 	 * since 2.0
 	 */
 	private List<String> simples=new ArrayList<>();
+	/**
+	 * url判断为黑名单的请求
+	 * since 2.0
+	 */
+	private List<String> blackUrls=new ArrayList<>();
 	
 	/**
 	 * 审计记录的级别
@@ -121,5 +126,13 @@ public class AuditProperties {
 
 	public void setBlackIp(boolean blackIp) {
 		this.blackIp = blackIp;
+	}
+
+	public List<String> getBlackUrls() {
+		return blackUrls;
+	}
+
+	public void setBlackUrls(List<String> blackUrls) {
+		this.blackUrls = blackUrls;
 	}
 }

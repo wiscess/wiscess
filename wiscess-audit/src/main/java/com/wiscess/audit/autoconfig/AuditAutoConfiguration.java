@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.wiscess.audit.autoconfig.properties.AuditProperties;
-import com.wiscess.audit.controll.AuditControll;
 import com.wiscess.audit.filter.AuditFilter;
 import com.wiscess.audit.jdbc.AuditService;
 
@@ -33,27 +32,4 @@ public class AuditAutoConfiguration implements WebMvcConfigurer{
 	public AuditFilter auditFilter(){
 		return new AuditFilter(properties,auditService);
 	}
-
-	/**
-	 * 定义审计功能拦截器
-	 */
-	
-//	@Override
-//	public void addInterceptors(InterceptorRegistry registry) {
-//		registry.addInterceptor(auditInterceptor());
-//	}
-//	
-//	@Bean
-//	public AuditInterceptor auditInterceptor() {
-//		AuditInterceptor ai=new AuditInterceptor(properties,auditService);
-//		return ai;
-//	}
-	/**
-	 * 定义审计查看的控制器
-	 */
-	@Bean
-	public AuditControll auditControll(){
-		return new AuditControll();
-	}
-	
 }

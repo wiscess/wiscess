@@ -1,3 +1,4 @@
 com.wiscess.audit.autoconfig.AuditAutoConfiguration
 com.wiscess.audit.jdbc.AuditService
 com.wiscess.audit.jdbc.Schedule
+com.wiscess.audit.controll.AuditControll

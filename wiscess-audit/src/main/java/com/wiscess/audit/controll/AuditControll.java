@@ -1,6 +1,7 @@
 package com.wiscess.audit.controll;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 
@@ -17,8 +18,10 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.wiscess.audit.jdbc.AuditService;
+import com.wiscess.common.R;
 import com.wiscess.common.utils.RequestUtils;
 import com.wiscess.utils.StringUtils;
 
@@ -65,7 +68,12 @@ public class AuditControll {
 		//判断是否存在指定的审计用户
  		//从session中读取指定参数
 		String userName=auditService.getCurrentUser(session, "NOT_LOGIN_USER");
-		return auditUsername.indexOf(userName)!=-1;
+		//可以通过session修改
+		if(session.getAttribute("audit.view.username")!=null) {
+			auditUsername=session.getAttribute("audit.view.username").toString();
+		}
+		//全匹配
+		return Arrays.asList(auditUsername.split(",")).contains(userName);
 	}
 	@RequestMapping(value="/list")
 	public String list(HttpServletRequest request,Model model) {
@@ -92,7 +100,7 @@ public class AuditControll {
 		model.addAllAttributes(map);
 		return "audit/list";
 	}
-	public String getCurrDate() {
+	private String getCurrDate() {
 		return sd.format(new Date());
 	}
 	@RequestMapping(value="/report")
@@ -111,10 +119,25 @@ public class AuditControll {
 		model.addAllAttributes(map);
 		return "audit/report";
 	}
+	/**
+	 * 显示当前Blacklist
+	 * @param request
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping("/blacklist")
+	public R showBlacklist(HttpServletRequest request) {
+		if(!isAuditUser(request)) {
+			//获取不到userName，未登录或者未设置当前登录用户信息，跳到登录页
+			//未发现
+			return R.error("请重新登录");
+		}
+		return R.ok().data(auditService.getBlacklist());
+	}
 	private Integer getIntParameter(HttpServletRequest request,String paraName){
 		String paraValue=request.getParameter(paraName);
 		try{
-			return new Integer(paraValue);
+			return Integer.parseInt(paraValue);
 		}catch(Exception e){
 			return null;
 		}

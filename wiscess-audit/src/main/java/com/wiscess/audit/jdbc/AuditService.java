@@ -69,6 +69,7 @@ public class AuditService extends JdbcJpaSupport{
 	 * 黑名单列表
 	 */
 	private List<String> blackIpList=new ArrayList<>();
+
 	/**
 	 * 检测并创建审计数据库和表
 	 * @return
@@ -111,11 +112,16 @@ public class AuditService extends JdbcJpaSupport{
 			}
 			//数据库创建成功
 			//检查表是否存在
-			Integer result=(Integer)queryForObject(currentDbType+".checkTableIsExist", params,Integer.class);
-			if(result==0) {
+			if((Integer)queryForObject(currentDbType+".checkTableIsExist", params,Integer.class)==0) {
 				//表不存在，创建表
 				updateBatch(currentDbType+".autoCreateTable",params);
 				log.debug("auto create table audit_log success.");
+			}
+			//检查表是否存在
+			if((Integer)queryForObject(currentDbType+".checkBlacklistTableIsExist", params,Integer.class)==0) {
+				//表不存在，创建表
+				updateBatch(currentDbType+".autoCreateBlacklistTable",params);
+				log.debug("auto create table blacklist success.");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -180,8 +186,6 @@ public class AuditService extends JdbcJpaSupport{
  		synchronized (AuditService.class) {
 			auditList.add(log);
 		}
- 		//TODO 测试代码，直接保存
- 		//batchSave();
 	}
   	
 	/**
@@ -389,6 +393,15 @@ public class AuditService extends JdbcJpaSupport{
 	}
 	
 	/**
+	 * 显示黑名单列表
+	 * @return
+	 */
+	public List<String> getBlacklist() {
+		synchronized (blackIpList) {
+			return blackIpList;
+		}
+	}
+	/**
 	 * 刷新黑名单列表
 	 */
 	public void refreshBlackIpList(Map<String, Object> map) {
@@ -415,6 +428,23 @@ public class AuditService extends JdbcJpaSupport{
 	public boolean isBlackip(String ip) {
 		synchronized (blackIpList) {
 			return blackIpList.contains(ip);
+		}
+	}
+	/**
+	 * 加入黑名单
+	 * @param ip
+	 */
+	public void addBlacklist(String ip) {
+		synchronized (blackIpList) {
+			if(!blackIpList.contains(ip)) {
+				//不存在时，插入到数据库中，只记录第一次
+				//执行保存
+				Map<String, Object> params=new HashMap<>();
+				params.put("dbName", auditDbName);
+				params.put("ip", ip);
+				update(currentDbType+".insertBlacklist", params);
+				blackIpList.add(ip);
+			}
 		}
 	}
 }

@@ -131,9 +131,10 @@ public class AuditFilter extends OncePerRequestFilter implements OrderedFilter{
 			throws ServletException, IOException {
 		AuditLog auditLog=null;
 		try {
+			String ip = AuditService.getIpAddress(request);
 			if(isMatches(blacklistMatcher,request)) {
 				//该请求认定为攻击访问，直接加入黑名单
-				auditService.addBlacklist(request.getRemoteAddr());
+				auditService.addBlacklist(ip);
 				//输出访问被拒绝的页面
 //				response.sendError(444, "error");
 //				return;
@@ -156,7 +157,7 @@ public class AuditFilter extends OncePerRequestFilter implements OrderedFilter{
 				}
 			}
 			//判断是否在黑名单中
-			if(blackIpEnabled && auditService.isBlackip(request.getRemoteAddr())) {
+			if(blackIpEnabled && auditService.isBlackip(ip)) {
 				//输出访问被拒绝的页面
 				response.sendError(444, "error");
 				return;

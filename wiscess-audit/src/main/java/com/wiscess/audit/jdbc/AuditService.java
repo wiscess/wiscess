@@ -198,7 +198,7 @@ public class AuditService extends JdbcJpaSupport{
 	private String getAttribute(HttpSession session,String attr,String defaultValue) {
 		return session.getAttribute(attr)==null?defaultValue:session.getAttribute(attr).toString();
 	}
-	private String getIpAddress(HttpServletRequest request){
+	public static String getIpAddress(HttpServletRequest request){
 		String ip = "";
 		try {
 			ip = request.getHeader("x-real-ip");
